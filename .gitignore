@@ -1,0 +1,45 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node / CDK
+node_modules/
+cdk.out/
+*.tsbuildinfo
+dist/
+
+# Build artifacts (too large for git)
+.cache/
+build/
+generated/
+*.gds
+*.gds.gz
+*.lef
+*.def
+*.vcd
+*.fst
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Local orchestrator state
+~/.cache/semi-design/
+traces/
+local-sqlite/
