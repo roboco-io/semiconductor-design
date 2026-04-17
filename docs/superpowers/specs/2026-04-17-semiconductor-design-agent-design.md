@@ -418,10 +418,12 @@ MetricVector = {
 
 ## 16. 열린 결정 (이터레이션 1 수행 중 확정)
 
-- Planner의 crossover 구체 알고리즘 (현재: LLM 제안 기반 단순 교차)
-- Fargate Spot vs On-Demand 혼합 정책 (회수율이 높을 시)
-- 위키 ingest 자동화 시점 판단 기준 (페이지 수, lint 경고 수 등)
-- 대시보드 프레임워크 최종 (Next.js 정적 확정, 템플릿 미정)
+모두 `issues/` 디렉토리에 등록되어 추적된다.
+
+- [#001](../../../issues/001-planner-crossover-algorithm.md) Planner의 crossover 알고리즘 (blocks W4)
+- [#002](../../../issues/002-fargate-spot-vs-ondemand-mix.md) Fargate Spot vs On-Demand 혼합 정책 (blocks W3)
+- [#003](../../../issues/003-wiki-ingest-automation-trigger.md) 위키 ingest 자동화 전환 기준
+- [#004](../../../issues/004-dashboard-framework-decision.md) 대시보드 프레임워크 최종 (blocks W5)
 
 ## 17. 부록 — 주요 참고 리소스
 
