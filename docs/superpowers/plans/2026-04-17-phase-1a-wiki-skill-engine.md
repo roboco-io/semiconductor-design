@@ -149,7 +149,7 @@ Expected: `1 passed`
 - [ ] **Step 6: 커밋**
 
 ```bash
-git add pyproject.toml Makefile src/ tests/
+git add pyproject.toml uv.lock Makefile src/ tests/
 git commit -m "chore: scaffold uv project with pytest baseline"
 ```
 
