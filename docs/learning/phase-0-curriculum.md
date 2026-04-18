@@ -18,7 +18,7 @@
 
 ### A. 반도체 하드웨어 기초 — full
 - [x] A1. 트랜지스터·CMOS
-- [ ] A2. 디지털 로직 게이트 (AND/OR/NOT/NAND + Flip-flop)
+- [x] A2. 디지털 로직 게이트 (AND/OR/NOT/NAND + Flip-flop)
 - [ ] A3. 클럭·타이밍·동기/비동기
 - [ ] A4. 조합 회로 vs 순차 회로
 
