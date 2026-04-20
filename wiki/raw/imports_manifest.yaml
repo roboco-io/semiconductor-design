@@ -1,0 +1,118 @@
+$schema: null
+version: "0.1.0"
+date: 2026-04-19
+curator: claude-opus-4-7
+phase: K1
+intent: >
+  AI+반도체 설계 도전적 연구의 방향 판단을 위한 지식 기반 bootstrap.
+  축별 seminal+recent 자료를 wiki/raw/papers/k1-*.md에 저장,
+  Phase 1b semi-design-wiki 스킬 구현 시 개별 source card로 분해 예정.
+
+axes:
+  alpha:
+    title: "LLM for HDL"
+    raw_file: wiki/raw/papers/k1-alpha-llm-for-hdl.md
+    source_count: 12
+    meta_lists:
+      - https://github.com/CatIIIIIIII/RTL-LLM-Paper-List
+      - https://github.com/Thinklab-SJTU/Awesome-LLM4EDA
+    resources:
+      - { id: verilogeval, title: "VerilogEval (2023, V2 2025)", url: https://arxiv.org/abs/2309.07544, tags: [benchmark, foundational] }
+      - { id: rtllm, title: "RTLLM (ASP-DAC 2024)", url: https://github.com/hkust-zhiyao/RTLLM, tags: [benchmark, open-source-impl] }
+      - { id: cvdp, title: "CVDP (NVIDIA 2025)", url: https://arxiv.org/abs/2506.14074, tags: [benchmark, critical-read] }
+      - { id: chipnemo, title: "ChipNeMo (NVIDIA 2023)", url: https://arxiv.org/abs/2311.00176, tags: [foundational] }
+      - { id: rtlcoder, title: "RTLCoder (TCAD 2024/2025)", url: https://arxiv.org/abs/2312.08617, tags: [open-source-impl] }
+      - { id: verigen, title: "VeriGen (TODAES 2024)", url: https://arxiv.org/abs/2308.00708, tags: [foundational, open-source-impl] }
+      - { id: mage, title: "MAGE (2024)", url: https://arxiv.org/abs/2412.07822, tags: [multi-agent, recent-SOTA] }
+      - { id: verilogcoder, title: "VerilogCoder (AAAI 2025)", url: https://d1qx31qr3h6wln.cloudfront.net/publications/2408.08927v1_arXiv.pdf, tags: [multi-agent] }
+      - { id: assertllm, title: "AssertLLM (ASP-DAC 2025)", url: https://arxiv.org/abs/2402.00386, tags: [multi-agent, open-source-impl] }
+      - { id: evolve, title: "EvolVE (2026)", url: https://arxiv.org/abs/2601.18067, tags: [recent-SOTA, critical-read] }
+      - { id: rl-verilog-testbench, title: "RL with Testbench Feedback + CorrectBench (2024/2025)", url: https://arxiv.org/abs/2504.15804, tags: [recent-SOTA] }
+      - { id: llm-verilog-survey-2025, title: "LLM for Verilog + LLMs for EDA surveys (2025)", url: https://arxiv.org/abs/2512.00020, tags: [survey] }
+
+  beta:
+    title: "Agentic EDA + Autotuning + ML for Chip Flows"
+    raw_file: wiki/raw/papers/k1-beta-agentic-eda.md
+    source_count: 12
+    resources:
+      - { id: orfs-agent, title: "ORFS-agent (2025)", url: https://arxiv.org/abs/2506.08332, tags: [recent-SOTA, open-source-impl, critical-read], note: "overlaps our prior MVP" }
+      - { id: autoeda, title: "AutoEDA (2025/2026)", url: https://arxiv.org/abs/2508.01012, tags: [recent-SOTA] }
+      - { id: dawn-agentic-eda-survey, title: "The Dawn of Agentic EDA survey (2026)", url: https://arxiv.org/abs/2512.23189, tags: [survey] }
+      - { id: orfs-autotuner, title: "ORFS AutoTuner + METRICS2.1", url: https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts, tags: [open-source-impl, foundational], note: "baseline for ORFS-agent" }
+      - { id: autodmp, title: "AutoDMP (NVIDIA ISPD 2023)", url: https://research.nvidia.com/publication/2023-03_autodmp-automated-dreamplace-based-macro-placement, tags: [autotuner-impl, foundational] }
+      - { id: alphachip, title: "AlphaChip (Nature 2021 + 2024 Addendum)", url: https://www.nature.com/articles/s41586-021-03544-w, tags: [foundational, RL-for-chip] }
+      - { id: false-dawn, title: "The False Dawn (arXiv 2306.09633)", url: https://arxiv.org/abs/2306.09633, tags: [critical-read, RL-for-chip] }
+      - { id: chip-has-sailed, title: "That Chip Has Sailed (arXiv 2411.10053)", url: https://arxiv.org/abs/2411.10053, tags: [critical-read, RL-for-chip] }
+      - { id: circuitnet-2, title: "CircuitNet 2.0 (ICLR 2024)", url: https://openreview.net/forum?id=nMFSUjxMIl, tags: [foundational, open-source-impl] }
+      - { id: bo-autotuner-bundle, title: "PTPT + RankTuner + MO-TuRBO", url: https://ieeexplore.ieee.org/document/9758073, tags: [autotuner-impl] }
+      - { id: chipnemo-beta, title: "ChipNeMo (NVIDIA 2023)", url: https://arxiv.org/abs/2311.00176, tags: [foundational], note: "duplicate of alpha.chipnemo" }
+      - { id: commercial-copilots, title: "Cadence Cerebrus/JedAI + Synopsys DSO.ai/Copilot + Siemens Solido", url: https://www.cadence.com/en_US/home/tools/digital-design-and-signoff/soc-implementation-and-floorplanning/cadence-cerebrus-ai-studio.html, tags: [commercial-copilot] }
+
+  gamma:
+    title: "Open-Source EDA Stack + DL Accelerator Templates"
+    raw_file: wiki/raw/papers/k1-gamma-opensource-eda.md
+    source_count: 15
+    resources:
+      - { id: openroad, title: "OpenROAD", url: https://github.com/The-OpenROAD-Project/OpenROAD, tags: [tooling, critical-read] }
+      - { id: librelane-2-4, title: "LibreLane 2.4.0 (2025-07-17)", url: https://fossi-foundation.org/blog/2025-08-17-librelane, tags: [tooling, critical-read], note: "supersedes efabless/openlane2" }
+      - { id: yosys, title: "Yosys 0.5x (2025-2026)", url: https://github.com/YosysHQ/yosys/releases, tags: [tooling] }
+      - { id: verilator, title: "Verilator 5.038/5.042 (2025)", url: https://github.com/verilator/verilator/releases, tags: [tooling] }
+      - { id: cocotb, title: "cocotb 2.0.1 (2025-11)", url: https://github.com/cocotb/cocotb/releases, tags: [tooling] }
+      - { id: klayout, title: "KLayout", url: https://github.com/KLayout/klayout, tags: [tooling] }
+      - { id: open-pdks, title: "open_pdks sky130A/B + gf180mcuD", url: https://github.com/RTimothyEdwards/open_pdks, tags: [pdk, critical-read] }
+      - { id: tiny-tapeout-2025, title: "Tiny Tapeout 2025 retrospective", url: https://www.zerotoasiccourse.com/post/year_update_2025/, tags: [tape-out-pipeline, status-report, critical-read] }
+      - { id: efabless-shutdown, title: "Efabless shutdown (Feb 2025)", url: https://www.eenewseurope.com/en/tiny-tapeout-hit-as-efabless-closes/, tags: [tape-out-pipeline, critical-read], note: "invalidates prior Iter 3 Efabless Shuttle plan" }
+      - { id: chipyard, title: "Chipyard 1.13.0 (2024-09-30)", url: https://github.com/ucb-bar/chipyard/releases, tags: [accel-template] }
+      - { id: gemmini, title: "Gemmini v0.7.1 (main only)", url: https://github.com/ucb-bar/gemmini, tags: [accel-template, critical-read] }
+      - { id: nvdla, title: "NVDLA", url: https://github.com/nvdla, tags: [accel-template] }
+      - { id: tvm-vta, title: "Apache TVM-VTA", url: https://github.com/apache/tvm-vta, tags: [accel-template] }
+      - { id: cfu-playground, title: "CFU Playground", url: https://github.com/google/CFU-Playground, tags: [accel-template] }
+      - { id: mlperf-tiny-v1-3, title: "MLPerf Tiny v1.3 (2025-09-24)", url: https://mlcommons.org/2025/09/mlperf-tiny-v1-3-tech/, tags: [benchmark, critical-read], note: "uplift from prior v1.2 target" }
+
+  delta:
+    title: "Research Memory + LLM Wikis + AutoResearch"
+    raw_file: wiki/raw/papers/k1-delta-research-memory.md
+    source_count: 13
+    exclusions:
+      - { id: memory-survey-unverified, reason: "arXiv 2603.07670 verification failed" }
+    resources:
+      - { id: karpathy-llm-wiki, title: "Karpathy LLM Wiki gist (2026-04)", url: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f, tags: [foundational, critical-read] }
+      - { id: llm-wiki-v2-ghumare, title: "LLM Wiki v2 (Ghumare)", url: https://gist.github.com/rohitg00/2067ab416f7bbe447c1977edaaa681e2, tags: [production-pattern] }
+      - { id: qmd, title: "tobi/qmd", url: https://github.com/tobi/qmd, tags: [hybrid-search, production-pattern] }
+      - { id: lancedb-hybrid, title: "LanceDB hybrid search", url: https://www.lancedb.com/blog/hybrid-search-combining-bm25-and-semantic-search-for-better-results-with-lan-1358038fe7e6, tags: [hybrid-search] }
+      - { id: embedding-atlas, title: "apple/embedding-atlas (2025)", url: https://github.com/apple/embedding-atlas, tags: [hybrid-search, production-pattern] }
+      - { id: letta, title: "Letta (MemGPT)", url: https://github.com/letta-ai/letta, tags: [memory-arch, production-pattern] }
+      - { id: mem0, title: "Mem0 (arXiv 2504.19413)", url: https://arxiv.org/abs/2504.19413, tags: [memory-arch] }
+      - { id: a-mem, title: "A-MEM (arXiv 2502.12110)", url: https://arxiv.org/abs/2502.12110, tags: [memory-arch, critical-read] }
+      - { id: voyager, title: "Voyager (arXiv 2305.16291)", url: https://arxiv.org/abs/2305.16291, tags: [self-improving-agent, foundational] }
+      - { id: reflexion, title: "Reflexion (NeurIPS 2023)", url: https://arxiv.org/abs/2303.11366, tags: [self-improving-agent, foundational] }
+      - { id: generative-agents, title: "Generative Agents (UIST 2023)", url: https://arxiv.org/abs/2304.03442, tags: [foundational, memory-arch] }
+      - { id: adas, title: "ADAS (ICLR 2025)", url: https://arxiv.org/abs/2408.08435, tags: [self-improving-agent, critical-read] }
+      - { id: anthropic-multi-agent-research, title: "Anthropic multi-agent research system (2025-06)", url: https://www.anthropic.com/engineering/multi-agent-research-system, tags: [production-pattern, critical-read] }
+
+totals:
+  sources_collected: 52
+  sources_excluded: 1
+  critical_read_count_min: 14
+
+cross_axis_signals:
+  - signal: "report-grounded agent operation (.rpt / .def / STA slack as structured memory)"
+    axes: [beta, gamma, delta]
+  - signal: "template-breaking microarchitecture + executable memory (Voyager + EvolVE)"
+    axes: [alpha, delta]
+  - signal: "process novelty > absolute PPA"
+    axes: [alpha, beta, gamma, delta]
+  - signal: "Efabless shutdown (Feb 2025) invalidates prior tape-out plans"
+    axes: [gamma]
+    severity: high
+  - signal: "OpenLane2 → LibreLane 2.4 rename (FOSSi Foundation)"
+    axes: [gamma]
+    severity: medium
+  - signal: "ORFS-agent (2025) already exists — our prior 'ORFS autotuning MVP' is no longer novel by itself"
+    axes: [beta]
+    severity: high
+
+next_actions:
+  - task_id: "12"
+    description: "Write direction-judgment report citing these sources"
+  - description: "Phase 1b: implement semi-design-wiki ingest workflow to decompose these into individual source cards under wiki/raw/papers/*.md"
