@@ -1,14 +1,26 @@
 ---
 id: 002
-title: Fargate Spot vs On-Demand 혼합 정책 확정
-status: open
+title: Fargate Spot retry/fallback 정책 (구 Spot vs On-Demand 혼합)
+status: partially-resolved (Spot 확정 2026-04-19; 재시도 정책만 남음)
 type: design-decision
-related_spec: docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md#16
-iteration: 1
-blocks: [W3]
+related_spec: docs/superpowers/specs/2026-04-19-integrated-research-program-design.md#8
+layer: L1
+iteration: G1
+blocks: [L1 파생 spec, KG-D pass]
 ---
 
-# 002. Fargate Spot vs On-Demand 혼합 정책
+# 002. Fargate Spot retry/fallback 정책 (구 Spot vs On-Demand 혼합)
+
+## 재배치 노트 (2026-04-19)
+
+Fargate Spot 사용은 overview spec §6 아키텍처에서 확정됨. 이 이슈는 이제 **재시도 + fallback 정책**으로 축소되고 L1 파생 spec + **G1 kill gate KG-D** (§8) 대응 범위.
+
+- **KG-D 기준**: 긴 PnR(>20분) job이 Spot pre-emption 후 **최대 2회 재시도로 완주율 ≥ 80%**.
+- 아래 원 옵션 C(Fallback 큐)가 KG-D 충족 시 기본. 미달 시 B(세대 후반 On-Demand 강제) 혼합.
+
+실측 기반 결정은 L1 파생 spec 작성 중 진행. 아래 원본 내용은 history로 유지.
+
+---
 
 ## 배경
 

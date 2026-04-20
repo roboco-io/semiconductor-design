@@ -1,14 +1,25 @@
 ---
 id: 001
-title: Planner의 crossover 알고리즘 확정
-status: open
+title: Planner의 structural mutation operator 설계 (구 crossover 알고리즘)
+status: open (재정의 2026-04-19)
 type: design-decision
-related_spec: docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md#16
-iteration: 1
-blocks: [W4]
+related_spec: docs/superpowers/specs/2026-04-19-integrated-research-program-design.md#10
+layer: L3
+iteration: G3
+blocks: [L3 파생 spec]
 ---
 
-# 001. Planner의 crossover 알고리즘 확정
+# 001. Planner의 structural mutation operator 설계 (구 crossover 알고리즘)
+
+## 재배치 노트 (2026-04-19)
+
+원 이슈는 구 spec의 evolutionary loop 맥락. 통합 프로그램 overview spec §10에서 본 이슈는 **L3 파생 spec 범위**로 재배치되며, 단순 parameter crossover가 아니라 **Open-Ideation 에이전트의 structural mutation operator 설계**로 재정의된다.
+
+핵심 질문: parameter vector 조합이 아닌 **구조적 변주 생성 전략**을 어떻게 설계할 것인가. 여기서 "구조적"은 overview spec 부록 C.1~C.4 knob exclusion list에 **없는** transform을 의미한다. H1b "non-knob structural patch" 지표(§4.1·§5.1) 달성이 본 이슈의 평가 기준.
+
+새 옵션 도출은 L3 파생 spec 작성 시점에 수행. 아래 원본 내용은 history로 유지.
+
+---
 
 ## 배경
 

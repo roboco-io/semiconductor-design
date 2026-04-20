@@ -1,14 +1,29 @@
 ---
 id: 003
-title: Wiki ingest 자동화 전환 기준
-status: open
+title: Wiki ingest 자동화 + QMD reindex 전략 (L2 substrate)
+status: open (expanded 2026-04-19)
 type: design-decision
-related_spec: docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md#8.5
-iteration: 1→2
-blocks: []
+related_spec: docs/superpowers/specs/2026-04-19-integrated-research-program-design.md#3.2
+layer: L2
+iteration: G2
+blocks: [L2 파생 spec]
 ---
 
-# 003. Wiki ingest 자동화 전환 기준
+# 003. Wiki ingest 자동화 + QMD reindex 전략 (L2 substrate)
+
+## 재배치 노트 (2026-04-19)
+
+QMD 검색층 도입이 MVP 범위로 확정(overview spec §6 Knowledge plane)되면서 이 이슈는 **L2 파생 spec 범위**로 재배치. 단순 "언제 자동 ingest로 전환하는가"에서 확장 — "QMD 인덱스 갱신 + findings/failures 생성 + skill library 등록 자동화 수준" 전체가 이 이슈의 대상.
+
+- **M1 (G1 완료 시)**: QMD corpus 수동 빌드, ingest 수동
+- **M2 (G2 구현 중)**: `L2.lint.check()`의 duplicate-finding rule 자동 alert, ingest는 수동
+- **M3 (G2 완료 시)**: 새 finding 생성 시 QMD reindex 자동 + skill library 업데이트 자동
+
+Interfaces는 overview spec §3.2 contract table 참조: `L2.memory.recall()`, `L2.skill_library.query()`, `L2.lint.check()`.
+
+아래 원 옵션 A/B/C/D는 L2 파생 spec에서 재검토. History 유지.
+
+---
 
 ## 배경
 

@@ -1,14 +1,26 @@
 ---
 id: 004
-title: 대시보드 프레임워크 최종 확정
-status: open
+title: Observability 대시보드 scope 재평가 (L1 operational vs L3 scientific)
+status: open (scope 재평가 2026-04-19)
 type: design-decision
-related_spec: docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md#5.1
-iteration: 1
-blocks: [W5]
+related_spec: docs/superpowers/specs/2026-04-19-integrated-research-program-design.md
+layer: L1 or L3 (선행 질문)
+iteration: G1 또는 G3
+blocks: []
 ---
 
-# 004. 대시보드 프레임워크 최종 확정
+# 004. Observability 대시보드 scope 재평가 (L1 operational vs L3 scientific)
+
+## 재배치 노트 (2026-04-19)
+
+통합 프로그램 overview spec은 Iter 1 MVP 범위에서 대시보드를 **선택 사항**으로 둔다 — 관측성은 L1 Process의 CloudWatch + DDB 쿼리로 최소 확보 가능(spec §8·§11). 본 이슈의 **선행 질문**은 대시보드가 L1인지 L3인지.
+
+- **L1 operational 관점**: candidate status, cost, Spot 회수율, KG-A~KG-E 통과 현황, lockfile 검증 — 운영자가 실험 진행을 감시
+- **L3 scientific 관점**: Pareto frontier, finding corpus 성장, skill library reuse, complete H1a/H1b/H1c 대시보드 — 논문 figure 1차 대시보드
+
+두 관점은 **서로 다른 대시보드**가 될 수 있다. L1/L3 파생 spec 작성 단계에서 명확화. 아래 원 옵션 A/B/C는 구체 스택 비교 — 관점 선행 결정 후 재검토. History 유지.
+
+---
 
 ## 배경
 
