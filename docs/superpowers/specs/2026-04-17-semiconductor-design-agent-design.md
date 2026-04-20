@@ -1,4 +1,15 @@
-# Semiconductor Design Agent — 설계 문서
+# Semiconductor Design Agent — 설계 문서 (ARCHIVED 2026-04-19)
+
+> **⚠️ ARCHIVED — SUPERSEDED by** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md`
+>
+> 본 스펙은 K1 지식 기반 조사(2026-04-19, `docs/knowledge-base/2026-04-19-k1-direction-report.md`) 결과로 무효화된 다음 가정을 포함한다:
+> - `efabless/openlane2@main` 스택 참조 (LibreLane 2.4로 rename 및 FOSSi 이관)
+> - MLPerf Tiny v1.2 목표 (v1.3 streaming wakeword로 갱신)
+> - Iter 3 Efabless Shuttle 테이프아웃 (Efabless 2025-02 셧다운으로 폐기)
+> - 단순 autotuning MVP가 novelty를 갖는다는 가정 (ORFS-agent 2025 출현으로 무효)
+> - 주단위 W1-W8 일정 (태스크·의존성 그래프로 교체)
+>
+> **이 문서는 이력 보존을 위해 유지된다.** 신규 작업은 superseding spec을 참조.
 
 | | |
 |---|---|
@@ -6,7 +17,9 @@
 | **작성자** | Jung Do Hyun (serithemage@gmail.com) |
 | **프로젝트 경로** | `roboco-io/research/semiconductor-design` |
 | **이터레이션** | 1 (MVP) |
-| **상태** | Draft — 브레인스토밍 합의 완료, 구현 계획 대기 |
+| **상태** | **ARCHIVED** (2026-04-19) — superseded by `2026-04-19-integrated-research-program-design.md` |
+| **Supersedes** | — |
+| **Superseded by** | `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` |
 
 ---
 
