@@ -56,3 +56,9 @@ docs/superpowers/plans/drafts/
 
 # semi-run CLI runtime artifact (written by `init` to CWD for Makefile convenience)
 .last-run-id
+
+# graphify evaluation & output (2026-04-22)
+tmp/graphify-eval/
+build/graph/
+graphify-out/
+.graphify-cache/
