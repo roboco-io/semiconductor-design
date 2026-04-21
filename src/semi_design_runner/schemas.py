@@ -7,6 +7,7 @@ ResourceOverrides, ExperimentalParameters) per spec §4.1.
 """
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -67,3 +68,47 @@ class Spec(_StrictBase):
     seed: int
     l1_lockfile_sha: str
     full_lockfile_sha: str | None = None
+
+
+RunStatus = Literal[
+    "clean", "drc_fail", "lvs_fail", "sta_fail",
+    "tool_crash", "spot_reclaimed_max", "rejected_not_in_g1",
+    "budget_exceeded", "in_progress",
+]
+
+
+class StageTiming(_StrictBase):
+    stage: StageName
+    started_at: datetime
+    ended_at: datetime
+    exit_code: int
+    cost_usd: float
+    fargate_vcpu: int
+    fargate_memory_mb: int
+
+
+class Metrics(_StrictBase):
+    area_um2: float
+    power_mw: float | None
+    max_freq_mhz: float | None
+    wns_ns: float | None
+    tns_ns: float | None
+    drc_violations: int
+    runtime_s: float
+
+
+class RunArtifact(_StrictBase):
+    run_id: str
+    spec_uri: str
+    status: RunStatus
+    metrics: Metrics | None
+    metrics_uri: str
+    reports: list[str]
+    provenance_uri: str
+    l1_lockfile_sha: str
+    full_lockfile_sha: str | None = None
+    cost_usd: float
+    cost_breakdown: list[StageTiming]
+    ddb_write_count: int
+    started_at: datetime
+    ended_at: datetime | None
