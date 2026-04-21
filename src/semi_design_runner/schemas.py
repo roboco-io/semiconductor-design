@@ -70,6 +70,12 @@ class Spec(_StrictBase):
     full_lockfile_sha: str | None = None
 
 
+# Terminal + in-progress run states. Producers:
+#   clean/drc_fail/lvs_fail/sta_fail/tool_crash ← Fargate runner (Docker ENTRYPOINT)
+#   spot_reclaimed_max ← KG-D deterministic SIMULATE_SPOT_RECLAIM path
+#   rejected_not_in_g1 ← Task A13 ValidateSpec (design ∉ G1 scope)
+#   budget_exceeded    ← Task A12 cost guard (F1 pre-run or F2 in-run)
+#   in_progress        ← initial DDB write before any stage completes
 RunStatus = Literal[
     "clean", "drc_fail", "lvs_fail", "sta_fail",
     "tool_crash", "spot_reclaimed_max", "rejected_not_in_g1",
@@ -78,6 +84,8 @@ RunStatus = Literal[
 
 
 class StageTiming(_StrictBase):
+    """Per-stage Fargate timing + cost. One entry per completed stage in RunArtifact.cost_breakdown."""
+
     stage: StageName
     started_at: datetime
     ended_at: datetime
@@ -88,6 +96,9 @@ class StageTiming(_StrictBase):
 
 
 class Metrics(_StrictBase):
+    """Signoff metrics parsed from .rpt/.def. All-or-nothing: constructed only when signoff
+    completes. Partial/crashed runs set RunArtifact.metrics=None (not a Metrics with sentinels)."""
+
     area_um2: float
     power_mw: float | None
     max_freq_mhz: float | None
@@ -98,6 +109,16 @@ class Metrics(_StrictBase):
 
 
 class RunArtifact(_StrictBase):
+    """L1.run(spec_uri) output.
+
+    Invariants:
+      - metrics_uri is ALWAYS a valid S3 key; metrics is the inlined mirror or None if the
+        run crashed pre-signoff.
+      - ended_at=None means the run is still executing (status="in_progress"). No default,
+        so callers must explicitly pass None for the in-flight case.
+      - full_lockfile_sha=None when L3-readiness scope is out of bounds (default path).
+    """
+
     run_id: str
     spec_uri: str
     status: RunStatus
