@@ -22,6 +22,7 @@ Superseded: [2026-04-17 single-loop spec](docs/superpowers/specs/2026-04-17-semi
 
 ## Knowledge base
 
+- Project glossary: `docs/glossary.md`
 - K1 direction report: `docs/knowledge-base/2026-04-19-k1-direction-report.md`
 - K1 raw sources (52건): `wiki/raw/papers/k1-{alpha,beta,gamma,delta}-*.md`
 - Source index: `wiki/raw/imports_manifest.yaml`
