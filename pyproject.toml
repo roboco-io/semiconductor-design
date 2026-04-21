@@ -27,6 +27,7 @@ wiki-init = "semi_design_wiki.init_wiki:main"
 wiki-sync = "semi_design_wiki.sync_index:main"
 wiki-lint = "semi_design_wiki.lint_wiki:main"
 semi-run = "semi_design_runner.cli:main"
+semi-metric-collector = "semi_design_runner.metric_collector_main:main"
 
 [build-system]
 requires = ["hatchling"]
