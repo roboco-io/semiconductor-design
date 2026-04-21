@@ -82,10 +82,12 @@ def auth_group() -> None:
 @auth_group.command("login")
 @click.option("--profile", type=str, default="semi-design-operator")
 def auth_login_cmd(profile: str) -> None:
-    subprocess.run(
+    proc = subprocess.run(
         ["aws", "sso", "login", "--profile", profile],
         check=False,
     )
+    if proc.returncode != 0:
+        raise SystemExit(proc.returncode)
 
 
 @main.command("submit")

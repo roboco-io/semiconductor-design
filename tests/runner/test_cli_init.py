@@ -78,3 +78,30 @@ def test_auth_login_calls_aws_sso():
         ["aws", "sso", "login", "--profile", "semi-design-operator"],
         check=False,
     )
+
+
+def test_auth_login_propagates_nonzero_returncode():
+    with patch("subprocess.run") as run_mock:
+        run_mock.return_value.returncode = 2
+        result = CliRunner().invoke(main, ["auth", "login"])
+    assert result.exit_code == 2
+
+
+def test_lockfile_verify_fails_when_l1_sha_null(tmp_path):
+    lock = tmp_path / "lockfile.yaml"
+    lock.write_text(
+        "version: 1\n"
+        "commit_shas:\n"
+        "  openroad: null\n  librelane: def\n  yosys: ghi\n  open_pdks: jkl\n"
+        "  verilator: null\n  cocotb: null\n  chipyard: null\n"
+        "  gemmini: null\n  mlcommons_tiny: null\n"
+        "container_digests:\n"
+        "  orfs-runner: sha256:x\n  librelane-runner: sha256:y\n"
+        "  metric-collector: sha256:z\n"
+        "pdk_digests: {sky130A: sha256:p}\n"
+    )
+    result = CliRunner().invoke(
+        main, ["lockfile-verify", "--lockfile", str(lock), "--scope", "l1"],
+    )
+    assert result.exit_code == 1
+    assert '"verified": false' in result.output
