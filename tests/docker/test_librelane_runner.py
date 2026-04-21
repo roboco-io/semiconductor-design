@@ -7,7 +7,6 @@ SFN Map state can treat it interchangeably with semi/orfs-runner.
 """
 from __future__ import annotations
 
-import os
 import subprocess
 from pathlib import Path
 
@@ -20,6 +19,7 @@ DOCKERFILE = "docker/librelane-runner.Dockerfile"
 @pytest.mark.slow
 def test_librelane_runner_builds(repo_root: Path) -> None:
     build_args = {
+        "LIBRELANE_DIGEST": "4444444444444444444444444444444444444444444444444444444444444444",
         "LIBRELANE_REF": "3333333333333333333333333333333333333333",
         "OPEN_PDKS_SHA": "2222222222222222222222222222222222222222",
     }

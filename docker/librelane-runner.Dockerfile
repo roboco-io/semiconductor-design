@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.7
 # docker/librelane-runner.Dockerfile
 
-ARG LIBRELANE_REF
+ARG LIBRELANE_DIGEST
 
-FROM ghcr.io/librelane/librelane:${LIBRELANE_REF} AS librelane-base
+FROM ghcr.io/librelane/librelane@sha256:${LIBRELANE_DIGEST} AS librelane-base
 
 ARG OPEN_PDKS_SHA
 ARG LIBRELANE_REF
@@ -18,13 +18,16 @@ USER root
 RUN nix-env -iA nixpkgs.awscli2 nixpkgs.bash nixpkgs.coreutils
 
 RUN mkdir -p /opt/pdk && \
-    nix-build --no-out-link \
-      --arg openPdksRev "\"${OPEN_PDKS_SHA}\"" \
-      '<nixpkgs>' -A open_pdks && \
-    cp -r $(nix-store -q --outputs $(nix-store -qR $(which librelane) | grep open_pdks))/share/pdk/sky130A /opt/pdk/sky130A
+    OPEN_PDKS_OUT=$(nix-build --no-out-link \
+      --arg openPdksRev "\"${OPEN_PDKS_SHA}\"" '<nixpkgs>' -A open_pdks) && \
+    test -d "${OPEN_PDKS_OUT}/share/pdk/sky130A" && \
+    cp -r "${OPEN_PDKS_OUT}/share/pdk/sky130A" /opt/pdk/sky130A
 
 COPY docker/entrypoints/run-stage.sh /opt/bin/run-stage.sh
 RUN chmod +x /opt/bin/run-stage.sh
+
+# Spec §11 G1 boundary: Verilator is excluded. Assert absence.
+RUN ! command -v verilator
 
 LABEL org.opencontainers.image.title="semi/librelane-runner" \
       org.opencontainers.image.description="LibreLane 2.4 (FOSSi Nix base) + sky130A, SHA-pinned." \

@@ -6,6 +6,7 @@ LOCKFILE="${LOCKFILE:-lockfile.yaml}"
 : "${ECR_REGISTRY:?ECR_REGISTRY required when --push}"
 
 LIBRELANE_REF=$(yq -r '.commit_shas.librelane' "$LOCKFILE")
+LIBRELANE_DIGEST=$(yq -r '.container_digests.librelane_base' "$LOCKFILE" | sed 's/^sha256://')
 OPEN_PDKS_SHA=$(yq -r '.commit_shas.open_pdks' "$LOCKFILE")
 L1_SHA=$(uv run semi-run lockfile-verify --scope l1 --json | jq -r '.l1_lockfile_sha' | sed 's/sha256://;s/^\(.\{12\}\).*/\1/')
 
@@ -18,6 +19,7 @@ docker build \
   -f docker/librelane-runner.Dockerfile \
   --label "org.opencontainers.image.source=https://github.com/dohyunjung/semiconductor-design" \
   --label "org.opencontainers.image.revision=${L1_SHA}" \
+  --build-arg "LIBRELANE_DIGEST=${LIBRELANE_DIGEST}" \
   --build-arg "LIBRELANE_REF=${LIBRELANE_REF}" \
   --build-arg "OPEN_PDKS_SHA=${OPEN_PDKS_SHA}" \
   .
