@@ -47,3 +47,6 @@ Thumbs.db
 ~/.cache/semi-design/
 traces/
 local-sqlite/
+
+# Plan subagent drafts — content is merged into the main plan; draft kept only locally
+docs/superpowers/plans/drafts/
