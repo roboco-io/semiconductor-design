@@ -7,6 +7,7 @@ Pure function — no AWS or IO dependencies. Imported by:
 Both raise `RejectedNotInG1Scope` so the error name is stable across the
 Python/CDK boundary (spec §4.2 error taxonomy).
 """
+
 from __future__ import annotations
 
 from semi_design_runner.schemas import Spec
@@ -22,7 +23,4 @@ class RejectedNotInG1Scope(Exception):
 def validate_spec_for_g1(spec: Spec) -> None:
     if spec.design not in G1_ALLOWED_DESIGNS:
         allowed = ", ".join(sorted(G1_ALLOWED_DESIGNS))
-        raise RejectedNotInG1Scope(
-            f"design={spec.design} is not in G1 scope; "
-            f"allowed: [{allowed}]"
-        )
+        raise RejectedNotInG1Scope(f"design={spec.design} is not in G1 scope; allowed: [{allowed}]")

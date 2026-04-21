@@ -111,8 +111,15 @@ def test_stage_timing_fields():
 
 
 def test_metrics_allow_optional_timing():
-    m = Metrics(area_um2=12345.0, power_mw=None, max_freq_mhz=None,
-                wns_ns=None, tns_ns=None, drc_violations=0, runtime_s=120.5)
+    m = Metrics(
+        area_um2=12345.0,
+        power_mw=None,
+        max_freq_mhz=None,
+        wns_ns=None,
+        tns_ns=None,
+        drc_violations=0,
+        runtime_s=120.5,
+    )
     assert m.area_um2 == 12345.0
 
 
@@ -121,8 +128,15 @@ def test_run_artifact_clean_status():
         run_id="01HABCDEF",
         spec_uri="s3://b/specs/01HABCDEF.yaml",
         status="clean",
-        metrics=Metrics(area_um2=1.0, power_mw=None, max_freq_mhz=None,
-                        wns_ns=None, tns_ns=None, drc_violations=0, runtime_s=10.0),
+        metrics=Metrics(
+            area_um2=1.0,
+            power_mw=None,
+            max_freq_mhz=None,
+            wns_ns=None,
+            tns_ns=None,
+            drc_violations=0,
+            runtime_s=10.0,
+        ),
         metrics_uri="s3://b/runs/01HABCDEF/final/metrics.json",
         reports=["s3://b/runs/01HABCDEF/final/signoff/sta.rpt"],
         provenance_uri="s3://b/runs/01HABCDEF/final/provenance.yaml",

@@ -6,8 +6,10 @@ from semi_design_runner.cli import main
 
 
 def test_submit_starts_execution_and_prints_arn():
-    with patch("semi_design_runner.cli.make_client") as mk, \
-         patch("semi_design_runner.cli.start_execution", return_value="arn:e:abc"):
+    with (
+        patch("semi_design_runner.cli.make_client") as mk,
+        patch("semi_design_runner.cli.start_execution", return_value="arn:e:abc"),
+    ):
         mk.return_value = object()
         result = CliRunner().invoke(
             main,
@@ -22,8 +24,10 @@ def test_status_joins_ddb_and_sfn():
     ddb.get_item.return_value = {"Item": {"status": {"S": "clean"}}}
     sfn = MagicMock()
     sfn.describe_execution.return_value = {"status": "SUCCEEDED"}
-    with patch("semi_design_runner.cli.make_client",
-               side_effect=lambda svc, **kw: {"dynamodb": ddb, "stepfunctions": sfn}[svc]):
+    with patch(
+        "semi_design_runner.cli.make_client",
+        side_effect=lambda svc, **kw: {"dynamodb": ddb, "stepfunctions": sfn}[svc],
+    ):
         result = CliRunner().invoke(
             main,
             ["status", "--run-id", "r1", "--execution-arn", "arn:e"],
@@ -39,13 +43,14 @@ def test_status_joins_ddb_and_sfn():
 
 
 def test_artifacts_downloads_final_prefix(tmp_path):
-    with patch("semi_design_runner.cli.make_client") as mk, \
-         patch("semi_design_runner.cli.download_final") as dl:
+    with (
+        patch("semi_design_runner.cli.make_client") as mk,
+        patch("semi_design_runner.cli.download_final") as dl,
+    ):
         mk.return_value = object()
         result = CliRunner().invoke(
             main,
-            ["artifacts", "--run-id", "r1", "--bucket", "b",
-             "--dest", str(tmp_path)],
+            ["artifacts", "--run-id", "r1", "--bucket", "b", "--dest", str(tmp_path)],
         )
     assert result.exit_code == 0
     dl.assert_called_once()

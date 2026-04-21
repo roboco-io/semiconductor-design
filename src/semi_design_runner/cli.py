@@ -8,6 +8,7 @@
 `artifacts` mirrors `s3://bucket/runs/<run_id>/final/` to a local dest dir.
 `cost` reads the accumulated `Runs.total_cost_usd` for a run.
 """
+
 from __future__ import annotations
 
 import json
@@ -63,8 +64,12 @@ def init_cmd(spec_path: Path, bucket: str, profile: str) -> None:
 
 
 @main.command("lockfile-verify")
-@click.option("--lockfile", "lockfile_path", type=click.Path(exists=True, path_type=Path),
-              default=Path("lockfile.yaml"))
+@click.option(
+    "--lockfile",
+    "lockfile_path",
+    type=click.Path(exists=True, path_type=Path),
+    default=Path("lockfile.yaml"),
+)
 @click.option("--scope", type=click.Choice(["l1", "full"]), default="l1")
 def lockfile_verify_cmd(lockfile_path: Path, scope: str) -> None:
     lockfile = load_lockfile(lockfile_path)
@@ -124,11 +129,15 @@ def status_cmd(run_id: str, execution_arn: str, profile: str) -> None:
     )
     ddb_status = ddb_resp.get("Item", {}).get("status", {}).get("S", "unknown")
     sfn_desc = describe_execution(sfn, execution_arn=execution_arn)
-    click.echo(json.dumps({
-        "run_id": run_id,
-        "ddb_status": ddb_status,
-        "sfn_status": sfn_desc.get("status", "unknown"),
-    }))
+    click.echo(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "ddb_status": ddb_status,
+                "sfn_status": sfn_desc.get("status", "unknown"),
+            }
+        )
+    )
 
 
 @main.command("artifacts")

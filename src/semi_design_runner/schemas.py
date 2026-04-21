@@ -5,6 +5,7 @@ requirement). This prevents L2/L3 breaking-change drift through arbitrary dict
 injection. Spec.parameters is broken into tagged sub-models (FlowParameters,
 ResourceOverrides, ExperimentalParameters) per spec §4.1.
 """
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -77,9 +78,15 @@ class Spec(_StrictBase):
 #   budget_exceeded    ← Task A12 cost guard (F1 pre-run or F2 in-run)
 #   in_progress        ← initial DDB write before any stage completes
 RunStatus = Literal[
-    "clean", "drc_fail", "lvs_fail", "sta_fail",
-    "tool_crash", "spot_reclaimed_max", "rejected_not_in_g1",
-    "budget_exceeded", "in_progress",
+    "clean",
+    "drc_fail",
+    "lvs_fail",
+    "sta_fail",
+    "tool_crash",
+    "spot_reclaimed_max",
+    "rejected_not_in_g1",
+    "budget_exceeded",
+    "in_progress",
 ]
 
 

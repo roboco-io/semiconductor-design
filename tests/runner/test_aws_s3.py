@@ -7,7 +7,11 @@ from semi_design_runner.aws.s3 import download_final, put_spec, put_with_retenti
 def test_put_with_retention_sets_governance_mode_and_date():
     client = MagicMock()
     put_with_retention(
-        client, bucket="b", key="runs/r/final/m.json", body=b"{}", retention_days=30,
+        client,
+        bucket="b",
+        key="runs/r/final/m.json",
+        body=b"{}",
+        retention_days=30,
     )
     kwargs = client.put_object.call_args.kwargs
     assert kwargs["Bucket"] == "b"
@@ -31,10 +35,12 @@ def test_download_final_mirrors_prefix(tmp_path):
     paginator = MagicMock()
     client.get_paginator.return_value = paginator
     paginator.paginate.return_value = [
-        {"Contents": [
-            {"Key": "runs/abc/final/metrics.json"},
-            {"Key": "runs/abc/final/signoff/sta.rpt"},
-        ]},
+        {
+            "Contents": [
+                {"Key": "runs/abc/final/metrics.json"},
+                {"Key": "runs/abc/final/signoff/sta.rpt"},
+            ]
+        },
     ]
     download_final(client, bucket="bkt", run_id="abc", dest=tmp_path)
     assert client.download_file.call_count == 2

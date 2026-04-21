@@ -24,12 +24,7 @@ def test_full_workflow(tmp_path: Path):
         "See also [[Dataflow-Types-WS-OS-IS]].\n"
     )
     (root / "Dataflow-Types-WS-OS-IS.md").write_text(
-        "---\n"
-        "type: architecture\n"
-        "tags: [dataflow]\n"
-        "confidence: medium\n"
-        "---\n"
-        "# Dataflow types\n"
+        "---\ntype: architecture\ntags: [dataflow]\nconfidence: medium\n---\n# Dataflow types\n"
     )
 
     sync_index(root)
@@ -46,9 +41,7 @@ def test_full_workflow_via_cli(tmp_path: Path):
 
     clean_root = tmp_path / "clean-wiki"
 
-    init_result = runner.invoke(
-        init_main, ["--root", str(clean_root)], catch_exceptions=False
-    )
+    init_result = runner.invoke(init_main, ["--root", str(clean_root)], catch_exceptions=False)
     assert init_result.exit_code == 0, init_result.output
     assert clean_root.is_dir()
     assert (clean_root / "index.md").exists()
@@ -63,17 +56,10 @@ def test_full_workflow_via_cli(tmp_path: Path):
         "See also [[Dataflow-Types-WS-OS-IS]].\n"
     )
     (clean_root / "Dataflow-Types-WS-OS-IS.md").write_text(
-        "---\n"
-        "type: architecture\n"
-        "tags: [dataflow]\n"
-        "confidence: medium\n"
-        "---\n"
-        "# Dataflow types\n"
+        "---\ntype: architecture\ntags: [dataflow]\nconfidence: medium\n---\n# Dataflow types\n"
     )
 
-    sync_result = runner.invoke(
-        sync_main, ["--root", str(clean_root)], catch_exceptions=False
-    )
+    sync_result = runner.invoke(sync_main, ["--root", str(clean_root)], catch_exceptions=False)
     assert sync_result.exit_code == 0, sync_result.output
     index_text = (clean_root / "index.md").read_text()
     assert "[[Gemmini-Parameters]]" in index_text

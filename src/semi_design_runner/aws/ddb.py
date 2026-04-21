@@ -1,6 +1,7 @@
 """DynamoDB wrappers. Candidates.ddb_write_count is the app-level counter
 used by KG-E (spec §6.2). Every candidate write increments it atomically so
 post-run assertions do not depend on CloudWatch attribution."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -31,7 +32,12 @@ def put_candidate_with_count(
 
 
 def get_ddb_write_count(
-    client: Any, *, table: str, run_id: str, gen: int, cand: int,
+    client: Any,
+    *,
+    table: str,
+    run_id: str,
+    gen: int,
+    cand: int,
 ) -> int:
     resp = client.get_item(
         TableName=table,

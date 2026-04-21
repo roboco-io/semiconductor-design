@@ -4,6 +4,7 @@ This module is imported both from `semi_design_runner.cli` (local use)
 and from the `semi/metric-collector` Docker container ENTRYPOINT, so the
 parser logic has a single source of truth (spec §5 — no double maintenance).
 """
+
 from __future__ import annotations
 
 import re

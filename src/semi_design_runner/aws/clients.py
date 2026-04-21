@@ -1,4 +1,5 @@
 """boto3 session + client factory with SSO profile and adaptive retries."""
+
 from __future__ import annotations
 
 import boto3

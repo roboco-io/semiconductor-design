@@ -4,6 +4,7 @@ Kept separate from L3 reasoning traces (which are a novelty artifact of the
 research, see overview spec §4.3). This file logs boto3 calls, SFN state
 transitions, and lifecycle events — strictly for debugging.
 """
+
 from __future__ import annotations
 
 import json

@@ -1,7 +1,8 @@
 import pytest
 from semi_design_runner.schemas import Spec, FlowParameters
 from semi_design_runner.validator import (
-    RejectedNotInG1Scope, validate_spec_for_g1,
+    RejectedNotInG1Scope,
+    validate_spec_for_g1,
 )
 
 

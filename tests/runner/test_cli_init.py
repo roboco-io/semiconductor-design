@@ -33,9 +33,11 @@ def test_init_rejects_non_gcd_design(tmp_path):
 def test_init_writes_spec_to_s3_on_success(tmp_path):
     spec_file = tmp_path / "gcd.yaml"
     spec_file.write_text(SPEC_YAML)
-    with patch("semi_design_runner.cli.make_client") as mk_client, \
-         patch("semi_design_runner.cli.put_spec", return_value="s3://b/x"), \
-         patch("semi_design_runner.cli.put_candidate_with_count"):
+    with (
+        patch("semi_design_runner.cli.make_client") as mk_client,
+        patch("semi_design_runner.cli.put_spec", return_value="s3://b/x"),
+        patch("semi_design_runner.cli.put_candidate_with_count"),
+    ):
         mk_client.return_value = object()  # any
         result = CliRunner().invoke(
             main,
@@ -62,7 +64,8 @@ def test_lockfile_verify_l1_scope(tmp_path):
         "ci_verification: {last_green_commit: g, last_green_at: '2026-04-20T00:00:00Z'}\n"
     )
     result = CliRunner().invoke(
-        main, ["lockfile-verify", "--lockfile", str(lock), "--scope", "l1"],
+        main,
+        ["lockfile-verify", "--lockfile", str(lock), "--scope", "l1"],
     )
     assert result.exit_code == 0
     assert '"verified": true' in result.output
@@ -101,7 +104,8 @@ def test_lockfile_verify_fails_when_l1_sha_null(tmp_path):
         "pdk_digests: {sky130A: sha256:p}\n"
     )
     result = CliRunner().invoke(
-        main, ["lockfile-verify", "--lockfile", str(lock), "--scope", "l1"],
+        main,
+        ["lockfile-verify", "--lockfile", str(lock), "--scope", "l1"],
     )
     assert result.exit_code == 1
     assert '"verified": false' in result.output

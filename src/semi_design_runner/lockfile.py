@@ -4,6 +4,7 @@ The L1 scope hash must be invariant under L3-readiness SHA drift — that is,
 filling `verilator` or `chipyard` SHAs must NOT change l1_lockfile_sha, which
 serves as the cache key for L1 runs. See spec §9.1 canonical-yaml rule.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -47,11 +48,7 @@ def _project_l1(lockfile: dict[str, Any]) -> dict[str, Any]:
     """Keep only L1-scope commit_shas + container_digests + pdk_digests."""
     return {
         "version": lockfile["version"],
-        "commit_shas": {
-            k: v
-            for k, v in lockfile["commit_shas"].items()
-            if k in L1_SCOPE_KEYS
-        },
+        "commit_shas": {k: v for k, v in lockfile["commit_shas"].items() if k in L1_SCOPE_KEYS},
         "container_digests": lockfile["container_digests"],
         "pdk_digests": lockfile.get("pdk_digests", {}),
     }
@@ -73,9 +70,7 @@ def verify_scope(
     else:
         check_keys = L1_SCOPE_KEYS | L3_READINESS_KEYS
     mismatched = [k for k in check_keys if commit_shas.get(k) in (None, "")]
-    deferred = sorted(
-        k for k in L3_READINESS_KEYS if commit_shas.get(k) in (None, "")
-    )
+    deferred = sorted(k for k in L3_READINESS_KEYS if commit_shas.get(k) in (None, ""))
     return {
         "verified": len(mismatched) == 0,
         "mismatched": sorted(mismatched),

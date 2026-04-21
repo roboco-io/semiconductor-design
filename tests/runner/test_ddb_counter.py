@@ -24,14 +24,28 @@ def test_put_candidate_uses_add_to_increment_counter():
 def test_get_counter_returns_zero_when_item_missing():
     client = MagicMock()
     client.get_item.return_value = {}
-    assert get_ddb_write_count(
-        client, table="Candidates", run_id="r", gen=0, cand=0,
-    ) == 0
+    assert (
+        get_ddb_write_count(
+            client,
+            table="Candidates",
+            run_id="r",
+            gen=0,
+            cand=0,
+        )
+        == 0
+    )
 
 
 def test_get_counter_returns_int_value():
     client = MagicMock()
     client.get_item.return_value = {"Item": {"ddb_write_count": {"N": "17"}}}
-    assert get_ddb_write_count(
-        client, table="Candidates", run_id="r", gen=0, cand=0,
-    ) == 17
+    assert (
+        get_ddb_write_count(
+            client,
+            table="Candidates",
+            run_id="r",
+            gen=0,
+            cand=0,
+        )
+        == 17
+    )

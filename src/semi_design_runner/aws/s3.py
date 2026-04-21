@@ -4,6 +4,7 @@
 GOVERNANCE-mode Object Lock is attached in the **same PutObject call** as the
 data write, so there is no mutable-success window if finalize later fails.
 """
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -37,14 +38,18 @@ def put_spec(client: Any, *, bucket: str, run_id: str, spec_yaml: str) -> str:
 
 
 def download_final(
-    client: Any, *, bucket: str, run_id: str, dest: Path,
+    client: Any,
+    *,
+    bucket: str,
+    run_id: str,
+    dest: Path,
 ) -> None:
     """Download the final/ prefix mirror to local dest dir."""
     prefix = f"runs/{run_id}/final/"
     paginator = client.get_paginator("list_objects_v2")
     for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
         for obj in page.get("Contents", []):
-            rel = obj["Key"][len(prefix):]
+            rel = obj["Key"][len(prefix) :]
             target = dest / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             client.download_file(bucket, obj["Key"], str(target))

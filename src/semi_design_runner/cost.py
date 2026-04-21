@@ -2,6 +2,7 @@
 F2 (post-stage accumulated abort). Both pathways raise BudgetExceededError,
 which `cli.init` and the `Finalize` Lambda each convert to the appropriate
 RunArtifact status (rejected_not_in_g1 / budget_exceeded respectively)."""
+
 from __future__ import annotations
 
 from typing import Iterable
@@ -17,17 +18,16 @@ def check_planned_budget(spec: Spec) -> None:
     planned_total = sum(spec.planned_cost_per_stage_usd.values())
     if planned_total > spec.compute_budget_usd:
         raise BudgetExceededError(
-            f"planned_cost_sum={planned_total} > "
-            f"compute_budget_usd={spec.compute_budget_usd}"
+            f"planned_cost_sum={planned_total} > compute_budget_usd={spec.compute_budget_usd}"
         )
 
 
 def check_accumulated_budget(
-    spec: Spec, completed_stages: Iterable[StageTiming],
+    spec: Spec,
+    completed_stages: Iterable[StageTiming],
 ) -> None:
     accum = sum(s.cost_usd for s in completed_stages)
     if accum > spec.compute_budget_usd:
         raise BudgetExceededError(
-            f"accumulated_cost={accum} > "
-            f"compute_budget_usd={spec.compute_budget_usd}"
+            f"accumulated_cost={accum} > compute_budget_usd={spec.compute_budget_usd}"
         )
