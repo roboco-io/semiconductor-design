@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -18,6 +19,11 @@ DOCKERFILE = "docker/metric-collector.Dockerfile"
 
 @pytest.fixture(scope="module")
 def built_image(repo_root: Path) -> str:
+    # Clear stale wheels so the narrowed COPY glob in the Dockerfile
+    # (dist/semi_design_runner-*.whl) only picks up the freshly-built wheel.
+    # The CI path (docker/build-metric-collector.sh) already does this; this
+    # closes the gap for direct `docker build` invocations from the fixture.
+    shutil.rmtree(repo_root / "dist", ignore_errors=True)
     subprocess.run(
         ["uv", "build", "--wheel", "--out-dir", "dist"],
         cwd=repo_root, check=True, capture_output=True, text=True,

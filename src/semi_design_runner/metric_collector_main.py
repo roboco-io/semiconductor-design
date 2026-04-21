@@ -5,6 +5,11 @@ canonical report files (`synth/synth.rpt`, `signoff/sta.rpt`, `signoff/drc.rpt`)
 from $INPUT_S3_URI, calls semi_design_runner.metrics.parse_reports — the
 single source of truth for parsing, per spec §5 / Codex #8 — and writes
 metrics.json (Metrics schema serialization) to the staging output path.
+
+Exit codes:
+- 0: success, metrics.json written.
+- 2: one of RUN_ID / INPUT_S3_URI / OUTPUT_S3_URI env vars missing.
+- 3: one of synth.rpt / sta.rpt / drc.rpt input files missing.
 """
 from __future__ import annotations
 

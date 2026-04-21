@@ -92,4 +92,7 @@ def test_collector_missing_input_returns_nonzero(
     monkeypatch.setenv("STAGE_RUNTIME_S", "1.0")
 
     rc = metric_collector_main.main(argv=[])
-    assert rc != 0
+    # Exit-code contract: 3 == missing report file (per module docstring).
+    # A regression routing missing input to 2 (env-missing) or 1 (unhandled
+    # exception) would have silently passed `!= 0`; be specific.
+    assert rc == 3

@@ -14,7 +14,7 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 
-COPY dist/*.whl /tmp/wheels/
+COPY dist/semi_design_runner-*.whl /tmp/wheels/
 RUN pip install --no-cache-dir /tmp/wheels/*.whl
 
 COPY docker/entrypoints/run-stage.sh /opt/bin/run-stage.sh
