@@ -5,6 +5,7 @@ from semi_design_runner.schemas import (
     FlowParameters,
     ResourceOverrides,
 )
+from semi_design_runner.schemas import Spec
 
 
 def test_flow_parameters_all_optional_none():
@@ -34,3 +35,58 @@ def test_experimental_metadata_strict_strings():
 def test_experimental_rejects_unknown_key():
     with pytest.raises(ValidationError, match="extra"):
         ExperimentalParameters(unexpected=1)
+
+
+def test_spec_accepts_minimal_valid():
+    spec = Spec(
+        run_id="01HABCDEF",
+        design="gcd",
+        stack="orfs",
+        flow_parameters=FlowParameters(),
+        compute_budget_usd=30.0,
+        seed=42,
+        l1_lockfile_sha="sha256:" + "a" * 64,
+    )
+    assert spec.version == 1
+    assert spec.full_lockfile_sha is None
+    assert spec.planned_cost_per_stage_usd == {}
+
+
+def test_spec_rejects_unknown_design():
+    with pytest.raises(ValidationError):
+        Spec(
+            run_id="x",
+            design="bp",  # not in Literal
+            stack="orfs",
+            flow_parameters=FlowParameters(),
+            compute_budget_usd=30.0,
+            seed=0,
+            l1_lockfile_sha="sha256:0" * 32,
+        )
+
+
+def test_spec_rejects_unknown_stack():
+    with pytest.raises(ValidationError):
+        Spec(
+            run_id="x",
+            design="gcd",
+            stack="vivado",  # not open-source
+            flow_parameters=FlowParameters(),
+            compute_budget_usd=30.0,
+            seed=0,
+            l1_lockfile_sha="sha256:0" * 32,
+        )
+
+
+def test_spec_rejects_extra_top_level_field():
+    with pytest.raises(ValidationError, match="extra"):
+        Spec(
+            run_id="x",
+            design="gcd",
+            stack="orfs",
+            flow_parameters=FlowParameters(),
+            compute_budget_usd=30.0,
+            seed=0,
+            l1_lockfile_sha="sha256:0" * 32,
+            mystery_field="boom",
+        )
