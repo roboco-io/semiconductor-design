@@ -4,7 +4,7 @@
 # Spec §5 semi/orfs-runner:
 #   - debian:12-slim base
 #   - ORFS + OpenROAD (pinned to lockfile.yaml.commit_shas.openroad)
-#   - Yosys from YosysHQ prebuilt (lockfile.yaml.commit_shas.yosys, e.g. yosys-0.55)
+#   - Yosys built from source at YosysHQ/yosys tag (lockfile.yaml.commit_shas.yosys, e.g. yosys-0.55)
 #   - open_pdks sky130A (lockfile.yaml.commit_shas.open_pdks)
 #   - NO Verilator (Codex review #8 — G1 has no functional simulation)
 #
@@ -25,8 +25,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PATH=/opt/tools/openroad/bin:/opt/tools/yosys/bin:/usr/local/bin:/usr/bin:/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      build-essential git ca-certificates curl unzip python3 python3-pip \
-      python3-venv tcl-dev libffi-dev zlib1g-dev libboost-all-dev \
+      build-essential clang bison flex \
+      git ca-certificates curl unzip python3 python3-pip \
+      python3-venv tcl-dev libffi-dev libreadline-dev zlib1g-dev libboost-all-dev \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
@@ -39,10 +40,18 @@ RUN mkdir -p /opt/src && cd /opt/src \
  && mv tools/OpenROAD/build /opt/tools/openroad \
  && ln -s /opt/src/orfs /opt/tools/orfs
 
-# --- Yosys (YosysHQ prebuilt tarball, pinned by release tag) ---------------
-RUN mkdir -p /opt/tools/yosys && cd /opt/tools/yosys \
- && curl -fsSL "https://github.com/YosysHQ/oss-cad-suite-build/releases/download/${YOSYS_TAG}/oss-cad-suite-linux-x64-${YOSYS_TAG#yosys-}.tgz" \
-    | tar -xz --strip-components=1
+# --- Yosys (built from source at YosysHQ/yosys tag) ------------------------
+# Previous attempt used oss-cad-suite-build prebuilts, but that repo uses
+# date tags (YYYY-MM-DD), not `yosys-N.NN`. Source build keeps the lockfile
+# key stable (`commit_shas.yosys: yosys-0.55`) and matches upstream tagging.
+RUN mkdir -p /opt/src/yosys && cd /opt/src/yosys \
+ && git clone --recurse-submodules https://github.com/YosysHQ/yosys.git . \
+ && git checkout "${YOSYS_TAG}" \
+ && git submodule update --init --recursive \
+ && make config-clang \
+ && make -j"$(nproc)" PREFIX=/opt/tools/yosys \
+ && make install PREFIX=/opt/tools/yosys \
+ && rm -rf /opt/src/yosys/.git
 
 # --- open_pdks sky130A (pinned) --------------------------------------------
 RUN mkdir -p /opt/src/open_pdks && cd /opt/src/open_pdks \

@@ -38,6 +38,9 @@ packages = ["src/semi_design_wiki", "src/semi_design_runner"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+markers = [
+    "slow: expensive tests requiring Docker daemon (opt-in via `-m slow`)",
+]
 
 [tool.ruff]
 line-length = 100
