@@ -32,6 +32,10 @@ def test_status_joins_ddb_and_sfn():
     payload = json.loads(result.output)
     assert payload["ddb_status"] == "clean"
     assert payload["sfn_status"] == "SUCCEEDED"
+    # Lock in the reserved-word alias: `status` is a DDB reserved keyword.
+    get_item_kwargs = ddb.get_item.call_args.kwargs
+    assert get_item_kwargs["ProjectionExpression"] == "#s"
+    assert get_item_kwargs["ExpressionAttributeNames"] == {"#s": "status"}
 
 
 def test_artifacts_downloads_final_prefix(tmp_path):

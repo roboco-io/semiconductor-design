@@ -112,13 +112,15 @@ def submit_cmd(run_id: str, state_machine_arn: str, profile: str) -> None:
 def status_cmd(run_id: str, execution_arn: str, profile: str) -> None:
     ddb = make_client("dynamodb", profile=profile)
     sfn = make_client("stepfunctions", profile=profile)
+    # `status` is a DynamoDB reserved word — must alias in ProjectionExpression.
     ddb_resp = ddb.get_item(
         TableName="Candidates",
         Key={
             "run_id": {"S": run_id},
             "gen_cand": {"S": "gen#0#cand#0"},
         },
-        ProjectionExpression="status",
+        ProjectionExpression="#s",
+        ExpressionAttributeNames={"#s": "status"},
     )
     ddb_status = ddb_resp.get("Item", {}).get("status", {}).get("S", "unknown")
     sfn_desc = describe_execution(sfn, execution_arn=execution_arn)
