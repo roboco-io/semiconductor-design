@@ -50,3 +50,9 @@ local-sqlite/
 
 # Plan subagent drafts — content is merged into the main plan; draft kept only locally
 docs/superpowers/plans/drafts/
+
+# Personal handoff file — never commit
+.handoff.md
+
+# semi-run CLI runtime artifact (written by `init` to CWD for Makefile convenience)
+.last-run-id
