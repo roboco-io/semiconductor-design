@@ -1,4 +1,4 @@
-from semi_design_wiki import __version__
+from semi_design_runner import __version__
 
 
 def test_version():
