@@ -74,14 +74,18 @@
 - L2와 L3는 서로 독립 개발 가능하나, L3의 "Open-Ideation" 품질은 L2의 skill library 성숙도에 비례.
 - **sub-project 파생 spec은 각 layer 착수 직전 작성**. Overview 수준에서는 각 layer의 **인터페이스·성공 기준**까지만 고정.
 
-### 3.2 Layer Interfaces — Contract Table (H3 대응)
+### 3.2 Layer Interfaces — Contract Table (v2, 2026-04-22 graphify 전환, H3 대응)
+
+> **Revision note (v2, 2026-04-22)**: Phase 1a wiki 엔진 기반 계약을 graphify v0.4.25 기반으로 재정의. 구현체·commit policy는 `docs/superpowers/specs/2026-04-22-graphify-adoption-design.md` §3.2·§4 참조. breaking 변경은 Codex 3-round 재승인 필요.
 
 | Interface | Producer → Consumer | Input schema | Output schema | Immutability | Error taxonomy | Versioning | Min required fields |
 |---|---|---|---|---|---|---|---|
 | `L1.run(spec_uri)` | L1 orchestrator → L3 agents | `s3://…/spec.yaml` (Pydantic `Spec`, ULID `run_id`) | `s3://…/artifact/{run_id}/` bundle | Write-once, `_SUCCESS` marker 이후 immutable | `SpotReclaimed`, `OOM`, `TimingFail`, `DRCFail`, `ToolCrash`, `Unknown → DLQ` | `Spec.version: int` 필수, breaking 변경은 major bump | `run_id`, `status`, `metrics_uri`, `reports[]`, `cost_usd`, `provenance_uri` |
-| `L2.skill_library.query(context)` | L2 substrate → L3 agents | `{design_id, current_report_uri, intent_tag}` | `[{skill_id, patch_uri, signed_off_report_uri, confidence, version}]` | Skills append-only per version; rename 금지; deprecation은 `status` 필드로만 | `NoMatch`, `ContradictoryMatch`, `LowConfidence` | `skill.version: int` per-skill | `skill_id`, `patch_uri`, `attached_report_uri`, `last_verified` |
-| `L2.memory.recall(query)` | L2 substrate → L3 agents | `{query_text, design_context?, k, fresh_only?}` | `[{doc_uri, frontmatter, score, provenance}]` | Read-only; 새 memory는 `findings/`·`failures/`·`decisions/` 경로로만 write | `StaleSource`, `Contradiction`, `InsufficientEvidence` | `last_verified` 필드로 freshness 추적 | `doc_uri`, `confidence`, `last_verified`, `evidence_urls[]` |
-| `L2.lint.check(artifact_uri)` | L2 substrate → CI / Evaluator | artifact 번들 경로 | `{duplicate_of?, violations[], audit_required_bool}` | Lint rules는 git tag로 freeze, 실험 중 변경 금지 (§5.2) | `DuplicateFinding`, `Contradiction`, `BrokenLink`, `Orphan`, `LowConfidence` | Rule set은 `lint.version` 단일 | `artifact_uri`, `verdict`, `evidence` |
+| `L2.skill_library.query(context)` | L2 substrate → L3 agents | `{name \| context}` (graphify `query "skill:<name>"` 또는 context 기반 lookup) | `[{skill_id, patch_uri, signed_off_report_uri, tier, last_verified}]` | `.claude/skills/`는 graphify 인덱싱 대상. 스킬 파일 자체는 git 관리, append-only per version; rename 금지; deprecation은 frontmatter `status` 필드로만 | `NoMatch`, `AmbiguousMatch`, `Uncached` (AMBIGUOUS skill 노드가 human review 대기 중일 때) | `skill.version: int` per-skill (skill frontmatter 필드) | `skill_id`, `patch_uri`, `attached_report_uri`, `last_verified`, `tier` |
+| `L2.memory.recall(query)` | L2 substrate → L3 agents | `{query_text, k?, budget_tokens?}` (graphify BFS/DFS budget) | `[{node_id, label, source_file, tier, confidence_score, snippet?}]` | Read-only query over `graphify-out/graph.json`. 새 memory는 raw `.md` 파일로 write하고 `/graphify` rebuild 시 그래프에 반영 | `NoMatch`, `StaleGraph` (graph.json older than corpus), `AmbiguousTier` (AMBIGUOUS 비율 초과) | graph.json은 graphify version + corpus hash로 버전 식별 | `node_id`, `tier`, `confidence_score`, `source_file` |
+| `L2.lint.check(graph_path)` | L2 substrate → CI / S3 (`make graph-lint`) | `graphify-out/graph.json` 경로 (default) 또는 명시적 path | `{ok: bool, errors: list[str], metrics: {orphan_count, dangling_count, ambiguous_ratio}}` | 임계선(orphan=0, dangling=0, AMBIGUOUS≤0.3)은 `scripts/graph_integrity_check.py`에 상수로 고정. 변경은 spec 재승인 | `OrphanNodeExists`, `DanglingEdgeExists`, `AmbiguousRatioExceeded`, `EmptyGraph` | integrity check 스크립트 version은 git SHA로 추적 | `ok`, `errors[]`, `metrics.orphan_count`, `metrics.dangling_count`, `metrics.ambiguous_ratio` |
+
+**의미 gap 공지 (v2)**: graphify `tier`(EXTRACTED/INFERRED/AMBIGUOUS)는 **추출 신뢰도**이며 **주장 타당성**이 아니다. Phase 1a의 `confidence_score` frontmatter는 양자를 암묵적으로 포함했으나 v2에서는 명시적으로 분리. 소비자(L1/L3 agent)는 `tier`를 "검토 필요도" 신호로만 해석하고 **주장 타당성은 H1/H3 실험 결과(§5.3 canonical decision table)에서만 판정**한다.
 
 **Contract 원칙**: 각 interface의 input/output은 Pydantic 스키마로 고정하고 `docs/superpowers/specs/2026-04-19-L{1,2,3}-*-design.md` 파생 시 그대로 상속한다. breaking 변경은 spec 재승인 필요.
 
@@ -90,7 +94,7 @@
 | Layer | MVP 포함 | MVP 제외 |
 |---|---|---|
 | L1 Process | Nix bundle SHA-pin, Fargate Spot Map 10-conc, S3 artifact layout, DDB 4 테이블, 로컬 CLI orchestrator, 재시도 정책 | 실물 테이프아웃, FireSim, 다중 리전 |
-| L2 Substrate | `.rpt/.def/STA` 파서, typed-frontmatter 문서 생성, QMD 인덱스, `findings/failures/decisions/` 디렉토리, `wiki-lint` 확장으로 duplicate-failure 감지 | A-MEM 수준 memory evolution, Letta급 OS-paging |
+| L2 Substrate | `.rpt/.def/STA` 파서, graphify v0.4.25 기반 graph index(`graphify-out/graph.json` + MCP serve), `scripts/graph_integrity_check.py` L2.lint, raw source는 `wiki/raw/**`·`docs/**` 유지, cross-trench bridge manifest | A-MEM 수준 memory evolution, Letta급 OS-paging, graphify의 자동 knowledge promotion(human review 경유) |
 | L3 Content | gcd/ibex/aes 3개 디자인 대상 Open-Ideation 에이전트, MLPerf Tiny v1.3 KWS + streaming wakeword 평가, ORFS-agent와 대조 실험 | MLPerf Tiny 전체(IC/VWW/AD), Gemmini 외 가속기 템플릿 |
 
 ## 4. Novelty Hypotheses (K1은 plausibility만 지원, demonstrated novelty 아님)
