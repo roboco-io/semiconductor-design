@@ -9,6 +9,7 @@
 | Scope | L1 **Process** layer only. L2 Substrate · L3 Content는 별도 파생 spec |
 | Authority 범위 | Overview spec의 §5.3 canonical decision table / §13 license gate / §7 program.md 규칙은 본 spec이 재정의하지 않는다. 참조만. |
 | Reviews | Codex L1 1차 2026-04-20 (needs-major, 12건) → 12 fix. 2차 (needs-minor, REGRESSION 1 + new 5) → 6 fix. 3차 2026-04-20 (needs-minor, PARTIAL 2 + new 6) → (a) §4.1 `l1_lockfile_sha`/`full_lockfile_sha` 분리(L3 drift로부터 L1 cache key 보호), (b) §9 commit_shas를 L1 scope/L3-readiness scope 명시적 분리(null 허용), (c) §9.1 canonical-yaml hash 규칙 정의, (d) §10 KG-F를 F1(pre-RunTask rejection, paid job 0회) + F2(pytest mock) 분할, (e) §6.3 IAM `kms:Decrypt`를 explicit CMK ARN (StorageStack.bucketCmk + Secrets Manager CMK)로 scope, (f) §6.1 StorageStack에 `ObjectLockEnabled=true at creation` 명시, (g) §16.2 CDK 테스트에 Object Lock enabled 검증 추가, (h) `runner` extras에 `pydantic>=2,<3` 추가, (i) §7.2 `semi-run lockfile-verify` 출력 JSON 필드 완성 |
+| K2 ζ 갱신 (2026-04-22) | LibreLane 2.4 → 3.0.2 (2026-04-02 tag, FOSSi Foundation) 전면 적용. Fargate ephemeral storage 10 GB 가정 → 200 GiB 정정. Step Functions는 Standard workflow 고정 (Express 5분 상한 초과 방지). Chipyard 1.13.0 (2024-09-30 이후 tag 없음) · Gemmini (2023-05 이후 tag 없음) SHA pin 재확인. 근거: `wiki/raw/papers/k2-zeta-l1-runtime.md` + `wiki/raw/imports_manifest.yaml` `axes.zeta.spec_contradictions_detected`. Dockerfile/CDK/plan 코드 레벨 반영은 별도 커밋(L1 구현 작업에 포함). |
 
 ---
 
@@ -231,7 +232,7 @@ Object Lock은 **각 final object의 `PutObject`/`CopyObject` 시점에 retentio
 | Repo | Base | 설치 | 예상 크기 | 주 용도 |
 |---|---|---|---|---|
 | `semi/orfs-runner` | `debian:12-slim` | ORFS (SHA pinned) + OpenROAD + Yosys 0.55 + open_pdks sky130A | ~2.5GB | `rtl-build`, `synth`, `pnr(orfs)`, `signoff` |
-| `semi/librelane-runner` | LibreLane 2.4 공식 Nix | LibreLane 2.4 SHA-pinned + sky130A | ~4GB | `pnr(librelane)` |
+| `semi/librelane-runner` | LibreLane 3.0.2 공식 Nix | LibreLane 3.0.2 SHA-pinned + sky130A | ~4GB | `pnr(librelane)` |
 | `semi/metric-collector` | `python:3.12-slim` | `semi_design_runner.metrics` 모듈 (동일 Python 코드, 컨테이너는 wheel 설치) | ~150MB | `metrics` stage |
 
 **Codex #8 반영 — Verilator 제외**: G1 scope가 functional simulation을 포함하지 않으므로 `orfs-runner`에서 Verilator 제거. L3 활성화 시 `semi/sim-runner` 신설.
@@ -410,10 +411,10 @@ ci_verification:
 
 모든 스크립트는 `scripts/kg/` 디렉토리. 각각 **deterministic**하며 JSON 결과(`passed: bool`, `measurements: {}`) 출력.
 
-### KG-A — LibreLane 2.4 on Fargate Spot
+### KG-A — LibreLane 3.0.2 on Fargate Spot
 - Script: `scripts/kg/kg-a-librelane-fargate.sh`
 - 측정: gcd flow 완주 시간, image pull time, peak ephemeral storage 사용량
-- **성공 기준**: timeout 30분 내 `_SUCCESS` + ephemeral storage peak < 21GB + image pull < 10분
+- **성공 기준**: timeout 30분 내 `_SUCCESS` + ephemeral storage peak < 21 GB (Fargate 한도 200 GiB 여유, K2 ζ 검증값) + image pull < 10분
 - 실패 시 fallback: pure ORFS stack (OpenROAD + Yosys 직접)으로 다운그레이드, `stack=librelane` 옵션 제외. 이 fallback 경로도 스크립트가 자동 검증.
 
 ### KG-B — Chipyard prebuilt cache integrity (L3-readiness only, G1 exit 필수 아님)
@@ -506,7 +507,7 @@ Pytest로 rejection path 테스트 필수 (§16 CDK tests 별도).
 
 | 리스크 | 대응 |
 |---|---|
-| LibreLane 2.4 Nix가 Fargate 미지원 | KG-A 조기 감지. 실패 시 pure ORFS stack으로 다운그레이드, `stack=librelane` exclusion |
+| LibreLane 3.0.2 Nix가 Fargate 미지원 | KG-A 조기 감지. 실패 시 pure ORFS stack으로 다운그레이드, `stack=librelane` exclusion |
 | **Fargate Spot vCPU account quota 부족** | CDK deploy 전 `scripts/preflight-quota.sh`로 확인. dev=32, prod=사전 증설 |
 | Spot 회수율 리전 차이 | KG-D를 us-east-1, us-west-2에서 실행. 회수율 높은 리전 제외 |
 | DDB 비용 | Events TTL 90d 엄격. Candidates GSI 재검토. KG-E로 write amp 모니터링 |

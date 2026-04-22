@@ -18,7 +18,7 @@ The implemented code today (`src/semi_design_wiki/`) is only the **wiki/knowledg
 |---|---|---|
 | Phase 1a — Wiki Skill Engine | `src/semi_design_wiki/`, `tests/` | ✅ done |
 | G0 Program bootstrap | K1 52 sources + direction report + overview spec + program/ rules + issues 재배치 | 🟡 near-complete |
-| G1 L1 Process | SHA-pinned Nix (LibreLane 2.4 + OpenROAD + Yosys + sky130A) + Fargate Spot + SFN + `make run` gcd; kill gates KG-A~KG-E | pending — L1 파생 spec 필요 |
+| G1 L1 Process | SHA-pinned Nix (LibreLane 3.0.2 + OpenROAD + Yosys + sky130A) + Fargate Spot (ephemeral 200 GiB) + SFN Standard workflow + `make run` gcd; kill gates KG-A~KG-E | pending — L1 파생 spec (K2 ζ 갱신 필요) |
 | G2 L2 Substrate | typed-frontmatter memory + QMD + findings/failures/decisions + `L2.lint`·`skill_library`·`memory` interfaces | pending — L2 파생 spec (L1 완료 후 병렬) |
 | G3 L3 Content | Open-Ideation DSE on Gemmini + MLPerf Tiny v1.3 streaming, gcd/ibex/aes | pending — L3 파생 spec, License Gate §13 선행 |
 | G4 통합 실험 | 복리 효과 + reasoning trace + ORFS-agent 대조. publish/reframed/kill 은 overview spec §5.3 | pending |
@@ -54,7 +54,7 @@ Two overlapping views (둘 다 overview spec `docs/superpowers/specs/2026-04-19-
 Planes:
 - **Local plane**: Python CLI orchestrator + LLMs (Claude Code SDK + Codex SDK). All LLM calls run locally.
 - **AWS plane** (CDK TypeScript, not yet written): Step Functions `Map` (maxConcurrency=10) → Fargate Spot per-candidate pipeline. S3 artifact lake + DynamoDB 4 tables + ECR. SHA-pinned via `lockfile.yaml` (spec §6.2).
-- **Tool plane**: Wrapped open-source EDA binaries (Yosys, **LibreLane 2.4** — 기존 OpenLane2 rename, OpenROAD, Verilator, cocotb, mlcommons/tiny **v1.3**). **Anti-reinvention principle**. Efabless 경로는 **2025-02 셧다운으로 폐기** — 대체 경로는 Iter 3+ 결정.
+- **Tool plane**: Wrapped open-source EDA binaries (Yosys, **LibreLane 3.0.2** — OpenLane2 → LibreLane rename은 K1에서, 2.4 → 3.0.2 버전 갱신은 K2 ζ 2026-04-22에서 확정, OpenROAD, Verilator, cocotb, mlcommons/tiny **v1.3**). **Anti-reinvention principle**. Efabless 경로는 **2025-02 셧다운으로 폐기** — 대체 경로는 Iter 3+ 결정.
 - **Knowledge plane**: `wiki/` (Phase 1a engine) + `wiki/findings/`·`failures/`·`decisions/` + `wiki/program/` (operating rules) + QMD index.
 
 **Search strategy** is **2-tier**:
