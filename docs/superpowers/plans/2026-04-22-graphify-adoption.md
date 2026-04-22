@@ -959,6 +959,8 @@ git commit -m "chore(deps): add graphify, drop wiki-* CLI entry points"
 - Modify: `Makefile`
 
 > **(2026-04-22 수정)** `make graph`를 순수 bash 타겟으로 둘 수 없음 — graphify 전체 빌드는 AI 에이전트 세션에서 `/graphify .` 슬래시커맨드로 실행해야 함. Makefile은 증분 업데이트·serve·lint 위주로 구성.
+>
+> **(2026-04-22 추가)** Commit policy = **옵션 A+** (doc structure review `ccbc415` P1-1 결정): `graphify-out/{graph.json, GRAPH_REPORT.md, graph.html}` 는 git에 커밋(팀 공유 knowledge artifact). `graphify-out/cache/`와 `graphify-out/.graphify_*` 중간 파일만 ignore. S1 산출물은 `8b9ddec` 커밋으로 이미 반영됨.
 
 - [ ] **Step 1: 새 타겟 추가**
 

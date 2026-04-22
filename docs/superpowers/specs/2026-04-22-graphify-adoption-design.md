@@ -112,7 +112,7 @@ S1 스캔은 **이 Claude Code 세션 안에서 `/graphify .` 슬래시커맨드
 5. `cluster` + `analyze.god_nodes` + `analyze.surprising_connections`
 6. `export.generate_html` + `to_canvas`/JSON + GRAPH_REPORT.md → `graphify-out/`
 
-출력 위치는 graphify 기본값 `graphify-out/`를 유지(이미 `.gitignore`에 포함). 평가 측정값만 `docs/superpowers/specs/2026-04-22-graphify-evaluation.md`에 커밋.
+출력 위치는 graphify 기본값 `graphify-out/`를 유지. **Commit policy (옵션 A+, 2026-04-22 결정)**: `graphify-out/{graph.json, GRAPH_REPORT.md, graph.html}`는 git에 커밋해 팀 공유 knowledge artifact로 취급. `graphify-out/cache/`와 중간 파일(`.graphify_*`)만 `.gitignore`. 근거: doc structure review `ccbc415` P1-1.
 
 **합격 기준 (4/5 충족 시 S2 진행)**
 
