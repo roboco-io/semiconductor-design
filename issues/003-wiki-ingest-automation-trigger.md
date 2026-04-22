@@ -1,15 +1,30 @@
 ---
 id: 003
 title: Wiki ingest 자동화 + QMD reindex 전략 (L2 substrate)
-status: open (expanded 2026-04-19)
+status: resolved (superseded by graphify adoption, 2026-04-22)
 type: design-decision
 related_spec: docs/superpowers/specs/2026-04-19-integrated-research-program-design.md#3.2
+superseded_by: docs/superpowers/specs/2026-04-22-graphify-adoption-design.md
 layer: L2
 iteration: G2
 blocks: [L2 파생 spec]
 ---
 
 # 003. Wiki ingest 자동화 + QMD reindex 전략 (L2 substrate)
+
+## Resolution (2026-04-22)
+
+본 이슈는 **graphify 도입 결정 (2026-04-22)** 으로 supersede. 사유:
+
+- 아래 옵션 A/B/C/D는 모두 **Phase 1a wiki 엔진**(`wiki-init`·`wiki-sync`·`wiki-lint` + `lint_wiki.py`)을 전제로 함
+- graphify 전환으로 해당 엔진 자체가 폐기 대상(`docs/superpowers/specs/2026-04-22-graphify-adoption-design.md`)
+- QMD 검색 계층 또한 graphify MCP(`graphify query` + `graph.json`)로 대체 — overview spec §3.2 L2 인터페이스 v2 참조
+
+새 주제(graphify refresh policy, graph integrity threshold, output commit policy 등)는 별도 이슈 [`005-graphify-refresh-and-integrity-policy.md`](005-graphify-refresh-and-integrity-policy.md) (TBD)로 분리 예정.
+
+역사적 맥락은 아래 본문 유지.
+
+---
 
 ## 재배치 노트 (2026-04-19)
 
