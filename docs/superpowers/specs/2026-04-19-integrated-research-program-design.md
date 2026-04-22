@@ -137,18 +137,20 @@
 
 ## 5. Evaluation Metrics (H7 재정렬: ORFS Pareto는 baseline only)
 
+> **Revision note (v2, 2026-04-22 graphify 전환)**: §5.1 H1a/H1b/H1c 지표·§5.1 L2 SUBSTRATE system metrics·§5.2-1 freeze 대상·§5.4 H1a threshold를 graphify v2 L2 계약(§3.2 v2)에 정렬. §5.3 canonical decision table은 **table 자체 불변**, evidence origin note만 추가(증거 출처 명시). R0~R6 + H2 보조 rule은 v1과 완전 동일.
+
 ### 5.1 Layer별 지표
 
 **L3 CONTENT — H1 novelty metrics (primary)**
-- **H1a Finding reuse rate**: `L2.lint` duplicate-matching rule이 자동 매칭한 비율. rule은 실험 전 freeze (§5.2-1), blinded audit N≥2 통과 필수.
+- **H1a Finding reuse rate**: graphify query 기반 duplicate-finding heuristic이 자동 매칭한 비율. heuristic(query 템플릿 + tier 필터 + node 유사도 threshold)은 실험 전 freeze (§5.2-1), blinded audit N≥2 통과 필수.
 - **H1b Non-knob structural patch count**: 부록 C Gemmini-knob-exclusion-list에 없는 transform이 signed-off된 건수 × seed 재현성.
 - **H1c Cold-start failure rate**: 새 디자인 첫 N=10 runs에서 sign-off fail 비율.
 - **Baseline comparator (novelty 지표 아님)**: ORFS-agent(2025)와 동일 compute budget($) 하에서의 Pareto hypervolume — 보조 맥락 수치이며 H1의 acceptance 기준에 **포함되지 않음**. (Codex H7 반영: autotuning MVP가 novelty를 잃었으므로 Pareto는 baseline only)
 
 **L2 SUBSTRATE — system metrics (보조, H1의 측정 도구)**
-- Skill library reuse rate (Voyager 지표 차용)
-- Negative-result recall accuracy — "과거 실패 조합을 다시 제안하는 비율" (낮을수록 좋음)
-- Memory corpus drift (last_verified 분포)
+- Skill library reuse rate (Voyager 지표 차용) — graphify query가 `skill:` prefix 노드를 반환한 횟수 ÷ 총 skill 노드 수
+- Negative-result recall accuracy — "과거 실패 조합을 다시 제안하는 비율" (낮을수록 좋음) — graphify path/explain 경유 failure 노드 재hits 기준
+- Memory corpus drift — `graphify-out/graph.json` rebuild 간 god-node top-N 변화율 + AMBIGUOUS 비율 trajectory (Phase 1a의 `last_verified` frontmatter는 v2에서 graph rebuild timestamp로 대체)
 - 이 지표들은 논문의 primary novelty claim으로 **직접 쓰이지 않으며**, H1 측정의 인프라 품질 증명용.
 
 **L1 PROCESS — operational metrics**
@@ -158,7 +160,7 @@
 
 ### 5.2 Measurement Safeguards (Codex C2 대응: gameable metric 방어)
 
-1. **Freeze-before-experiment**: `L2.lint` duplicate-matching rule, H1b novelty patch 분류 규칙, blinded audit rubric을 실험 개시 전 **git tag로 freeze**. 중간 변경은 실험 무효 처리.
+1. **Freeze-before-experiment**: **graphify query duplicate-finding heuristic**(query 템플릿, tier 필터, 노드 유사도 threshold), H1b novelty patch 분류 규칙, blinded audit rubric을 실험 개시 전 **git tag로 freeze**. 중간 변경은 실험 무효 처리. (`L2.lint.check`는 v2에서 graph integrity 전용이라 본 freeze 대상이 아님 — §3.2 v2)
 2. **Pre-registered Gemmini knob exclusion list (부록 C)**: `runtime-selectable dataflow (WS/OS/Both)`, `meshRows × meshCols`, `tileRows × tileCols`, `scratchpad size`, `inputType/accType`, `target freq`, Chipyard config options 등 기존 knob을 열거. 이 목록에 있는 것을 바꾸는 것은 **H1b "structural idea"로 카운트 금지**. 목록 수정은 실험 시작 전에만 가능하고, 이후 변경은 실험 무효.
 3. **Blinded manual audit**: H1a·H1b의 자동 카운트는 운영자가 아닌 **독립 평가자 N≥2**가 blind로 샘플 검수. 일치율 <80%이면 자동 카운트 무효.
 4. **Evaluator separation (H3)**: trace 생성 LLM과 평가 LLM은 서로 다른 family (§4.3).
@@ -170,6 +172,8 @@
 
 **Precedence rule (override)**:
 - **R0**: H3 evaluator separation 위반 OR H3 blinded audit 실패 OR FM1~FM4 pass율 < 50% OR 평가자 N < 5 → **kill**, 아래 모든 rule override. "평가 무결성 없으면 다른 결과는 무의미".
+
+**Evidence origin (v2, 2026-04-22)**: H1/H2/H3 pass/fail 판정 증거는 `graphify query` 결과(tier ∈ {EXTRACTED, INFERRED}인 god-node + human-reviewed claim) + L1 artifact bundle의 signed-off sign-off 리포트에서 수집한다. Phase 1a의 `wiki/findings/` · `wiki/failures/` · `wiki/decisions/` 디렉토리 경로는 v2에서 모두 graphify 그래프 노드로 대체됨.
 
 **R0 통과를 전제로** 다음 7행이 H1 pass 개수와 H3 validity 조합을 **완전히** 커버한다 (H1 ∈ {0, 1, ≥2} × H3 ∈ {pass, fail} = 6 + override row = 7):
 
@@ -193,7 +197,7 @@
 
 | Hypothesis | Threshold | 정의 위치 |
 |---|---|---|
-| H1a Finding reuse rate | freeze된 rule의 자동 매칭 비율이 iteration에 따라 **non-trivial하게 증가** (linear regression slope > 0, α=0.05, R² ≥ 0.3) + blinded audit N≥2 일치율 ≥80% | §4.1·§5.1·§5.2 |
+| H1a Finding reuse rate | freeze된 graphify query duplicate-finding heuristic의 자동 매칭 비율이 iteration에 따라 **non-trivial하게 증가** (linear regression slope > 0, α=0.05, R² ≥ 0.3) + blinded audit N≥2 일치율 ≥80% | §4.1·§5.1·§5.2 |
 | H1b Non-knob patch | 부록 C 제외 transform이 sign-off clean × seed×3 재현, 최소 3건 | §4.1·§5.1·부록 C |
 | H1c Cold-start failure rate | ORFS-agent baseline 대비 **감소** (seed×3 평균) | §4.1·§5.1 |
 | H2 복리 효과 | linear regression slope < 0, α=0.05, R² ≥ 0.3 | §4.2 |
