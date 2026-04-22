@@ -91,11 +91,6 @@
 | 용어 | 뜻 |
 |---|---|
 | `semi-run` | L1 Process의 Python CLI 이름. spec 제출, 상태 확인, artifact 수집을 담당한다. |
-| `wiki-init` | wiki 디렉터리 구조를 초기화하는 CLI다. |
-| `wiki-sync` | wiki index를 재생성하는 CLI다. |
-| `wiki-lint` | wiki frontmatter, 링크, 규칙 위반을 검사하는 CLI다. |
-| Frontmatter | Markdown 상단의 YAML metadata. wiki 문서의 type, status, confidence, evidence 등을 구조화한다. |
-| QMD | wiki와 원문, 실험 로그 검색을 빠르게 하기 위한 검색 계층이다. 주 기억장치가 아니라 보조 index로 취급한다. |
 | Artifact bundle | 한 run의 spec, RTL, report, metrics, provenance, log를 함께 저장한 결과 묶음이다. |
 | Provenance | artifact가 어떤 source, SHA, container digest, operator/agent를 통해 만들어졌는지 추적하는 기록이다. |
 | Lockfile | 도구, container, PDK, source mirror의 SHA/digest를 고정하는 파일이다. 재현성의 기준점이다. |
@@ -107,11 +102,47 @@
 | Object Lock | S3 객체를 일정 기간 수정·삭제하지 못하게 하는 기능. 성공 artifact의 불변성을 보장한다. |
 | DLQ | Dead Letter Queue. 처리 실패한 메시지나 작업을 격리해 나중에 조사할 수 있게 하는 큐다. |
 
+## Graphify (L2 Substrate 지식 그래프, 2026-04-22~)
+
+| 용어 | 뜻 |
+|---|---|
+| Graphify | tree-sitter AST + Claude subagent 의미 추출 + Leiden 커뮤니티 탐지를 결합한 지식 그래프 도구. 본 프로젝트의 L2 Substrate 지식 인덱스. MIT · v0.4.25. |
+| `GRAPH_REPORT.md` | graphify가 생성하는 사람용 요약. god-node 목록·커뮤니티 라벨·surprising connections. 팀 공통 entrypoint. |
+| `graph.json` | NetworkX 기반 구조 데이터(node/link/hyperedge). `graphify query`·MCP 서버의 소스. version control 대상. |
+| `graph.html` | vis.js 기반 대화형 시각화. 로컬 브라우저에서 커뮤니티·노드 탐색. |
+| EXTRACTED | graphify 신뢰도 3-tier 중 최상위. 소스에 명시적 관계(import, call, citation). confidence 1.0. |
+| INFERRED | graphify 신뢰도 3-tier 중 중간. 합리적 추론(shared data structure, implied dependency). confidence < 1.0. |
+| AMBIGUOUS | graphify 신뢰도 3-tier 중 검토 대기. human review 후 INFERRED/EXTRACTED로 승격. |
+| Graph integrity check | L2.lint.check()의 graphify 기반 재정의. orphan 노드=0, dangling edge=0, AMBIGUOUS 비율 ≤ 0.3. `scripts/graph_integrity_check.py`. |
+| Orphan node | 어떤 엣지에도 참여하지 않는 노드. integrity check에서 0이 되어야 함. |
+| Dangling edge | source/target 중 하나가 노드 id 집합에 없는 엣지. 0이 되어야 함. |
+| God node | degree·centrality 상위 노드. 시스템의 허브 역할을 표시한다(`analyze.god_nodes`). |
+| Leiden community | graspologic의 Leiden 알고리즘으로 탐지된 노드 클러스터. modularity 최적화 기반. |
+| Cross-trench edge | narrative(wiki/raw) / code(src) / contract(wiki/program) 등 파일 경로 계열(trench) 간을 잇는 엣지. S1 M3 평가 기준. chunk 병렬 처리 시 구조적 한계로 희박함. |
+| Bridge manifest | graphify가 자동으로 잡지 못한 cross-trench 관계를 사람이 명시적으로 기록하는 보완 문서(후보 경로 `docs/graphify/cross-links.md`). graphify rebuild 시 재입력되어 self-healing 기대. |
+| `graphify query` | 그래프에 BFS/DFS 질의를 돌려 관련 노드·엣지를 반환하는 CLI. L2.memory.recall 사용자 경로. |
+| `graphify path` | 두 개념 간 최단 경로를 출력. 아키텍처 토폴로지 추적용. |
+| `graphify explain` | 특정 노드와 이웃을 사람용 설명으로 생성. 노드 reasoning trace 용도. |
+
+## Legacy Phase 1a (폐기 예정, 2026-04-22~)
+
+Phase 1a wiki 엔진 관련 용어. graphify 전환(S3)으로 모두 제거 예정이므로 새 문서·에이전트는 참조하지 말 것. history 보존 목적으로만 유지.
+
+| 용어 | 뜻 |
+|---|---|
+| `wiki-init` | ~~wiki 디렉터리 구조를 초기화하는 CLI~~ — S3에서 제거 예정. graphify에는 초기화 개념이 없음(`graphify update`가 대응). |
+| `wiki-sync` | ~~wiki index를 재생성하는 CLI~~ — S3에서 제거 예정. `graphify-out/GRAPH_REPORT.md`가 대체. |
+| `wiki-lint` | ~~wiki frontmatter, 링크, 규칙 위반을 검사하는 CLI~~ — S3에서 제거 예정. graph integrity check이 대체. |
+| Frontmatter (wiki 문서용) | ~~Markdown 상단의 YAML metadata로 type/status/confidence/evidence 구조화~~ — 계약 자체가 폐기. graphify 3-tier(EXTRACTED/INFERRED/AMBIGUOUS)가 신뢰도 신호를 대체. |
+| QMD | ~~wiki·원문·실험 로그의 보조 검색 계층~~ — 미구현 상태에서 폐기. graphify MCP(`graphify.serve`)가 검색 기능 대체. |
+| `promotion_policy` | ~~raw → vetted 승격 규칙~~ — S2에서 overview spec §7로 흡수 후 삭제. graphify 흐름에서는 AMBIGUOUS → INFERRED/EXTRACTED human review가 대체. |
+| `scoring` | ~~wiki 문서 품질 점수화 규칙~~ — 동일 경로로 폐기. |
+
 ## 자주 헷갈리는 구분
 
 | 구분 | 정리 |
 |---|---|
-| Wiki vs QMD | Wiki는 정제된 지식의 원본이고, QMD는 검색 가속 계층이다. 새 사실은 QMD가 아니라 wiki에 반영한다. |
+| ~~Wiki vs QMD~~ (legacy) | Phase 1a의 구분. graphify 전환(2026-04-22)으로 의미 없음. 현 구조에서는 `wiki/raw/**`가 raw corpus이고 graphify `graph.json`이 canonical index다. |
 | Autotuning vs Open-Ideation | Autotuning은 주어진 knob 탐색이고, Open-Ideation은 구조적 아이디어와 patch까지 탐색한다. |
 | Parameter knob vs structural patch | knob은 flow/config 값 변경이다. structural patch는 RTL, constraint, architecture 자체의 의미 있는 변경이다. |
 | Clean sign-off vs functional correctness | G1의 sign-off clean은 timing/DRC/LVS 관점의 증거일 수 있지만 functional simulation이 없으면 기능 correctness 증거는 아니다. |
