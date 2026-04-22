@@ -148,9 +148,9 @@
 - **Baseline comparator (novelty 지표 아님)**: ORFS-agent(2025)와 동일 compute budget($) 하에서의 Pareto hypervolume — 보조 맥락 수치이며 H1의 acceptance 기준에 **포함되지 않음**. (Codex H7 반영: autotuning MVP가 novelty를 잃었으므로 Pareto는 baseline only)
 
 **L2 SUBSTRATE — system metrics (보조, H1의 측정 도구)**
-- Skill library reuse rate (Voyager 지표 차용) — graphify query가 `skill:` prefix 노드를 반환한 횟수 ÷ 총 skill 노드 수
-- Negative-result recall accuracy — "과거 실패 조합을 다시 제안하는 비율" (낮을수록 좋음) — graphify path/explain 경유 failure 노드 재hits 기준
-- Memory corpus drift — `graphify-out/graph.json` rebuild 간 god-node top-N 변화율 + AMBIGUOUS 비율 trajectory (Phase 1a의 `last_verified` frontmatter는 v2에서 graph rebuild timestamp로 대체)
+- Skill library reuse rate (Voyager 지표 차용) — **컨벤션**: skill 노드는 ingest 시 `skill:<name>` 형태로 label prefix를 붙인다(graphify query는 free-text BFS/DFS라 built-in prefix filter가 없음). 측정: `graphify query`가 `skill:` prefix 노드를 반환한 횟수 ÷ 총 skill 노드 수
+- Negative-result recall accuracy — "과거 실패 조합을 다시 제안하는 비율" (낮을수록 좋음). 측정식: (iteration N 내 제안된 patch 중 failure 노드와 `graphify path` 또는 `graphify explain`으로 연결된 것) ÷ (iteration N 내 전체 제안된 patch 수). 구체 operationalization(failure 노드 식별 기준, 연결 hop 상한 등)은 L2 파생 spec에서 확정
+- Memory corpus drift — `graphify-out/graph.json` rebuild 간 (1) god-node top-N 변화율과 (2) AMBIGUOUS 비율 trajectory를 **각각 독립 signal로 기록**(가중 합산 아님). Phase 1a의 `last_verified` frontmatter(문서별 verification age)는 v2에서 graph rebuild timestamp(전체 graph 단일값)로 대체 — 의미적 gap 있음(per-document ≠ per-graph), L2 파생 spec에서 per-node freshness 재도입 여부 검토
 - 이 지표들은 논문의 primary novelty claim으로 **직접 쓰이지 않으며**, H1 측정의 인프라 품질 증명용.
 
 **L1 PROCESS — operational metrics**
@@ -160,7 +160,7 @@
 
 ### 5.2 Measurement Safeguards (Codex C2 대응: gameable metric 방어)
 
-1. **Freeze-before-experiment**: **graphify query duplicate-finding heuristic**(query 템플릿, tier 필터, 노드 유사도 threshold), H1b novelty patch 분류 규칙, blinded audit rubric을 실험 개시 전 **git tag로 freeze**. 중간 변경은 실험 무효 처리. (`L2.lint.check`는 v2에서 graph integrity 전용이라 본 freeze 대상이 아님 — §3.2 v2)
+1. **Freeze-before-experiment**: **graphify query duplicate-finding heuristic**(query 템플릿, tier 필터, 노드 유사도 threshold), H1b novelty patch 분류 규칙, blinded audit rubric을 실험 개시 전 **git tag로 freeze**. 중간 변경은 실험 무효 처리. (`L2.lint.check`는 v2에서 graph integrity 전용이라 본 **experimental freeze** 대상이 아님 — §3.2 v2. 다만 `scripts/graph_integrity_check.py`의 임계선 상수(orphan=0, dangling=0, AMBIGUOUS≤0.3)는 **spec-level immutability**로 관리되며 변경 시 spec 재승인 필요. 두 immutability는 층위가 다르다: experimental freeze = iteration별 git tag, spec-level = §3.2 v2 계약.)
 2. **Pre-registered Gemmini knob exclusion list (부록 C)**: `runtime-selectable dataflow (WS/OS/Both)`, `meshRows × meshCols`, `tileRows × tileCols`, `scratchpad size`, `inputType/accType`, `target freq`, Chipyard config options 등 기존 knob을 열거. 이 목록에 있는 것을 바꾸는 것은 **H1b "structural idea"로 카운트 금지**. 목록 수정은 실험 시작 전에만 가능하고, 이후 변경은 실험 무효.
 3. **Blinded manual audit**: H1a·H1b의 자동 카운트는 운영자가 아닌 **독립 평가자 N≥2**가 blind로 샘플 검수. 일치율 <80%이면 자동 카운트 무효.
 4. **Evaluator separation (H3)**: trace 생성 LLM과 평가 LLM은 서로 다른 family (§4.3).
@@ -173,7 +173,7 @@
 **Precedence rule (override)**:
 - **R0**: H3 evaluator separation 위반 OR H3 blinded audit 실패 OR FM1~FM4 pass율 < 50% OR 평가자 N < 5 → **kill**, 아래 모든 rule override. "평가 무결성 없으면 다른 결과는 무의미".
 
-**Evidence origin (v2, 2026-04-22)**: H1/H2/H3 pass/fail 판정 증거는 `graphify query` 결과(tier ∈ {EXTRACTED, INFERRED}인 god-node + human-reviewed claim) + L1 artifact bundle의 signed-off sign-off 리포트에서 수집한다. Phase 1a의 `wiki/findings/` · `wiki/failures/` · `wiki/decisions/` 디렉토리 경로는 v2에서 모두 graphify 그래프 노드로 대체됨.
+**Evidence origin (v2, 2026-04-22)**: H1/H2/H3 pass/fail 판정 증거는 `graphify query` 결과(tier ∈ {EXTRACTED, INFERRED}인 god-node + human-reviewed claim) + L1 artifact bundle의 signed-off sign-off 리포트에서 수집한다. Phase 1a의 `wiki/findings/` · `wiki/failures/` · `wiki/decisions/` 디렉토리 경로(계획 단계에서만 정의되었고 실제로 populated된 적은 없음)는 v2에서 모두 graphify 그래프 노드로 대체됨.
 
 **R0 통과를 전제로** 다음 7행이 H1 pass 개수와 H3 validity 조합을 **완전히** 커버한다 (H1 ∈ {0, 1, ≥2} × H3 ∈ {pass, fail} = 6 + override row = 7):
 
