@@ -257,15 +257,112 @@ SHA pinning 이상으로 재현성을 못박기 위한 단일 lockfile 의무화
 | 에이전트 | 8종(Spec/Architect/RTL/TB/Verif/Signoff/Evaluator/Planner) | 3층 구조 내부에서 재편. RTL/TB는 L3에 종속. Reader/Synthesizer는 L2에 종속. 구체 종수는 파생 spec에서 확정 |
 | Autotuning-only MVP | (하이브리드 안으로 제안됨) | **폐기** — ORFS-agent(2025) 존재로 novelty 소실 |
 
-## 7. 운영 원칙 (program.md 초안)
+## 7. 운영 원칙 (Operating Rules, v2, 2026-04-22 graphify 전환)
 
-작성될 `wiki/program/program.md`에 포함될 최상위 규칙:
+> **Revision note:** v1의 `wiki/program/{program,scoring,promotion_policy}.md` 3종을 이 §7에 인라인 흡수. v1의 typed-frontmatter(`confidence` / `contradiction` / `last_verified`) 기반 promotion gate는 graphify 3-tier(`EXTRACTED` / `INFERRED` / `AMBIGUOUS`) + `L2.lint.check()` 통합 체크(§5.2-1)로 대체한다. 원본 `wiki/program/*.md` 파일은 S4(plan Task 18)에서 삭제된다. 본 §7은 publish/kill 기준을 **자체적으로 선언하지 않는다** — §5.3 Canonical Decision Table이 유일한 결정 근거.
 
-1. **작은 reversible patch만 허용.** baseline 덮어쓰기 금지. promotion gate 통과 후에만 baseline 승격.
-2. **모든 claim은 evidence로 지탱.** wiki 페이지는 `confidence, contradiction, last_verified` 필드 필수.
-3. **Negative result도 자산.** `failures/`에 축적. 삭제 금지.
-4. **감독은 운영자 책임.** 에이전트 자동 결정은 log되지만 promotion은 운영자 승인 필요.
-5. **Process > 수치.** 논문 claim의 일부는 reasoning trace 자체다. PPA 수치가 나오지 않아도 프로그램은 진행.
+### 7.1 규칙 R1–R7
+
+#### R1. 작은 reversible patch만
+- 모든 변경은 되돌릴 수 있는 단위여야 한다. baseline 경로의 직접 덮어쓰기 금지.
+- §7.3 promotion gate를 통과한 patch만 baseline으로 승격.
+
+#### R2. 모든 claim은 evidence로 뒷받침
+- `wiki/findings/`, `wiki/failures/` 페이지는 body에 `evidence_urls[]` · `derived_from_hypothesis` · `run_ids[]` 증거를 반드시 포함한다.
+- graphify ingest 시 해당 페이지 노드에는 3-tier(`EXTRACTED` / `INFERRED` / `AMBIGUOUS`)가 부여된다. AMBIGUOUS 노드는 §7.3 triage 대상.
+- v1 typed-frontmatter 필드(`confidence` / `contradiction` / `last_verified`)는 폐기 — 증거 강도는 graphify tier가 전담한다.
+
+#### R3. Negative result도 자산
+- 실패는 `wiki/failures/`에 first-class citizen으로 축적. 삭제 금지.
+- 동일 finding의 재발견은 `L2.lint.check()` duplicate-finding 규칙(§5.2-1)으로 자동 감지.
+
+#### R4. 감독은 운영자 책임
+- 에이전트 자동 결정은 JSONL trace로 logging되며 사후 감사 가능해야 한다.
+- Promotion 승인은 운영자 수동. 에이전트 자동 promotion 금지.
+
+#### R5. Process > 수치
+- 논문 claim의 일부는 reasoning trace 자체다(§4.3 H3).
+- PPA 수치가 나오지 않아도 프로그램은 진행된다. kill 조건은 §5.3 Canonical Decision Table만이 결정한다.
+
+#### R6. Evaluator separation
+- Trace 생성 LLM ≠ trace 평가 LLM family (§4.3 H3). Claude 생성 → Codex 또는 인간 평가, 역도 성립.
+- H3의 주 평가자는 **인간** (N ≥ 5). LLM 평가는 보조.
+
+#### R7. Pre-registration
+- 실험 설계(sample size, threshold, exclusion list, seeds)는 실험 개시 전 git tag로 freeze(§5.2-1 freeze-before-experiment).
+- 사후 조정은 해당 회차 실험을 무효화한다.
+
+R1–R7 번호 재지정 금지(외부 참조 보호). 규칙 추가는 허용하되 기존 번호 재할당·삭제는 overview spec 재승인이 필요하다.
+
+### 7.2 Candidate · Finding · Failure · Skill 생성 기준
+
+**Candidate artifact 필수 필드** (`L1.run(spec_uri)` 반환 JSON 스키마):
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| `run_id` | ULID | 유일 식별자 |
+| `sign_off_status` | enum | `clean` / `drc_fail` / `lvs_fail` / `sta_fail` / `tool_crash` |
+| `metrics` | object | `area_um2` · `power_mw` · `max_freq_mhz` · `runtime_s` · `wns_ns` · `tns_ns` |
+| `cost_usd` | number | AWS 청구 기준 |
+| `reports[]` | list<URI> | `.rpt` · `.def` · `.sdc` 파일 경로 (§3.2 L1 bundle 불변 원칙) |
+| `provenance_uri` | URI | license matrix + artifact lineage (§13) |
+| `lockfile_sha` | string | 사용된 `lockfile.yaml` 스냅샷 hash (§6.2) |
+
+**Finding 생성**: run 결과가 기존 findings와 `L2.lint.check()`로 매칭되지 않고 blinded audit이 새 패턴으로 판정하면 `wiki/findings/<YYYY-MM-DD>-<slug>.md`로 저장한다. graphify ingest 후 tier는 `EXTRACTED` 또는 `INFERRED`가 부여되며, `AMBIGUOUS`로 분류된 경우 §7.3 triage 대상.
+
+**Failure 생성**: `sign_off_status != clean` 또는 blinded audit fail → `wiki/failures/<YYYY-MM-DD>-<slug>.md`에 저장. 삭제 금지(R3). body에 `failure_mode`(예: `drc_m2_spacing`, `sta_setup_hold`) 명시.
+
+**Skill 등록** (`L2.skill_library.query()` append-only, §3.2):
+1. 최소 seed × 3 재현 통과
+2. Signed-off report가 attached
+3. Blinded audit N ≥ 2 pass
+4. Skill 설명이 "어떤 디자인 패턴·제약 상황에서 적용 가능한가"를 명시
+
+Rename / remove 금지. Deprecation은 `status` 필드로만 표현한다(§3.2).
+
+### 7.3 Promotion gate
+
+**승격 대상**: Candidate → baseline design / Finding → canonical wiki page / Skill → promoted skill.
+
+**공통 절차**:
+1. Gate 조건 충족 (대상별, 아래).
+2. Promotion proposal을 운영자가 PR 형태로 제출 (`promotion-proposal/<id>.md`).
+3. Blinded review — 독립 평가자 N ≥ 2 승인 (R6 준수).
+4. Evidence freeze — 승격 후 해당 baseline 경로에 `frozen.lock` 생성. 수정 시 재승격 절차.
+5. CI re-verification — `make graph-lint`(§5.2-1 graph integrity) + regression smoke test 통과.
+
+**Gate 조건**:
+
+- **Candidate → baseline**: seed × 3 재현 + `sign_off_status == clean` + blinded audit N ≥ 2 + `L1.run` metrics가 기존 baseline 대비 regression 없음 (`area_um2` · `power_mw` · `max_freq_mhz` 전 항목).
+- **Finding → canonical wiki page**: graphify tier ∈ {`EXTRACTED`, `INFERRED`} (즉 `AMBIGUOUS` 불가), `L2.lint.check()` 경고 0, 관련 evidence run ≥ 3건, `derived_from_hypothesis` 필드로 §4 hypothesis와 연결됨.
+- **Skill → promoted skill**: `skill.version ≥ 2`, 독립 디자인 2개 이상에서 적용 이력, 각 usage마다 signed-off report attached, blinded audit N ≥ 2 pass.
+
+**AMBIGUOUS triage workflow** (`L2.lint.check()` AMBIGUOUS 비율 > 0.3 발생 시 — graphify는 비율만 측정하고 해소 절차는 운영 규칙으로 정의해야 함):
+
+1. Trigger는 `graphify-out/GRAPH_REPORT.md`의 AMBIGUOUS 비율 > 0.3이며, §5.2-1에 따라 `L2.lint.check()`는 FAIL이다.
+2. 자동화는 R4에 따라 후보 edge와 evidence gap만 rank/surface하고, tier 변경·승격·폐기는 human triage reviewer가 결정한다.
+3. triage sign-off reviewer는 R6을 따른다: 생성 LLM family와 다른 LLM family reviewer 또는 human reviewer만 승인할 수 있다.
+4. 원문 evidence가 누락·불충분하면 Path A를 적용해 `wiki/raw/**`에 evidence를 보강하고 `/graphify`를 재실행한다.
+5. Part B chunk-boundary cross-trench 누락처럼 명시 evidence는 있으나 bridge가 없으면 Path B를 적용해 `docs/graphify/cross-links.md`에 10-20개 explicit edge를 추가한다(§4.3 H3).
+6. Path A/B 적용 후 `make graph-lint`로 `L2.lint.check()`를 반복 실행하며, AMBIGUOUS 비율 ≤ 0.3 전까지 §7.3 promotion과 L3 entry를 모두 차단한다.
+7. triage 후에도 AMBIGUOUS 비율 > 0.3이면 §5.3 R0 위반으로 격상하지 않고, §5.2-1의 독립 lint-level FAIL 신호로 남긴다.
+
+### 7.4 운영 리듬
+
+- **게이트 중심, 주단위 일정 없음** (§8과 정렬). 각 게이트 통과 시점에 다음 게이트의 태스크·의존성을 산정. 독립 태스크는 병렬.
+- **Sub-plan 승인은 게이트 단위**. L1 / L2 / L3 파생 spec · plan은 게이트 단위로 작성·승인하며, 프로그램 전체를 한 번에 확정하지 않는다(§8, §12).
+- **자체 스코어링 정책 금지**. 본 §7은 publish / reframed-publish / kill 기준을 선언하지 않는다 — §5.3 Canonical Decision Table이 유일한 결정 근거 (R5 · §11과 일관).
+
+### 7.5 금지 사항
+
+- Baseline 경로 파일의 직접 `git push` 금지 — 모든 변경은 promotion-proposal PR 경유.
+- Promotion 우회 자동화 금지 — 에이전트는 제안만, 승인은 인간(R4).
+- Regression test 생략 금지 — CI 재검증 실패 시 자동 rollback + `wiki/failures/`에 `promotion_regression` failure 기록.
+- Typed-frontmatter 필드(`confidence` · `contradiction` · `last_verified`) 부활 금지 — graphify tier와 이중 표기 시 단일 진실 원천이 무너진다.
+
+### 7.6 규칙 변경 절차
+
+본 §7 수정은 overview spec 재승인 절차를 따른다. R1–R7 본문 변경은 프로그램 identity 변경이므로 사용자(serithemage) 명시 승인 필요. 규칙 추가는 R8 이후 번호로만 허용한다.
 
 ## 8. 실행 순서 (게이트 기반, 주단위 없음)
 
