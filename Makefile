@@ -1,4 +1,4 @@
-.PHONY: install test lint fmt clean
+.PHONY: install test lint fmt clean graph-update graph-build graph-serve graph-lint
 
 install:
 	uv sync --all-extras
@@ -7,11 +7,25 @@ test:
 	uv run pytest -v
 
 lint:
-	uv run ruff check src tests
+	uv run ruff check src tests scripts
 
 fmt:
-	uv run ruff format src tests
+	uv run ruff format src tests scripts
 
 clean:
 	rm -rf .pytest_cache .ruff_cache dist *.egg-info
 	find . -type d -name __pycache__ -exec rm -rf {} +
+
+graph-update:
+	uv run graphify update .
+
+graph-build:
+	@echo "Full graphify build must be run from an AI agent session."
+	@echo "In Claude Code, invoke: /graphify ."
+	@echo "Or follow skill.md recipe (see docs/superpowers/specs/2026-04-22-graphify-adoption-design.md §4.1)."
+
+graph-serve:
+	uv run python -m graphify.serve graphify-out/graph.json
+
+graph-lint:
+	uv run python scripts/graph_integrity_check.py graphify-out/graph.json
