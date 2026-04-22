@@ -81,11 +81,11 @@
 | Interface | Producer → Consumer | Input schema | Output schema | Immutability | Error taxonomy | Versioning | Min required fields |
 |---|---|---|---|---|---|---|---|
 | `L1.run(spec_uri)` | L1 orchestrator → L3 agents | `s3://…/spec.yaml` (Pydantic `Spec`, ULID `run_id`) | `s3://…/artifact/{run_id}/` bundle | Write-once, `_SUCCESS` marker 이후 immutable | `SpotReclaimed`, `OOM`, `TimingFail`, `DRCFail`, `ToolCrash`, `Unknown → DLQ` | `Spec.version: int` 필수, breaking 변경은 major bump | `run_id`, `status`, `metrics_uri`, `reports[]`, `cost_usd`, `provenance_uri` |
-| `L2.skill_library.query(context)` | L2 substrate → L3 agents | `{name \| context}` (graphify `query "skill:<name>"` 또는 context 기반 lookup) | `[{skill_id, patch_uri, signed_off_report_uri, tier, last_verified}]` | `.claude/skills/`는 graphify 인덱싱 대상. 스킬 파일 자체는 git 관리, append-only per version; rename 금지; deprecation은 frontmatter `status` 필드로만 | `NoMatch`, `AmbiguousMatch`, `Uncached` (AMBIGUOUS skill 노드가 human review 대기 중일 때) | `skill.version: int` per-skill (skill frontmatter 필드) | `skill_id`, `patch_uri`, `attached_report_uri`, `last_verified`, `tier` |
-| `L2.memory.recall(query)` | L2 substrate → L3 agents | `{query_text, k?, budget_tokens?}` (graphify BFS/DFS budget) | `[{node_id, label, source_file, tier, confidence_score, snippet?}]` | Read-only query over `graphify-out/graph.json`. 새 memory는 raw `.md` 파일로 write하고 `/graphify` rebuild 시 그래프에 반영 | `NoMatch`, `StaleGraph` (graph.json older than corpus), `AmbiguousTier` (AMBIGUOUS 비율 초과) | graph.json은 graphify version + corpus hash로 버전 식별 | `node_id`, `tier`, `confidence_score`, `source_file` |
+| `L2.skill_library.query(context)` | L2 substrate → L3 agents | `{name \| context}` (graphify `query "skill:<name>"` 또는 context 기반 lookup) | `[{skill_id, patch_uri, signed_off_report_uri, tier, last_verified}]` | `.claude/skills/`는 graphify 인덱싱 대상. 스킬 파일 자체는 git 관리, append-only per version; rename 금지; deprecation은 frontmatter `status` 필드로만 | `NoMatch`, `AmbiguousMatch`, `Uncached` (AMBIGUOUS skill 노드가 human review 대기 중일 때) | `skill.version: int` per-skill (skill frontmatter 필드) | `skill_id`, `patch_uri`, `signed_off_report_uri`, `last_verified`, `tier` |
+| `L2.memory.recall(query)` | L2 substrate → L3 agents | `{query_text, k?, budget_tokens?}` (graphify BFS/DFS budget) | `[{node_id, label, source_file, tier, snippet?}]` | Read-only query over `graphify-out/graph.json`. 새 memory는 raw `.md` 파일로 write하고 `/graphify` rebuild 시 그래프에 반영 | `NoMatch`, `StaleGraph` (graph.json older than corpus), `AmbiguousTier` (AMBIGUOUS 비율 초과) | graph.json은 graphify version + corpus hash로 버전 식별 | `node_id`, `tier`, `source_file` |
 | `L2.lint.check(graph_path)` | L2 substrate → CI / S3 (`make graph-lint`) | `graphify-out/graph.json` 경로 (default) 또는 명시적 path | `{ok: bool, errors: list[str], metrics: {orphan_count, dangling_count, ambiguous_ratio}}` | 임계선(orphan=0, dangling=0, AMBIGUOUS≤0.3)은 `scripts/graph_integrity_check.py`에 상수로 고정. 변경은 spec 재승인 | `OrphanNodeExists`, `DanglingEdgeExists`, `AmbiguousRatioExceeded`, `EmptyGraph` | integrity check 스크립트 version은 git SHA로 추적 | `ok`, `errors[]`, `metrics.orphan_count`, `metrics.dangling_count`, `metrics.ambiguous_ratio` |
 
-**의미 gap 공지 (v2)**: graphify `tier`(EXTRACTED/INFERRED/AMBIGUOUS)는 **추출 신뢰도**이며 **주장 타당성**이 아니다. Phase 1a의 `confidence_score` frontmatter는 양자를 암묵적으로 포함했으나 v2에서는 명시적으로 분리. 소비자(L1/L3 agent)는 `tier`를 "검토 필요도" 신호로만 해석하고 **주장 타당성은 H1/H3 실험 결과(§5.3 canonical decision table)에서만 판정**한다.
+**의미 gap 공지 (v2)**: graphify `tier`(EXTRACTED/INFERRED/AMBIGUOUS)는 **추출 신뢰도**이며 **주장 타당성**이 아니다. Phase 1a의 `confidence_score` frontmatter는 양자를 암묵적으로 포함했으나 v2에서는 명시적으로 분리·제거(`L2.memory.recall` output schema에 `confidence_score` 미포함). 소비자(L1/L3 agent)는 `tier`를 "검토 필요도" 신호로만 해석하고 **주장 타당성은 H1/H3 실험 결과(§5.3 canonical decision table)에서만 판정**한다. 이 gap에 대한 schema-level 강제는 §7.3 "Finding → canonical wiki page" gate(tier ∈ {EXTRACTED, INFERRED} 필수)와 §5.3 Evidence origin note에서 이중으로 담보. per-node freshness·ranking calibration·`confidence_score` 재도입 여부는 L2 파생 spec에서 결정.
 
 **Contract 원칙**: 각 interface의 input/output은 Pydantic 스키마로 고정하고 `docs/superpowers/specs/2026-04-19-L{1,2,3}-*-design.md` 파생 시 그대로 상속한다. breaking 변경은 spec 재승인 필요.
 
@@ -137,7 +137,7 @@
 
 ## 5. Evaluation Metrics (H7 재정렬: ORFS Pareto는 baseline only)
 
-> **Revision note (v2, 2026-04-22 graphify 전환)**: §5.1 H1a/H1b/H1c 지표·§5.1 L2 SUBSTRATE system metrics·§5.2-1 freeze 대상·§5.4 H1a threshold를 graphify v2 L2 계약(§3.2 v2)에 정렬. §5.3 canonical decision table은 **table 자체 불변**, evidence origin note만 추가(증거 출처 명시). R0~R6 + H2 보조 rule은 v1과 완전 동일.
+> **Revision note (v2, 2026-04-22 graphify 전환)**: §5.1 H1a/H1b/H1c 지표·§5.1 L2 SUBSTRATE system metrics·§5.2-1 freeze 대상·§5.4 H1a threshold를 graphify v2 L2 계약(§3.2 v2)에 정렬. §5.3 canonical decision **table 7행은 byte-identical**, 다음 주변 note만 추가: (a) Evidence origin(graphify god-node + L1 sign-off), (b) R0 경계(lint fail ≠ R0 — Codex R2), (c) Tier 역할(admissibility gate ≠ validity gate — Codex R2), (d) H3 evidence bundle 명시(Codex R3). H1/H2/H3 pass 기준 수치(§5.4)와 H2 보조 rule은 v1과 완전 동일.
 
 ### 5.1 Layer별 지표
 
@@ -172,8 +172,13 @@
 
 **Precedence rule (override)**:
 - **R0**: H3 evaluator separation 위반 OR H3 blinded audit 실패 OR FM1~FM4 pass율 < 50% OR 평가자 N < 5 → **kill**, 아래 모든 rule override. "평가 무결성 없으면 다른 결과는 무의미".
+- **R0 경계 (v2)**: `L2.lint.check()` graph integrity fail(§3.2) — orphan/dangling/AMBIGUOUS≤0.3 위반 — 은 **R0 조건이 아니다**. §7.3 AMBIGUOUS triage workflow의 독립 lint-level signal로만 작동하며 publish/reframed/kill 결정에 직접 개입하지 않는다. R0는 **평가 무결성**(H3 evaluator 조건) 전용, lint는 **substrate 품질** 전용으로 층위 분리.
 
 **Evidence origin (v2, 2026-04-22)**: H1/H2/H3 pass/fail 판정 증거는 `graphify query` 결과(tier ∈ {EXTRACTED, INFERRED}인 god-node + human-reviewed claim) + L1 artifact bundle의 signed-off sign-off 리포트에서 수집한다. Phase 1a의 `wiki/findings/` · `wiki/failures/` · `wiki/decisions/` 디렉토리 경로(계획 단계에서만 정의되었고 실제로 populated된 적은 없음)는 v2에서 모두 graphify 그래프 노드로 대체됨.
+
+**Tier의 역할 (v2, Codex R2 지적)**: `tier ∈ {EXTRACTED, INFERRED}` 조건은 증거 후보의 **admissibility gate**(추출·연결 품질이 사용 가능한 수준인가)이지 claim **validity gate**(그 주장이 옳은가)가 아니다. H1/H2/H3 pass/fail 판정은 tier 분포만으로 결정할 수 없고, §5.4 acceptance threshold 수치(slope·Cohen's κ 등)와 §5.2 safeguard(blinded audit, evaluator separation, pre-registration)의 조합으로만 판정된다.
+
+**H3 evidence bundle (v2, Codex R3 지적)**: H3 판정은 `graphify query` 노드·god-node만으로 충분하지 않다. H3 전용 evidence는 다음을 **모두** 포함해야 한다 — (a) L1 `reports[]` 및 run 시점 JSONL reasoning trace(raw log diff 포함), (b) 평가자 **N ≥ 5**(R6 evaluator separation 준수), (c) Cohen's κ ≥ 0.6 산출 rubric 원본, (d) FM1~FM4 failure-mode 판정표. H1/H2 공통 evidence와 별도로 보관하며 trace 생성 LLM과 다른 LLM family(인간 포함) 평가가 연결된 상태로만 §5.3 판정에 투입된다.
 
 **R0 통과를 전제로** 다음 7행이 H1 pass 개수와 H3 validity 조합을 **완전히** 커버한다 (H1 ∈ {0, 1, ≥2} × H3 ∈ {pass, fail} = 6 + override row = 7):
 
@@ -344,7 +349,7 @@ Rename / remove 금지. Deprecation은 `status` 필드로만 표현한다(§3.2)
 3. triage sign-off reviewer는 R6을 따른다: 생성 LLM family와 다른 LLM family reviewer 또는 human reviewer만 승인할 수 있다.
 4. 원문 evidence가 누락·불충분하면 Path A를 적용해 `wiki/raw/**`에 evidence를 보강하고 `/graphify`를 재실행한다.
 5. Part B chunk-boundary cross-trench 누락처럼 명시 evidence는 있으나 bridge가 없으면 Path B를 적용해 `docs/graphify/cross-links.md`에 10-20개 explicit edge를 추가한다(§4.3 H3).
-6. Path A/B 적용 후 `make graph-lint`로 `L2.lint.check()`를 반복 실행하며, AMBIGUOUS 비율 ≤ 0.3 전까지 §7.3 promotion과 L3 entry를 모두 차단한다.
+6. Path A/B 적용 후 `make graph-lint`로 `L2.lint.check()`를 반복 실행하며, AMBIGUOUS 비율 ≤ 0.3 전까지 §7.3 promotion과 **신규** L3 entry(새 실험 착수·새 candidate 세대·promotion PR 제출)를 차단한다. 단 §5.2 pre-registration·R7에 따라 git tag로 freeze된 **진행 중 preregistered run**은 cadence 훼손을 막기 위해 차단 대상이 아니다 — 해당 run의 evidence는 사후 triage 결과와 함께 §5.3 판정에 제출된다.
 7. triage 후에도 AMBIGUOUS 비율 > 0.3이면 §5.3 R0 위반으로 격상하지 않고, §5.2-1의 독립 lint-level FAIL 신호로 남긴다.
 
 ### 7.4 운영 리듬
