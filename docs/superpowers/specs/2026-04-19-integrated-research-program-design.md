@@ -47,13 +47,13 @@
                               ▲  reads/writes
                               │
  ┌─────────────────────────────────────────────────────────────────┐
- │ Layer 2 — SUBSTRATE                                             │
- │   Report-grounded AutoResearch memory system                    │
- │   - `.rpt/.def/STA-slack/DRC` → typed-frontmatter 구조화 문서   │
- │   - Reversible-patch skill library (Voyager-style, EDA-native) │
- │   - `findings/`, `failures/`, `decisions/` 디렉토리 + QMD 검색층│
- │   - `wiki-lint`가 "이 실패는 finding X와 동일" 감지             │
- │   - 외부 노출 인터페이스: `skill-library.query()`, `memory.recall()`│
+ │ Layer 2 — SUBSTRATE (v2, 2026-04-22 graphify 전환)              │
+ │   Report-grounded graph knowledge index + skill library         │
+ │   - `.rpt/.def/STA-slack/DRC` + `wiki/raw/**` → graphify graph  │
+ │   - Reversible-patch skill library (Voyager-style, EDA-native)  │
+ │   - `graphify-out/{graph.json, GRAPH_REPORT.md}` canonical index│
+ │   - `graph_integrity_check.py`: orphan=0, dangling=0, AMB≤0.3   │
+ │   - 외부 인터페이스: §3.2 v2 (`skill_library.query`, `memory.recall`, `lint.check`) │
  └─────────────────────────────────────────────────────────────────┘
                               ▲  submits jobs / pulls artifacts
                               │
