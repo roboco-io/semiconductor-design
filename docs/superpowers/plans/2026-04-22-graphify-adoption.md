@@ -187,54 +187,124 @@ git commit -m "docs(spec): add S1 graphify evaluation skeleton"
 
 ---
 
-### Task 3: graphify 실행 — 4 corpus 스캔
+### Task 3: graphify 전체 스캔 (skill.md 레시피, 단일 실행)
+
+> **(2026-04-22 수정)** 원래 플랜의 4-corpus 분리 스캔은 graphify CLI가 stand-alone에서 전체 파이프라인을 실행하지 않는다는 사실(spec §1.3)이 드러나 폐기. 단일 전체 repo 스캔으로 모든 지표 평가 가능.
 
 **Files:**
-- Write outputs to `tmp/graphify-eval/` (gitignored)
-- Modify: `docs/superpowers/specs/2026-04-22-graphify-evaluation.md` §2 실행 로그
+- Write outputs to `graphify-out/` (gitignored via existing `graphify-out/` rule) — graphify 기본 위치
+- Modify: `docs/superpowers/specs/2026-04-22-graphify-evaluation.md` §2 실행 로그 (단일 scan)
 
-- [ ] **Step 1: narrative 코퍼스 스캔**
+- [ ] **Step 1: Detect — 파일 분류**
 
-```bash
-time graphify wiki/raw/ --out tmp/graphify-eval/corpus-narrative/ 2>&1 | tee tmp/graphify-eval/log-narrative.txt
-```
-
-node/edge 수·runtime·cost를 `log-narrative.txt`에서 추출해 §2.1에 기록.
-
-- [ ] **Step 2: contract 코퍼스 스캔**
+`uv tool` 로 설치한 graphify interpreter 경로 확보 후:
 
 ```bash
-time graphify wiki/program/ --out tmp/graphify-eval/corpus-contract/ 2>&1 | tee tmp/graphify-eval/log-contract.txt
+GRAPHIFY_PY=$(uv tool run --from graphifyy python -c "import sys; print(sys.executable)")
+echo "$GRAPHIFY_PY" > graphify-out/.graphify_python
+mkdir -p graphify-out
+
+"$GRAPHIFY_PY" -c "
+import json
+from graphify.detect import detect
+from pathlib import Path
+result = detect(Path('.'))
+print(json.dumps(result, indent=2))
+" > graphify-out/.graphify_detect.json
 ```
 
-§2.2에 기록.
+Expected: `files.{code,docs,papers,images,video}` 카테고리별 분류 출력. `total_files`, `total_words` 확인.
 
-- [ ] **Step 3: code 코퍼스 스캔**
+- [ ] **Step 2: AST 추출 (Part A) — 코드 파일**
 
 ```bash
-time graphify src/ --out tmp/graphify-eval/corpus-code/ 2>&1 | tee tmp/graphify-eval/log-code.txt
+"$GRAPHIFY_PY" -c "
+import json
+from pathlib import Path
+from graphify.extract import extract
+
+detect = json.loads(Path('graphify-out/.graphify_detect.json').read_text())
+code_files = [Path(p) for p in detect.get('files', {}).get('code', [])]
+print(f'Extracting AST from {len(code_files)} code files...')
+result = extract(code_files, cache_root=Path('graphify-out/cache'))
+Path('graphify-out/.graphify_ast.json').write_text(json.dumps(result))
+print(f'AST extraction complete: {len(result.get(\"extractions\", []))} extractions')
+"
 ```
 
-§2.3에 기록.
+Expected: 결정론적. LLM 비용 0. `graphify-out/.graphify_ast.json` 생성.
 
-- [ ] **Step 4: 전체 레포 스캔**
+- [ ] **Step 3: 의미 추출 (Part B) — 마크다운/문서 subagent dispatch**
+
+skill.md Step 3B의 dispatch 레시피를 따라, `detect.files.docs` 리스트의 각 `.md` 파일마다 **fresh Claude subagent**를 dispatch(controller = this Claude Code session). 각 subagent는:
+- 파일 1개를 읽고 EXTRACTED/INFERRED/AMBIGUOUS 트리플 리스트 반환
+- 출력 형식: skill.md에 명시된 JSON 구조 준수
+
+이 세션에서 `Agent` tool로 병렬 dispatch. 결과를 `graphify-out/.graphify_semantic.json`에 merge.
+
+대상 파일(2026-04-22 시점):
+- `wiki/raw/papers/k1-{alpha,beta,gamma,delta}-*.md` (4)
+- `wiki/raw/sessions/phase-0-a{1..4}-*.md` (4)
+- `wiki/program/{program,scoring,promotion_policy}.md` (3)
+- `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` (1)
+- `docs/knowledge-base/2026-04-19-k1-direction-report.md` (1)
+- `CLAUDE.md` (1)
+- 기타 docs/*/ 마크다운 (변수)
+
+추정 subagent 수: ~15~25개. 비용 예산 $5 내로 관리 (M5 게이트).
+
+- [ ] **Step 4: Build + Cluster + Analyze + Export**
 
 ```bash
-time graphify . --exclude node_modules,.venv,tmp,build --out tmp/graphify-eval/corpus-all/ 2>&1 | tee tmp/graphify-eval/log-all.txt
+"$GRAPHIFY_PY" -c "
+import json
+from pathlib import Path
+from graphify.build import build
+from graphify.cluster import cluster
+from graphify.analyze import god_nodes, surprising_connections
+from graphify.export import generate_html
+
+ast = json.loads(Path('graphify-out/.graphify_ast.json').read_text())
+sem = json.loads(Path('graphify-out/.graphify_semantic.json').read_text())
+extractions = ast.get('extractions', []) + sem.get('extractions', [])
+
+G = build(extractions)
+communities, labels = cluster(G)
+gods = god_nodes(G, top_n=10)
+surprises = surprising_connections(G, communities=communities, top_n=5)
+
+# Export
+generate_html(G, communities, 'graphify-out/graph.html', community_labels=labels)
+Path('graphify-out/graph.json').write_text(json.dumps({'nodes': list(G.nodes(data=True)), 'edges': list(G.edges(data=True))}, default=str))
+# GRAPH_REPORT.md 는 god_nodes + communities 요약
+print(f'nodes={G.number_of_nodes()}, edges={G.number_of_edges()}, communities={len(communities)}')
+print('gods:', [g['label'] for g in gods])
+"
 ```
 
-§2.4에 기록.
+(`cluster` 함수의 정확한 시그니처는 실행 시점에 검증. 필요시 `inspect.signature`로 확인 후 조정.)
 
-- [ ] **Step 5: 실행 로그만 커밋 (판정은 다음 Task)**
+- [ ] **Step 5: 실행 로그를 §2에 기록**
+
+결과(node/edge/community/runtime/cost)를 `docs/superpowers/specs/2026-04-22-graphify-evaluation.md` §2에 기록. 분리 스캔이 아니므로 §2는 단일 "전체 repo 스캔" 섹션으로 통합.
+
+- [ ] **Step 6: 커밋**
 
 ```bash
 git add docs/superpowers/specs/2026-04-22-graphify-evaluation.md
-git commit -m "docs(spec): record S1 graphify scan measurements"
+git commit -m "docs(spec): record S1 graphify scan measurements (single-corpus)"
 ```
+
+**Implementation Notes**
+- 이 Task는 주로 controller (this session) + subagent dispatch 루프로 구성. 자동화된 bash 스크립트가 아님.
+- 시간 예산: 10분(AST+build+export) + subagent 병렬 dispatch 대기 시간.
+- subagent prompt 템플릿은 skill.md Step 3B의 JSON 출력 규약을 그대로 사용.
 
 ---
 
-### Task 4: M1~M5 채점 + Pass/Fail 판정
+### Task 4: M1~M5 채점 + Pass/Fail 판정 (단일 graph.json)
+
+> **(2026-04-22 수정)** 4-corpus 폐기 반영 — 모든 grep/계산은 단일 `graphify-out/graph.json` 기준.
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-04-22-graphify-evaluation.md` §3, §4, §5
@@ -242,50 +312,86 @@ git commit -m "docs(spec): record S1 graphify scan measurements"
 - [ ] **Step 1: M1 — 코드 그래프 정밀도**
 
 ```bash
-grep -E "(sync_index|lint_wiki|frontmatter)" tmp/graphify-eval/corpus-code/graph.json
+grep -E "(sync_index|lint_wiki|frontmatter)" graphify-out/graph.json
 ```
 
-3개 함수 노드 존재 여부 확인. 채점표 §3에 Pass/Fail 기록.
+3개 함수 노드(`sync_index.regenerate`, `lint_wiki.check`, `frontmatter.parse_file`)의 존재 여부 확인. 채점표 §3에 Pass/Fail 기록.
 
 - [ ] **Step 2: M2 — K1 개념 커버리지**
 
-§1의 20개 개념 각각을 `graph.json`에서 grep:
+§1의 20개 개념 각각을 `graph.json`에서 grep (대소문자 무시, 동의어 허용 — 예: "LibreLane 2.4" ≈ "librelane"):
 
 ```bash
-for concept in "LibreLane" "OpenROAD" "Yosys" ... ; do
-  count=$(grep -ci "$concept" tmp/graphify-eval/corpus-all/graph.json)
-  echo "$concept: $count"
-done
-```
-
-Hit 된 개수 / 20을 §3에 기록. ≥16이면 Pass.
-
-- [ ] **Step 3: M3 — inter-trench edge 비율**
-
-Python one-liner:
-
-```bash
-python -c "
+"$GRAPHIFY_PY" -c "
 import json
 from pathlib import Path
-trenches = ['narrative', 'contract', 'code']
-nodes_total = sum(len(json.loads((Path(f'tmp/graphify-eval/corpus-{t}/graph.json')).read_text())['nodes']) for t in trenches)
-full = json.loads(Path('tmp/graphify-eval/corpus-all/graph.json').read_text())
-# inter-trench edges: source source file != target source file
-inter = sum(1 for e in full['edges'] if e.get('source_file','').split('/')[0] != e.get('target_file','').split('/')[0])
-print(f'nodes_total={nodes_total}, inter_edges={inter}, ratio={inter/max(nodes_total,1):.3f}')
+
+concepts = ['CVDP', 'VerilogEval', 'RTLLM', 'EvolVE', 'ORFS-agent', 'METRICS2.1', 'ORFS AutoTuner', 'AutoEDA', 'LibreLane', 'OpenROAD', 'sky130', 'Gemmini', 'MLPerf Tiny', 'Karpathy', 'Voyager', 'A-MEM', 'L1 Process', 'L2 Substrate', 'L3 Content', 'H1b']
+
+graph = json.loads(Path('graphify-out/graph.json').read_text())
+text = json.dumps(graph).lower()
+hits = [(c, c.lower() in text) for c in concepts]
+for c, hit in hits:
+    print(f'{\"✓\" if hit else \"✗\"} {c}')
+print(f'\\nTotal: {sum(1 for _,h in hits if h)}/20')
 "
 ```
 
-Ratio ≥ 0.5면 Pass. (graphify의 실제 graph.json 스키마에서 edge 객체 형태를 확인해 `source_file` 키 이름을 실제 스키마에 맞게 조정.)
+≥16/20이면 Pass. 매칭은 raw string substring(정규식 아님).
+
+- [ ] **Step 3: M3 — inter-trench edge 비율**
+
+단일 graph.json에서 각 node의 `source_file` (또는 graphify 실제 스키마 키)을 파싱해 파일 경로 prefix 기준으로 trench 분류:
+- **narrative** = `wiki/raw/` 하위
+- **contract** = `wiki/program/` 하위
+- **code** = `src/` 하위
+- **spec** = `docs/superpowers/specs/` 하위
+
+```bash
+"$GRAPHIFY_PY" -c "
+import json
+from pathlib import Path
+graph = json.loads(Path('graphify-out/graph.json').read_text())
+nodes = {n['id']: n for n, *_ in graph.get('nodes', [])} if isinstance(graph.get('nodes', [None])[0], list) else {n['id']: n for n in graph.get('nodes', [])}
+
+def trench(node):
+    src = node.get('source_file', node.get('file', ''))
+    if 'wiki/raw' in src: return 'narrative'
+    if 'wiki/program' in src: return 'contract'
+    if 'src/' in src: return 'code'
+    if 'docs/superpowers/specs' in src: return 'spec'
+    return 'other'
+
+trenches_of_interest = {'narrative','contract','code'}
+nodes_in_3 = [nid for nid, n in nodes.items() if trench(n) in trenches_of_interest]
+edges = graph.get('edges', [])
+
+def edge_nodes(e):
+    if isinstance(e, list): return e[0], e[1]
+    return e.get('source'), e.get('target')
+
+inter = 0
+for e in edges:
+    s, t = edge_nodes(e)
+    if s in nodes and t in nodes:
+        ts, tt = trench(nodes[s]), trench(nodes[t])
+        if ts != tt and ts in trenches_of_interest and tt in trenches_of_interest:
+            inter += 1
+
+ratio = inter / max(len(nodes_in_3), 1)
+print(f'nodes in 3 trenches: {len(nodes_in_3)}, inter-trench edges: {inter}, ratio: {ratio:.3f}')
+"
+```
+
+Ratio ≥ 0.5이면 Pass. 실제 graphify 스키마에서 node 객체의 `source_file` 키 이름이 다르면 그에 맞게 조정 (예: `file`, `origin`, `path`).
 
 - [ ] **Step 4: M4 — Leiden 커뮤니티 육안 매칭**
 
-`open tmp/graphify-eval/corpus-all/graph.html` 로 HTML 시각화 열기. 커뮤니티 구조에서 α(LLM-for-HDL) · β(agentic EDA) · γ(opensource EDA) · δ(research memory) 중 하나 이상과 매칭되는지 판단. §3·§4에 기록.
+`open graphify-out/graph.html` 로 HTML 시각화 열기. `GRAPH_REPORT.md`의 커뮤니티 리스트와 god-node 목록을 함께 리뷰. K1 α(LLM-for-HDL) · β(agentic EDA) · γ(opensource EDA) · δ(research memory) 중 ≥1개와 육안 매칭되는지 판단. §3·§4에 기록.
 
 - [ ] **Step 5: M5 — 비용·시간 합산**
 
-`log-all.txt`에서 `real` 시간과 API cost 총합. `< 10분` AND `< $5`면 Pass.
+Task 3 로그에서 runtime + API cost 총합. `< 10분` AND `< $5`면 Pass. subagent dispatch가 주 비용 드라이버.
 
 - [ ] **Step 6: 판정 + §5 작성**
 
@@ -775,6 +881,8 @@ git commit -m "feat(graph): add graph_integrity_check (orphan/dangling/AMBIGUOUS
 
 - [ ] **Step 1: graphify를 dev dependency로 추가**
 
+> **(2026-04-22 수정)** graphify는 PyPI에 없음. PyPI distribution 이름은 `graphifyy` (double-y) 이고 CLI는 `graphify`. 본 프로젝트는 git URL + commit pin을 사용.
+
 `pyproject.toml`의 `[project.optional-dependencies]` `dev` 리스트에 추가:
 
 ```toml
@@ -782,9 +890,11 @@ dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
     "ruff>=0.6",
-    "graphify>=0.4.25",
+    "graphifyy @ git+https://github.com/safishamsi/graphify@215b5d40e78e498100cbf8855224331c40f757d9",
 ]
 ```
+
+commit `215b5d4`는 v0.4.25 기준으로 Task 1에서 검증된 버전. 향후 upstream 업데이트 시 이 pin을 갱신.
 
 - [ ] **Step 2: `[project.scripts]`에서 wiki CLI 3개 제거**
 
@@ -848,34 +958,44 @@ git commit -m "chore(deps): add graphify, drop wiki-* CLI entry points"
 **Files:**
 - Modify: `Makefile`
 
+> **(2026-04-22 수정)** `make graph`를 순수 bash 타겟으로 둘 수 없음 — graphify 전체 빌드는 AI 에이전트 세션에서 `/graphify .` 슬래시커맨드로 실행해야 함. Makefile은 증분 업데이트·serve·lint 위주로 구성.
+
 - [ ] **Step 1: 새 타겟 추가**
 
 기존 Makefile 끝에 append:
 
 ```makefile
 
-graph:
-	uv run graphify . --exclude node_modules,.venv,tmp,build --out build/graph/
+graph-update:
+	uv run graphify update .
+
+graph-build:
+	@echo "Full graphify build must be run from an AI agent session."
+	@echo "In Claude Code, invoke: /graphify ."
+	@echo "Or follow skill.md recipe (see docs/superpowers/specs/2026-04-22-graphify-adoption-design.md §4.1)."
 
 graph-serve:
-	uv run python -m graphify.serve build/graph/graph.json
+	uv run python -m graphify.serve graphify-out/graph.json
 
 graph-lint:
-	uv run python scripts/graph_integrity_check.py build/graph/graph.json
+	uv run python scripts/graph_integrity_check.py graphify-out/graph.json
 ```
 
-또한 `.PHONY` 리스트에 `graph graph-serve graph-lint` 추가:
+`.PHONY` 리스트에 추가:
 
 ```makefile
-.PHONY: install test lint fmt clean graph graph-serve graph-lint
+.PHONY: install test lint fmt clean graph-update graph-build graph-serve graph-lint
 ```
 
 - [ ] **Step 2: 동작 확인**
 
 ```bash
-make graph         # 오래 걸림 (~10분), 비용 발생. Task 13 전에 한 번 실행해 build/graph/graph.json 생성.
-make graph-lint    # 방금 생성한 graph.json 검증. OK가 나와야 함.
+make graph-update   # graphify update . 호출 — AST-only, LLM 비용 0. 즉시 끝남.
+make graph-build    # echo 안내만 출력. 실제 빌드는 /graphify . in Claude Code.
+make graph-lint     # graphify-out/graph.json 검증. graph.json이 없으면 에러 — 정상.
 ```
+
+**주의**: Task 14 전체 게이트에서 `make graph-lint` 가 OK 되려면 `graphify-out/graph.json`이 존재해야 함. S1 Task 3에서 이미 생성됐다면 문제 없음. S3를 S1 없이 테스트하려면 별도 fixture graph.json 필요.
 
 `make graph-lint` 가 FAIL이면 3가지 중 하나: (a) orphan 노드가 레포에 실재 존재, (b) AMBIGUOUS 비율 0.3 초과, (c) graphify 스키마에서 `tier` 필드명이 다름. (c)라면 `scripts/graph_integrity_check.py`의 필드명을 실제 graph.json에 맞게 조정 후 `test_graph_integrity.py` 픽스처도 갱신.
 
@@ -883,7 +1003,7 @@ make graph-lint    # 방금 생성한 graph.json 검증. OK가 나와야 함.
 
 ```bash
 git add Makefile
-git commit -m "feat(make): add graph/graph-serve/graph-lint targets"
+git commit -m "feat(make): add graph-update/graph-build/graph-serve/graph-lint targets"
 ```
 
 ---
