@@ -30,7 +30,7 @@ RUN chmod +x /opt/bin/run-stage.sh
 RUN ! command -v verilator
 
 LABEL org.opencontainers.image.title="semi/librelane-runner" \
-      org.opencontainers.image.description="LibreLane 2.4 (FOSSi Nix base) + sky130A, SHA-pinned." \
+      org.opencontainers.image.description="LibreLane 3.0.2 (FOSSi Nix base) + sky130A, SHA-pinned." \
       org.opencontainers.image.version="${LIBRELANE_REF}"
 
 ENTRYPOINT ["/opt/bin/run-stage.sh"]

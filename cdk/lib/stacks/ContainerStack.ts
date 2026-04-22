@@ -18,7 +18,7 @@ export interface ContainerStackProps extends Omit<StackProps, "env"> {
  * Provides 3 repositories consumed by the ComputeStack (B5) and built by
  * `docker/build-*.sh`:
  *   - orfs-runner        : OpenROAD flow runner image
- *   - librelane-runner   : LibreLane 2.4 flow runner image
+ *   - librelane-runner   : LibreLane 3.0.2 flow runner image
  *   - metric-collector   : post-run metric aggregator image
  *
  * All repos enforce IMMUTABLE tags (reproducibility — no silent overwrite)

@@ -6,7 +6,7 @@
 
 **Architecture:** Three concurrent build tracks (Python runner, CDK, Docker) converge at an E2E integration phase. Python runner contains schemas + CLI + AWS clients + lockfile + metrics parser. CDK provisions 6 stacks (Network + Storage + Container + Compute + Workflow + Observability). Docker produces 3 images (orfs-runner, librelane-runner, metric-collector) pinned by SHA256 digest in `lockfile.yaml`. KG scripts verify kill gates without running paid jobs. Final phase wires Makefile + sample specs + CI for `make run` and `make kg-all` one-liners.
 
-**Tech Stack:** Python 3.12 + uv + Pydantic v2 (`ConfigDict`) + boto3 + click + pytest + coverage; TypeScript 5 + Node 20 + aws-cdk-lib@^2 + cdk-nag + jest for CDK; Docker (debian:12-slim for ORFS, LibreLane 2.4 Nix base, python:3.12-slim for collector); AWS Fargate Spot + Step Functions Standard + S3 Object Lock governance + DynamoDB × 4 + KMS CMK + Secrets Manager + ECR; GitHub Actions CI.
+**Tech Stack:** Python 3.12 + uv + Pydantic v2 (`ConfigDict`) + boto3 + click + pytest + coverage; TypeScript 5 + Node 20 + aws-cdk-lib@^2 + cdk-nag + jest for CDK; Docker (debian:12-slim for ORFS, LibreLane 3.0.2 Nix base, python:3.12-slim for collector); AWS Fargate Spot + Step Functions Standard + S3 Object Lock governance + DynamoDB × 4 + KMS CMK + Secrets Manager + ECR; GitHub Actions CI.
 
 **Parent spec:** `docs/superpowers/specs/2026-04-20-L1-process-design.md` (Codex 3-round review 통과 → go). Contract: `L1.run(spec_uri) → artifact_uri` per overview spec §3.2.
 
@@ -58,7 +58,7 @@ Each file has one responsibility. Files that change together live together.
 
 ### Docker (`docker/`)
 - Create: `docker/orfs-runner.Dockerfile` — debian:12-slim base, ORFS + OpenROAD + Yosys + open_pdks sky130A; ENTRYPOINT reads `RUN_ID`/`STAGE`/`INPUT_S3_URI`/`OUTPUT_S3_URI`/`SIMULATE_SPOT_RECLAIM` env
-- Create: `docker/librelane-runner.Dockerfile` — LibreLane 2.4 Nix base; same ENTRYPOINT contract
+- Create: `docker/librelane-runner.Dockerfile` — LibreLane 3.0.2 Nix base; same ENTRYPOINT contract
 - Create: `docker/metric-collector.Dockerfile` — python:3.12-slim; install `semi_design_runner` wheel + invoke `python -m semi_design_runner.metrics` as ENTRYPOINT
 
 ### KG scripts (`scripts/kg/`)
@@ -4369,7 +4369,7 @@ git commit -m "feat(docker): add semi/orfs-runner image + shared run-stage entry
 
 ---
 
-### Task C2: `semi/librelane-runner` — LibreLane 2.4 Nix base with same ENTRYPOINT contract
+### Task C2: `semi/librelane-runner` — LibreLane 3.0.2 Nix base with same ENTRYPOINT contract
 
 **Files:**
 - Create: `docker/librelane-runner.Dockerfile`
@@ -4418,7 +4418,7 @@ DOCKERFILE = "docker/librelane-runner.Dockerfile"
 def test_librelane_runner_builds(repo_root: Path) -> None:
     build_args = {
         # Placeholder — real build reads lockfile.yaml.commit_shas.librelane.
-        # The LibreLane upstream tags 2.4-series releases like "2.4.0"; the
+        # The LibreLane upstream tags 3.0-series releases like "3.0.2"; the
         # lockfile stores the exact commit SHA of the pinned release.
         "LIBRELANE_REF": "3333333333333333333333333333333333333333",
         "OPEN_PDKS_SHA": "2222222222222222222222222222222222222222",
@@ -4465,7 +4465,7 @@ def test_librelane_runner_has_librelane(repo_root: Path) -> None:
         capture_output=True, text=True, timeout=60,
     )
     assert out.returncode == 0, out.stderr
-    assert "2.4" in (out.stdout + out.stderr)
+    assert "3.0" in (out.stdout + out.stderr)
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -4485,7 +4485,7 @@ Create `docker/librelane-runner.Dockerfile`:
 # docker/librelane-runner.Dockerfile
 #
 # Spec §5 semi/librelane-runner:
-#   - LibreLane 2.4 official Nix base (K1 γ #2 — FOSSi foundation fork,
+#   - LibreLane 3.0.2 official Nix base (K1 γ #2 — FOSSi foundation fork,
 #     superseding efabless/openlane2). Pinned to commit_shas.librelane.
 #   - sky130A from open_pdks (pinned).
 #   - Same ENTRYPOINT contract as semi/orfs-runner (shared run-stage.sh).
@@ -4528,7 +4528,7 @@ COPY docker/entrypoints/run-stage.sh /opt/bin/run-stage.sh
 RUN chmod +x /opt/bin/run-stage.sh
 
 LABEL org.opencontainers.image.title="semi/librelane-runner" \
-      org.opencontainers.image.description="LibreLane 2.4 (FOSSi Nix base) + sky130A, SHA-pinned." \
+      org.opencontainers.image.description="LibreLane 3.0.2 (FOSSi Nix base) + sky130A, SHA-pinned." \
       org.opencontainers.image.version="${LIBRELANE_REF}"
 
 ENTRYPOINT ["/opt/bin/run-stage.sh"]
@@ -4597,7 +4597,7 @@ Expected: 3 PASS (`builds`, `honors_simulate_spot_reclaim`, `has_librelane`).
 ```bash
 git add docker/librelane-runner.Dockerfile docker/build-librelane.sh \
         tests/docker/test_librelane_runner.py tests/docker/fixtures/lockfile-librelane.yaml
-git commit -m "feat(docker): add semi/librelane-runner image on LibreLane 2.4 Nix base"
+git commit -m "feat(docker): add semi/librelane-runner image on LibreLane 3.0.2 Nix base"
 ```
 
 ---
@@ -5032,7 +5032,7 @@ git commit -m "feat(docker): add semi/metric-collector reusing metrics.parse_rep
 
 ## Phase C merge note
 
-Assumptions baked into this draft that the primary-plan author should sanity-check on merge: (1) the repository root stays the `docker build` context for all three images so `docker/entrypoints/run-stage.sh` is COPY-able from one shared file; (2) the LibreLane 2.4 Nix base is consumed via the upstream prebuilt OCI image `ghcr.io/librelane/librelane:<ref>` rather than running `nix build` inside our Dockerfile — this is the path K1 γ #2 validates and avoids a multi-hour Nix evaluation on CI, at the cost of trusting LibreLane's prebuilt publish pipeline (the `lockfile.yaml.commit_shas.librelane` pin still guards content); (3) ECR repo names match `ContainerStack` from Phase B (`semi-design-{env}-{orfs-runner,librelane-runner,metric-collector}`) — if the Phase B author picks different names, the `IMAGE_NAME` constants in the three `docker/build-*.sh` scripts must be updated in lockstep; (4) `docker build` tests are marked `@pytest.mark.slow` and run locally or on a self-hosted CI runner with Docker — GitHub Actions hosted runners execute only the non-slow `tests/docker/test_run_stage_entrypoint.py` and `tests/runner/test_metric_collector_main.py` suites, and the `@pytest.mark.slow` marker is registered in the existing `pyproject.toml` pytest config alongside any other slow markers; (5) `STAGE_COMMAND` is supplied by the SFN Map state's container override (the CDK WorkflowStack encodes per-stage commands), so each image is agnostic to which stage it runs — this is why `semi/metric-collector` accepts an arbitrary `STAGE_COMMAND` and we pass `python -m semi_design_runner.metric_collector_main` from tests; (6) ECR digest capture via `aws ecr describe-images` writes back into `lockfile.yaml.container_digests.*`, which Phase E then commits as part of the "fill real SHAs" task — Phase C's build scripts perform the write-back but the commit of `lockfile.yaml` itself is Phase E's responsibility.
+Assumptions baked into this draft that the primary-plan author should sanity-check on merge: (1) the repository root stays the `docker build` context for all three images so `docker/entrypoints/run-stage.sh` is COPY-able from one shared file; (2) the LibreLane 3.0.2 Nix base is consumed via the upstream prebuilt OCI image `ghcr.io/librelane/librelane:<ref>` rather than running `nix build` inside our Dockerfile — this is the path K1 γ #2 validates and avoids a multi-hour Nix evaluation on CI, at the cost of trusting LibreLane's prebuilt publish pipeline (the `lockfile.yaml.commit_shas.librelane` pin still guards content); (3) ECR repo names match `ContainerStack` from Phase B (`semi-design-{env}-{orfs-runner,librelane-runner,metric-collector}`) — if the Phase B author picks different names, the `IMAGE_NAME` constants in the three `docker/build-*.sh` scripts must be updated in lockstep; (4) `docker build` tests are marked `@pytest.mark.slow` and run locally or on a self-hosted CI runner with Docker — GitHub Actions hosted runners execute only the non-slow `tests/docker/test_run_stage_entrypoint.py` and `tests/runner/test_metric_collector_main.py` suites, and the `@pytest.mark.slow` marker is registered in the existing `pyproject.toml` pytest config alongside any other slow markers; (5) `STAGE_COMMAND` is supplied by the SFN Map state's container override (the CDK WorkflowStack encodes per-stage commands), so each image is agnostic to which stage it runs — this is why `semi/metric-collector` accepts an arbitrary `STAGE_COMMAND` and we pass `python -m semi_design_runner.metric_collector_main` from tests; (6) ECR digest capture via `aws ecr describe-images` writes back into `lockfile.yaml.container_digests.*`, which Phase E then commits as part of the "fill real SHAs" task — Phase C's build scripts perform the write-back but the commit of `lockfile.yaml` itself is Phase E's responsibility.
 
 ---
 
@@ -5044,7 +5044,7 @@ Assumptions baked into this draft that the primary-plan author should sanity-che
 
 ---
 
-### Task D1: KG-A — LibreLane 2.4 on Fargate Spot gcd in 30 min
+### Task D1: KG-A — LibreLane 3.0.2 on Fargate Spot gcd in 30 min
 
 **Files:** Create `scripts/kg/kg-a-librelane-fargate.sh`, `tests/kg/__init__.py`, `tests/kg/test_kg_a.py`
 
@@ -5082,7 +5082,7 @@ def test_kg_a_smoke_ephemeral_overflow_fails():
 
 ```bash
 #!/usr/bin/env bash
-# KG-A: LibreLane 2.4 on Fargate Spot — gcd within 30min, ephemeral <21GB, pull <10min.
+# KG-A: LibreLane 3.0.2 on Fargate Spot — gcd within 30min, ephemeral <21GB, pull <10min.
 set -euo pipefail
 MODE="${SMOKE:+smoke}"; MODE="${MODE:-live}"
 
