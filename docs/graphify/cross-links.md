@@ -169,7 +169,28 @@ L2 derived spec (commit `98149de`) §5.2 output schema가 `src/semi_design_runne
 - `tests/runner/test_l2_schema.py` **tests** `src/semi_design_runner/l2_schema.py` (Pydantic round-trip · Literal validation · 격리 docstring 정적 assertion).
 - `src/semi_design_runner/l2_schema.py` **grounds** `docs/superpowers/specs/2026-04-23-L2-substrate-codex-review.md` R1 fix #1 (`Optional[...] = None` 명시 default enforcement).
 
-## 10. Archived spec concept bridges
+## 10. L2 runtime scripts ↔ L2 schema/spec bridges
+
+Issue #7 (compute_confidence) · #8 (inject_freshness) — 두 script 모두 `L2RecallNode` 필드를 **produce** 하며 L2 derived spec의 §3.2 / §3.3 / §4 섹션을 구현한다. Python import는 AST가 포착하지만 spec doc ↔ code · Makefile target ↔ script는 cross-trench.
+
+### 10.1 compute_confidence (Alternative B mapping)
+
+- `src/semi_design_runner/confidence.py` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.2 (tier × source_count → GOLD/SILVER/BRONZE 매핑 표).
+- `src/semi_design_runner/confidence.py` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 #4 (source identity 결측 chunk 제외 · GOLD cross-source 강제).
+- `src/semi_design_runner/confidence.py` **grounds** `src/semi_design_runner/l2_schema.py` (L2RecallNode-compatible dict producer).
+- `scripts/compute_confidence.py` **implements** `src/semi_design_runner/confidence.py` (wheel-packaged core의 thin CLI shim).
+- `tests/runner/test_compute_confidence.py` **tests** `src/semi_design_runner/confidence.py` (12 assertion: §3.2 matrix · §3.3 #4 edge · reproducibility · CLI modes).
+- `pyproject.toml` `[project.scripts] semi-confidence` **implements** `src/semi_design_runner/confidence_cli.py` (console script entry point).
+
+### 10.2 inject_freshness (§4 A-MEM timestamp injection)
+
+- `scripts/inject_freshness.py` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §4 (last_ingested · valid_from · valid_to idempotent injection).
+- `scripts/inject_freshness.py` **grounds** `src/semi_design_runner/l2_schema.py` (freshness 3 필드의 유일한 producer — §4.2 `age_days` 는 derivable이라 non-writeback).
+- `Makefile` `graph-update` + `freshness-inject` target **implements** `scripts/inject_freshness.py` (incremental rebuild chain).
+- `tests/runner/test_inject_freshness.py` **tests** `scripts/inject_freshness.py` (10 assertion: fresh/reingest/manual-expire/idempotency/ISO-8601/multi-source mtime/missing source warning).
+- `Makefile` `freshness-inject` **extends** `issues/005-graphify-refresh-and-integrity-policy.md` §1 (full rebuild cadence와 구분되는 incremental freshness layer).
+
+## 11. Archived spec concept bridges
 
 2026-04-17 archived spec의 개념들은 2026-04-19 integrated spec이 **supersedes**.
 
