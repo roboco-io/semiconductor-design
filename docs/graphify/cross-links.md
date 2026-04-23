@@ -190,7 +190,18 @@ Issue #7 (compute_confidence) · #8 (inject_freshness) — 두 script 모두 `L2
 - `tests/runner/test_inject_freshness.py` **tests** `scripts/inject_freshness.py` (10 assertion: fresh/reingest/manual-expire/idempotency/ISO-8601/multi-source mtime/missing source warning).
 - `Makefile` `freshness-inject` **extends** `issues/005-graphify-refresh-and-integrity-policy.md` §1 (full rebuild cadence와 구분되는 incremental freshness layer).
 
-## 11. Archived spec concept bridges
+## 11. L2 regression test ↔ L2 spec enforcement bridges
+
+Issue #9 — 세 test 파일이 L2 spec의 prose-only 규칙을 schema-level assertion으로 인코딩. Codex R3 "ranking only, canonical decision forbidden" 요구를 실행 시점에 검증.
+
+- `tests/runner/test_l2_isolation.py` **tests** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 #5 (`confidence*` 격리 규칙 — §5.3 parser drop + §5.2 recall 허용).
+- `tests/runner/test_l2_isolation.py::test_overview_spec_53_contains_no_confidence_tokens` **enforces** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §5.3 (static prose grep: `confidence/GOLD/SILVER/BRONZE/support strength` 0 match — Codex R3 ranking-only 요구).
+- `tests/runner/test_l2_freeze.py` **tests** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §6.3 (3-layer freeze: `__slots__` + `_FrozenMeta` metaclass + `MappingProxyType` → instance/class/dict mutation 전면 차단).
+- `tests/runner/test_l2_freeze.py::test_weight_values_match_spec_53` **grounds** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §5.3 (α=0.30/β=0.30/γ=0.20/δ=0.20 spec regex 추출 → code constant 대조, drift 자동 탐지).
+- `tests/runner/test_l2_promotion_gate.py` **tests** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 (5 차단 기준 #1~#5: reproducibility · GOLD∧1 · AMBIGUOUS∧c≠null · source identity · A-1 cross-ref).
+- `tests/runner/test_l2_promotion_gate.py::validate_promotion_gate` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 (test-scope helper; future refactor 대상은 `src/semi_design_runner/` 이동).
+
+## 12. Archived spec concept bridges
 
 2026-04-17 archived spec의 개념들은 2026-04-19 integrated spec이 **supersedes**.
 
