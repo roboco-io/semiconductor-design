@@ -8,6 +8,7 @@
 | [002](002-fargate-spot-vs-ondemand-mix.md) | Fargate Spot retry/fallback 정책 | partially-resolved | L1 | G1 | Spot 확정, 재시도 정책만 남음, KG-D 기준 |
 | [003](003-wiki-ingest-automation-trigger.md) | Wiki ingest 자동화 + QMD reindex | open (expanded) | L2 | G2 | QMD 도입으로 범위 확장 |
 | [004](004-dashboard-framework-decision.md) | Observability 대시보드 scope 재평가 | open (scope 재평가) | L1 or L3 | G1 or G3 | L1 operational vs L3 scientific 선행 질문 |
+| [005](005-graphify-refresh-and-integrity-policy.md) | graphify refresh + integrity policy + cross-links 정제 cadence | resolved (2026-04-23) | L2 | G0-continuous | GitHub Issue #4, issue 003 Resolution에서 예고됨 |
 
 ## 2026-04-19 재배치
 
