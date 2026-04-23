@@ -26,6 +26,7 @@ runner = [
 [project.scripts]
 semi-run = "semi_design_runner.cli:main"
 semi-metric-collector = "semi_design_runner.metric_collector_main:main"
+semi-confidence = "semi_design_runner.confidence_cli:main"
 
 [build-system]
 requires = ["hatchling"]
