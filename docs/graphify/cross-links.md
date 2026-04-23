@@ -31,6 +31,8 @@ CDK TypeScript 테스트 파일들은 상대경로 import(`import { ContainerSta
 - `cdk/test/ContainerStack.test.ts` **tests** `cdk/lib/stacks/ContainerStack.ts`.
 - `cdk/test/NetworkStack.test.ts` **tests** `cdk/lib/stacks/NetworkStack.ts`.
 - `cdk/test/StorageStack.test.ts` **tests** `cdk/lib/stacks/StorageStack.ts`.
+- `cdk/test/ComputeStack.test.ts` **tests** `cdk/lib/stacks/ComputeStack.ts`.
+- `cdk/test/WorkflowStack.test.ts` **tests** `cdk/lib/stacks/WorkflowStack.ts`.
 - `cdk/test/app.test.ts` **tests** `cdk/bin/semi-design.ts` (CDK app entry).
 - `cdk/jest.config.ts` **configures** `cdk/test/app.test.ts` (Jest test runner config).
 
@@ -149,7 +151,25 @@ Phase 0 sub-concepts:
 - `README.md` G0-G4 gate summary **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §8 gate-based execution.
 - `README.md` project description **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §1 project intent.
 
-## 8. Archived spec concept bridges
+## 8. CDK Lambda handler ↔ WorkflowStack bridges
+
+B6 WorkflowStack의 3 Lambda Python handler는 stack에서 `lambda.Function(..., code=Code.fromAsset('lambdas/...'))` 로 asset 참조되지만 tree-sitter-python ↔ tree-sitter-typescript 교차 AST edge는 graphify가 포착하지 못한다. 각 handler는 stack의 Lambda 리소스를 **implements**.
+
+- `cdk/lambdas/validate-spec/index.py` **implements** `cdk/lib/stacks/WorkflowStack.ts` (ValidateSpec Lambda handler).
+- `cdk/lambdas/init-generation/index.py` **implements** `cdk/lib/stacks/WorkflowStack.ts` (InitGeneration Lambda handler).
+- `cdk/lambdas/finalize/index.py` **implements** `cdk/lib/stacks/WorkflowStack.ts` (Finalize Lambda handler).
+- `cdk/lambdas/validate-spec/index.py` `RejectedNotInG1Scope` **grounds** `src/semi_design_runner/validator.py` (L1 spec §4.2 error taxonomy — Lambda · Python runner 동일 string-level 계약).
+
+## 9. L2 spec ↔ L2 schema bridges
+
+L2 derived spec (commit `98149de`) §5.2 output schema가 `src/semi_design_runner/l2_schema.py` 로 코드화. Python `from ... import L2RecallNode` 는 graphify AST가 포착하지만, spec doc ↔ code cross-trench는 명시 필요.
+
+- `src/semi_design_runner/l2_schema.py` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §5.2 (L2RecallNode 9 optional 필드).
+- `src/semi_design_runner/l2_schema.py` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 #5 (`confidence*` 격리 규칙 — 모듈 docstring으로 강제).
+- `tests/runner/test_l2_schema.py` **tests** `src/semi_design_runner/l2_schema.py` (Pydantic round-trip · Literal validation · 격리 docstring 정적 assertion).
+- `src/semi_design_runner/l2_schema.py` **grounds** `docs/superpowers/specs/2026-04-23-L2-substrate-codex-review.md` R1 fix #1 (`Optional[...] = None` 명시 default enforcement).
+
+## 10. Archived spec concept bridges
 
 2026-04-17 archived spec의 개념들은 2026-04-19 integrated spec이 **supersedes**.
 
