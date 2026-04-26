@@ -17,6 +17,7 @@ DOCKERFILE = "docker/librelane-runner.Dockerfile"
 
 
 @pytest.mark.slow
+@pytest.mark.requires_real_lockfile
 def test_librelane_runner_builds(repo_root: Path) -> None:
     build_args = {
         "LIBRELANE_DIGEST": "4444444444444444444444444444444444444444444444444444444444444444",
@@ -38,6 +39,7 @@ def test_librelane_runner_builds(repo_root: Path) -> None:
 
 
 @pytest.mark.slow
+@pytest.mark.requires_real_lockfile
 def test_librelane_runner_honors_simulate_spot_reclaim(tmp_path: Path) -> None:
     """Same KG-D contract as orfs-runner: SIMULATE_SPOT_RECLAIM=1 → exit 143."""
     (tmp_path / "in").mkdir()
@@ -58,6 +60,7 @@ def test_librelane_runner_honors_simulate_spot_reclaim(tmp_path: Path) -> None:
 
 
 @pytest.mark.slow
+@pytest.mark.requires_real_lockfile
 def test_librelane_runner_has_librelane(repo_root: Path) -> None:
     out = subprocess.run(
         ["docker", "run", "--rm", "--entrypoint", "sh", IMAGE_TAG,

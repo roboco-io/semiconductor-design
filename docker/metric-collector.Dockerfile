@@ -14,8 +14,12 @@ RUN apt-get update \
 
 WORKDIR /opt/app
 
-COPY dist/semi_design_runner-*.whl /tmp/wheels/
-RUN pip install --no-cache-dir /tmp/wheels/*.whl
+COPY dist/*.whl /tmp/wheels/
+# Install with [runner] extras so pydantic / boto3 / ulid-py are available
+# (metric_collector_main → metrics.parse_reports → schemas.Metrics requires
+# pydantic per spec §5 single-source-parser invariant). Without [runner],
+# the wheel's core deps (pyyaml + click) are insufficient for parse_reports.
+RUN pip install --no-cache-dir "$(ls /tmp/wheels/*.whl)[runner]"
 
 COPY docker/entrypoints/run-stage.sh /opt/bin/run-stage.sh
 RUN chmod +x /opt/bin/run-stage.sh

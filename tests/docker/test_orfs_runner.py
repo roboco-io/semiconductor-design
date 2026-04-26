@@ -17,6 +17,7 @@ DOCKERFILE = "docker/orfs-runner.Dockerfile"
 
 
 @pytest.mark.slow
+@pytest.mark.requires_real_lockfile
 def test_orfs_runner_builds(repo_root: Path) -> None:
     # Placeholder SHAs: real build uses `yq` to read `lockfile.yaml`; tests use
     # values from the fixture because the repo lockfile is Phase E territory.
@@ -40,6 +41,7 @@ def test_orfs_runner_builds(repo_root: Path) -> None:
 
 
 @pytest.mark.slow
+@pytest.mark.requires_real_lockfile
 def test_orfs_runner_has_no_verilator(repo_root: Path) -> None:
     """Codex review #8: Verilator must NOT be shipped in G1 orfs-runner."""
     out = subprocess.run(
@@ -54,6 +56,7 @@ def test_orfs_runner_has_no_verilator(repo_root: Path) -> None:
 
 
 @pytest.mark.slow
+@pytest.mark.requires_real_lockfile
 def test_orfs_runner_has_expected_tools(repo_root: Path) -> None:
     for tool, probe in [
         ("yosys",     "yosys -V"),
