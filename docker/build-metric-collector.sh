@@ -8,7 +8,7 @@ LOCKFILE="${LOCKFILE:-lockfile.yaml}"
 rm -rf dist
 uv build --wheel --out-dir dist
 
-L1_SHA=$(uv run semi-run lockfile-verify --scope l1 --json | jq -r '.l1_lockfile_sha' | sed 's/sha256://;s/^\(.\{12\}\).*/\1/')
+L1_SHA=$(uv run semi-run lockfile-verify --scope l1 | jq -r '.l1_lockfile_sha' | sed 's/sha256://;s/^\(.\{12\}\).*/\1/')
 
 IMAGE_NAME="semi/metric-collector"
 LOCAL_TAG="${IMAGE_NAME}:${L1_SHA}"

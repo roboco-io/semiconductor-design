@@ -1,0 +1,57 @@
+version: 1
+updated_at: 2026-04-25
+updated_by: dry-run-bootstrap
+# Dry-run lockfile (Phase C scaffold).
+#
+# Real builds replace `commit_shas.*` with actual upstream commit SHAs / tags
+# resolved by the operator (see `docs/superpowers/plans/2026-04-21-L1-process-plan.md`
+# Phase E). `container_digests.*` are null until `docker/build-*.sh --push`
+# captures ECR-assigned digests via `aws ecr describe-images`. Per
+# `src/semi_design_runner/lockfile.py::_strip_nulls`, null values are dropped
+# from canonical-yaml before hashing, so adding container digests later does
+# NOT change `l1_lockfile_sha` — that invariance is the L1 cache contract
+# (spec §9.1).
+#
+# TODO(human): fill `commit_shas` with the placeholder convention you choose
+# for dry-run. Constraints:
+#   1. openroad / open_pdks / librelane: commit SHA-shaped (40-char hex string)
+#   2. yosys: release-tag-shaped (e.g. `yosys-0.55`)
+#   3. L3-readiness keys (verilator, cocotb, chipyard, gemmini, mlcommons_tiny)
+#      MUST stay `null` — they are not part of L1 scope and are filled when
+#      L3 is unblocked. A non-null L3 value here will silently expand the
+#      `verify_scope("full")` check surface and is a Phase E error, not C.
+#   4. The placeholder pattern must be visually distinct from a real commit
+#      SHA so a future reader knows this lockfile was never push-built.
+commit_shas:
+  openroad: "deadbeef00000000000000000000000000000001"  # DRY-RUN placeholder — deadbeef prefix signals fake; replace with real OpenROAD commit SHA before G1 build
+  librelane: "cafebabe00000000000000000000000000000002"  # DRY-RUN placeholder — cafebabe prefix signals fake; replace with real LibreLane 3.0.2 commit SHA before G1 build
+  yosys: "yosys-0.99-DRY-RUN"                           # DRY-RUN placeholder — 0.99 is not a real yosys release; replace with real tag (e.g. yosys-0.45) before G1 build
+  open_pdks: "feedface00000000000000000000000000000003"  # DRY-RUN placeholder — feedface prefix signals fake; replace with real open_pdks commit SHA before G1 build
+  verilator: null
+  cocotb: null
+  chipyard: null
+  gemmini: null
+  mlcommons_tiny: null
+container_digests:
+  # All null in dry-run; build-*.sh --push fills these from ECR.
+  # _strip_nulls() drops them before canonical hashing → L1 cache key invariant.
+  #
+  # `librelane_base` is the **upstream** ghcr.io/librelane/librelane digest
+  # (pinned in librelane-runner.Dockerfile via `FROM ...@sha256:${LIBRELANE_DIGEST}`).
+  # Operator resolves it once per LibreLane release and writes it here manually;
+  # build-librelane.sh reads but does NOT write it (in contrast to *-runner keys).
+  librelane_base: null
+  orfs-runner: null
+  librelane-runner: null
+  metric-collector: null
+source_tarball_mirrors: {}
+pdk_digests:
+  # sky130A content digest is computed AFTER open_pdks builds and writes to
+  # $PDK_ROOT in the orfs-runner image. Until then, `null` (same drop semantics).
+  sky130A: null
+stale_source_policy:
+  grace_period_hours: 24
+  action_on_failure: ci_red
+ci_verification:
+  last_green_commit: null
+  last_green_at: null
