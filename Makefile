@@ -1,4 +1,4 @@
-.PHONY: install test lint fmt clean graph-update graph-build graph-serve graph-lint freshness-inject
+.PHONY: install test lint fmt clean graph-update graph-build graph-serve graph-lint freshness-inject kg-all kg-all-smoke
 
 install:
 	uv sync --all-extras
@@ -33,3 +33,12 @@ graph-lint:
 
 freshness-inject:
 	uv run python scripts/inject_freshness.py --graph graphify-out/graph.json
+
+# G1 kill-gate aggregator. Smoke mode runs offline with synthetic metrics;
+# default mode requires BUCKET + STATE_MACHINE_ARN env (real AWS).
+# Per overview §8 G1 exit criterion 7 — `make kg-all` must exit 0.
+kg-all:
+	bash scripts/kg/run-all.sh
+
+kg-all-smoke:
+	SMOKE=1 bash scripts/kg/run-all.sh

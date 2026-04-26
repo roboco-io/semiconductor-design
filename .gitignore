@@ -57,6 +57,9 @@ docs/superpowers/plans/drafts/
 # semi-run CLI runtime artifact (written by `init` to CWD for Makefile convenience)
 .last-run-id
 
+# KG smoke-mode scratch specs (written by scripts/kg/kg-f1-prebudget.sh on each run)
+specs/_kg_*.yaml
+
 # graphify evaluation & output (2026-04-22, commit policy = 옵션 A+)
 # graph.json · GRAPH_REPORT.md · graph.html 은 커밋 (팀 공유 knowledge artifact).
 # cache · intermediate(.graphify_*)만 무시.
