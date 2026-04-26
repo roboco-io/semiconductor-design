@@ -1,18 +1,25 @@
-import { App } from "aws-cdk-lib";
-import { Template } from "aws-cdk-lib/assertions";
-import { AwsSolutionsChecks } from "cdk-nag";
 import { Aspects } from "aws-cdk-lib";
+import { AwsSolutionsChecks } from "cdk-nag";
 import { buildApp } from "../bin/semi-design";
 
 describe("App bootstrap", () => {
-  it("synthesizes with no stacks yet and attaches cdk-nag AwsSolutionsChecks", () => {
+  it("synthesizes 6 stacks and attaches cdk-nag AwsSolutionsChecks", () => {
     const app = buildApp({ env: "dev" });
     // cdk-nag aspect must be attached at construction; test proves the hook is live.
     const aspects = Aspects.of(app).all;
     expect(aspects.some((a) => a instanceof AwsSolutionsChecks)).toBe(true);
-    // App.synth() must succeed even with zero stacks (pre-Task B2 state).
+    // App.synth() succeeds with all 6 stacks composed.
     const cloudAssembly = app.synth();
-    expect(cloudAssembly.stacks.length).toBe(0);
+    expect(cloudAssembly.stacks.length).toBe(6);
+    const stackNames = cloudAssembly.stacks.map((s) => s.stackName).sort();
+    expect(stackNames).toEqual([
+      "ComputeStack",
+      "ContainerStack",
+      "NetworkStack",
+      "ObservabilityStack",
+      "StorageStack",
+      "WorkflowStack",
+    ]);
   });
 
   it("rejects unknown context env value", () => {
