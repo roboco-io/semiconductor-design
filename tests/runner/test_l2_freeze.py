@@ -2,13 +2,13 @@
 
 L2 §6.3 says: "L2 runtime (``L2.memory.recall`` / ``L2.skill_library.query``)
 references freeze values read-only and MUST NOT expose a mutation path." This
-file encodes that rule against a minimal mock ``L2Runtime`` that mirrors the
-public surface the real implementation is expected to present.
+file encodes that rule against the real ``L2Runtime`` in
+``semi_design_runner.l2_runtime``.
 
-Why a mock: the real runtime is not implemented yet (separate issue). The
-mock lives inside this test module — creating
-``src/semi_design_runner/l2_runtime.py`` is explicitly out of scope for Issue
-#9 and would conflict with the dedicated runtime issue.
+Originally these assertions ran against an in-test mock; the mock was
+replaced by the real module after issue #12 prerequisite was unblocked.
+The assertions themselves are unchanged — same 8 tests, same expectations,
+exercised against production code.
 
 Covers §6.3 freeze-authority assertions:
   - Weights are class constants (no instantiation needed)
@@ -22,115 +22,13 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from types import MappingProxyType
-from typing import Any
 
 import pytest
 
-from semi_design_runner.l2_schema import L2RecallNode
+from semi_design_runner.l2_runtime import FREEZE_VIOLATION_MSG, L2Runtime
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 L2_SPEC = REPO_ROOT / "docs" / "superpowers" / "specs" / "2026-04-23-L2-substrate-design.md"
-
-# Sentinel error message fragment for freeze violations. Kept as a shared
-# constant so all runtime APIs raise consistent text that L3 error handlers
-# can match on.
-FREEZE_VIOLATION_MSG = "freeze 규칙 위반"
-
-
-class _FrozenMeta(type):
-    """Metaclass that blocks attribute rebinding on the class object itself.
-
-    Without this, ``L2Runtime.ALPHA = 0.9`` would silently succeed (class
-    attributes are mutable by default). §6.3 requires read-only — enforce
-    it structurally at the class level, not just by convention.
-    """
-
-    _initialized: bool = False
-
-    def __setattr__(cls, name: str, value: Any) -> None:
-        # Allow the class body to initialize once during class creation; block
-        # every rebind thereafter. The _initialized flag is flipped at the
-        # bottom of the L2Runtime definition.
-        if getattr(cls, "_initialized", False) and not name.startswith("_"):
-            raise AttributeError(f"{FREEZE_VIOLATION_MSG}: L2Runtime.{name} is read-only (§6.3)")
-        super().__setattr__(name, value)
-
-
-class L2Runtime(metaclass=_FrozenMeta):
-    """Mock of the future L2 runtime.
-
-    Mirrors the expected public API without any real graphify dependency.
-    All freeze-subject constants (§6.3) are class attributes. Instance
-    mutation is blocked by ``__slots__ = ()`` (no ``__dict__`` to bind to).
-    Class-attribute rebinding is blocked by ``_FrozenMeta``.
-    """
-
-    __slots__ = ()  # no instance __dict__ → runtime.ALPHA = 0.9 → AttributeError
-
-    # §5.3 ranking weights (frozen; change requires spec re-approval).
-    ALPHA: float = 0.30  # tier_weight coefficient
-    BETA: float = 0.30  # confidence_weight coefficient
-    GAMMA: float = 0.20  # freshness_weight coefficient
-    DELTA: float = 0.20  # graph_centrality coefficient
-
-    # §5.3 per-category weight tables. MappingProxyType gives a read-only view
-    # that raises TypeError on mutation attempts.
-    TIER_WEIGHT: MappingProxyType = MappingProxyType(
-        {"EXTRACTED": 1.0, "INFERRED": 0.7, "AMBIGUOUS": 0.0}
-    )
-    CONFIDENCE_WEIGHT: MappingProxyType = MappingProxyType(
-        {"GOLD": 0.95, "SILVER": 0.85, "BRONZE": 0.70, None: 0.0}
-    )
-    FRESHNESS_WEIGHT: MappingProxyType = MappingProxyType(
-        {"fresh_30": 1.0, "fresh_90": 0.8, "fresh_180": 0.6, "stale": 0.3}
-    )
-
-    # §5.1 query semantics defaults.
-    K_DEFAULT: int = 10
-    BUDGET_TOKENS_DEFAULT: int = 8000
-
-    def recall(
-        self,
-        query_text: str,
-        *,
-        k: int | None = None,
-        budget_tokens: int | None = None,
-        weights: dict[str, float] | None = None,
-    ) -> list[L2RecallNode]:
-        """Mock recall; refuses any weight override at the runtime boundary."""
-        if weights is not None:
-            raise RuntimeError(
-                f"{FREEZE_VIOLATION_MSG}: weights override forbidden on L2.memory.recall (§6.3)"
-            )
-        # Real recall would query graphify here; mock returns empty.
-        del query_text, k, budget_tokens
-        return []
-
-    def query(
-        self,
-        spec_uri: str,
-        *,
-        weights: dict[str, float] | None = None,
-    ) -> list[dict[str, Any]]:
-        """Mock skill_library.query; refuses any weight override."""
-        if weights is not None:
-            raise RuntimeError(
-                f"{FREEZE_VIOLATION_MSG}: weights override forbidden on "
-                f"L2.skill_library.query (§6.3)"
-            )
-        del spec_uri
-        return []
-
-
-# Flip the freeze switch after the class body completes. From this point
-# forward ``L2Runtime.ATTR = value`` raises AttributeError.
-_FrozenMeta._initialized = True  # type: ignore[attr-defined]
-
-
-# ---------------------------------------------------------------------------
-# Tests
-# ---------------------------------------------------------------------------
 
 
 def test_weights_are_class_constants() -> None:
@@ -207,9 +105,9 @@ def test_weight_values_match_spec_53() -> None:
     """Spec §5.3 declared weights match the runtime constants (drift detector).
 
     Parses ``α = 0.30, β = 0.30, γ = 0.20, δ = 0.20`` line from §5.3 of the
-    L2 derived spec. If the spec's numeric declaration changes but the mock
+    L2 derived spec. If the spec's numeric declaration changes but the
     runtime is not updated in lockstep, this test fails loudly — preventing
-    silent drift between the spec-of-record and the regression-test mock.
+    silent drift between the spec-of-record and the runtime.
     """
     assert L2_SPEC.exists(), f"L2 spec missing at {L2_SPEC}"
     spec_text = L2_SPEC.read_text(encoding="utf-8")
