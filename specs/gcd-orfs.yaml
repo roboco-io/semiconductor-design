@@ -1,0 +1,44 @@
+# Sample spec — gcd design on ORFS stack (G1 canonical entry point).
+#
+# Direct invocation via `semi-run init --spec specs/gcd-orfs.yaml` will fail:
+# `run_id` and `l1_lockfile_sha` are intentionally empty templates that the
+# `make run DESIGN=gcd STACK=orfs` Makefile target fills at submission time
+# (run_id = `gcd-orfs-<unix_ts>`, l1_lockfile_sha = current
+# `semi-run lockfile-verify --scope l1` output). This decouples checked-in
+# sample specs from the moving lockfile sha.
+#
+# Parameter rationale (gcd is the smallest design — ~600 cells synthesized):
+#   - core_utilization 0.40 / place_density 0.55 → loose floorplan, generous
+#     routing slack (G1 priority is repeatability, not density).
+#   - clock_period_ps 5000 → 200 MHz target. Easily met by gcd; provides
+#     non-trivial STA work without timing pressure.
+#   - global_routing_iterations 30 → ORFS default; sufficient for gcd-sized
+#     designs to converge.
+#   - timing_driven true / synth_flatten false → standard G1 baseline.
+#
+# Cost budget: $0.50 total. Five-stage breakdown sums exactly to budget so
+# KG-F1 prebudget gate (overview §8) accepts without slack inflation.
+version: 1
+run_id: ""
+design: gcd
+stack: orfs
+flow_parameters:
+  core_utilization: 0.40
+  place_density: 0.55
+  clock_period_ps: 5000
+  global_routing_iterations: 30
+  timing_driven: true
+  synth_flatten: false
+resource_overrides:
+  cpu_units: 4096
+  memory_mb: 16384
+  ephemeral_storage_gb: 200
+compute_budget_usd: 0.50
+planned_cost_per_stage_usd:
+  rtl-build: 0.05
+  synth: 0.10
+  pnr: 0.20
+  signoff: 0.10
+  metrics: 0.05
+seed: 42
+l1_lockfile_sha: ""

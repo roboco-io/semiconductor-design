@@ -1,0 +1,83 @@
+name: CI
+
+# Clean-VM reproducibility gate. Mirrors local `make lint` / `make test` /
+# CDK Jest / cdk synth on a fresh ubuntu-latest runner to catch host-only
+# state drift (e.g. uv cache pollution, rogue PYTHONPATH, leftover docker
+# images affecting tests).
+#
+# Slow tests (`-m slow`) are excluded — they need real upstream commit SHAs
+# wired through Docker, which is Phase C / E5+ territory and out of scope
+# for the per-PR gate.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  python-lint:
+    name: ruff (src + tests + scripts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --all-extras
+      - run: make lint
+
+  python-test:
+    name: pytest (fast tests, no slow)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - run: uv sync --all-extras
+      # `-p no:superclaude` mirrors the local workaround documented in the
+      # 2026-04-27 handoff: a globally-installed superclaude pytest plugin
+      # leaks into uv's entry-point discovery on the maintainer machine.
+      # The flag is harmless on CI runners that don't have it installed.
+      - run: uv run pytest -p no:superclaude -m "not slow" -v
+
+  cdk-test:
+    name: cdk jest + synth
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cdk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: npx jest --ci
+      - run: npx cdk synth --context env=dev > /dev/null
+
+  graph-lint:
+    name: graphify integrity (orphan / dangling / AMBIGUOUS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Skip if graph.json absent
+        id: check_graph
+        run: |
+          if [ ! -f graphify-out/graph.json ]; then
+            echo "graphify-out/graph.json missing — skipping graph-lint"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=0" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.check_graph.outputs.skip == '0'
+        run: uv sync --all-extras
+      - if: steps.check_graph.outputs.skip == '0'
+        run: make graph-lint

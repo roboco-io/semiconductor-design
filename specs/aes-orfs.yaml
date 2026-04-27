@@ -1,0 +1,44 @@
+# Sample spec — aes design on ORFS stack.
+#
+# **POST-G1 sample**: same RejectedNotInG1Scope behavior as ibex-orfs.yaml
+# until G1_ALLOWED_DESIGNS expands.
+#
+# Parameter rationale (aes is the largest of the three G1 candidate designs;
+# the upstream OpenROAD reference uses a flat AES-128 implementation):
+#   - core_utilization 0.65 / place_density 0.75 → aggressive utilization to
+#     keep die area within budget. AES has uniform combinational structure
+#     so density tolerates higher targets without congestion.
+#   - clock_period_ps 6000 → 167 MHz target. AES's long combinational
+#     SubBytes/MixColumns paths cap fmax; this target leaves WNS positive
+#     without forcing massive buffer insertion.
+#   - global_routing_iterations 60 → highest of the three samples; AES has
+#     the densest routing in G1 candidate set.
+#   - synth_flatten false → AES already has flat structure; further flatten
+#     would explode synthesis runtime without QoR gain.
+#
+# Cost budget: $3.00 total. Highest per-stage cost weighting on PnR + signoff
+# reflects the routing/STA-dominated runtime profile.
+version: 1
+run_id: ""
+design: aes
+stack: orfs
+flow_parameters:
+  core_utilization: 0.65
+  place_density: 0.75
+  clock_period_ps: 6000
+  global_routing_iterations: 60
+  timing_driven: true
+  synth_flatten: false
+resource_overrides:
+  cpu_units: 8192
+  memory_mb: 32768
+  ephemeral_storage_gb: 200
+compute_budget_usd: 3.00
+planned_cost_per_stage_usd:
+  rtl-build: 0.10
+  synth: 0.50
+  pnr: 1.60
+  signoff: 0.50
+  metrics: 0.30
+seed: 45
+l1_lockfile_sha: ""

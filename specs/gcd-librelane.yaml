@@ -1,0 +1,39 @@
+# Sample spec — gcd design on LibreLane stack.
+#
+# Mirrors gcd-orfs.yaml parameter choices so cross-stack PPA comparison stays
+# apples-to-apples. The stack swap exercises the L1 contract (spec §3.2) — the
+# only thing that should differ in the resulting metrics is the PnR engine.
+#
+# Differences from gcd-orfs.yaml:
+#   - stack: librelane
+#   - seed: 43 (distinct from gcd-orfs's 42 to avoid run_id collisions if the
+#     Makefile substitutes the same timestamp).
+#
+# Identical otherwise: same flow parameters, same cost envelope, same resource
+# overrides. The blocker for activation today is the LibreLane runner image
+# build (see Task #11 in the local task tracker — nix-build 'open_pdks' attr
+# missing in nixpkgs).
+version: 1
+run_id: ""
+design: gcd
+stack: librelane
+flow_parameters:
+  core_utilization: 0.40
+  place_density: 0.55
+  clock_period_ps: 5000
+  global_routing_iterations: 30
+  timing_driven: true
+  synth_flatten: false
+resource_overrides:
+  cpu_units: 4096
+  memory_mb: 16384
+  ephemeral_storage_gb: 200
+compute_budget_usd: 0.50
+planned_cost_per_stage_usd:
+  rtl-build: 0.05
+  synth: 0.10
+  pnr: 0.20
+  signoff: 0.10
+  metrics: 0.05
+seed: 43
+l1_lockfile_sha: ""
