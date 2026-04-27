@@ -45,7 +45,9 @@ container_digests:
   # (pinned in librelane-runner.Dockerfile via `FROM ...@sha256:${LIBRELANE_DIGEST}`).
   # Operator resolves it once per LibreLane release and writes it here manually;
   # build-librelane.sh reads but does NOT write it (in contrast to *-runner keys).
-  librelane_base: null
+  # Resolved 2026-04-27 via `docker manifest inspect ghcr.io/librelane/librelane:3.0.2`
+  # — multi-arch manifest list digest (Docker resolves arm64/amd64 at pull time).
+  librelane_base: "sha256:4b8a8c160ada41cf10e2e35c7a2ebca6a643b0d399a183793c61119d9637c7c2"
   orfs-runner: null
   librelane-runner: null
   metric-collector: null
