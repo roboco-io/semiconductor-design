@@ -24,22 +24,27 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PDK_ROOT=/opt/pdk \
     PATH=/opt/tools/openroad/bin:/opt/tools/yosys/bin:/usr/local/bin:/usr/bin:/bin
 
+# Bootstrap layer — just enough to git-clone ORFS and let its own
+# DependencyInstaller handle the version-sensitive bits (SWIG ≥ 4.3,
+# libfmt, libspdlog, libeigen3, etc.) that Debian 12's apt cannot
+# satisfy with hand-picked packages. awscli stays here because
+# entrypoints/run-stage.sh uses it for S3 sync.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      build-essential clang cmake ninja-build bison flex \
-      pkg-config swig pandoc \
-      git ca-certificates curl unzip \
-      python3 python3-pip python3-venv python3-dev \
-      tcl-dev libffi-dev libreadline-dev zlib1g-dev libboost-all-dev \
-      libfmt-dev libspdlog-dev libeigen3-dev libomp-dev \
-      libpcre2-dev libpcre3-dev \
+      git ca-certificates curl unzip sudo \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
 # --- OpenROAD / ORFS (pinned by SHA) ---------------------------------------
+# DependencyInstaller is the canonical OpenROAD entry point for system deps.
+# Hand-picked apt lists drift against upstream's CMake findpackage version
+# checks (cmake ≥ 3.20, swig ≥ 4.3, libfmt ≥ 8.x, etc.). The installer is
+# pinned to the same SHA we check out, so its package set evolves with
+# OpenROAD and stays in sync with build_openroad.sh's expectations.
 RUN mkdir -p /opt/src && cd /opt/src \
  && git clone --recursive https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts.git orfs \
  && cd orfs \
  && git checkout "${OPENROAD_SHA}" \
+ && ./tools/OpenROAD/etc/DependencyInstaller.sh -base -common \
  && ./build_openroad.sh --local --threads "$(nproc)" \
  && mv tools/OpenROAD/build /opt/tools/openroad \
  && ln -s /opt/src/orfs /opt/tools/orfs
