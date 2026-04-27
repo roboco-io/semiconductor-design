@@ -201,7 +201,46 @@ Issue #9 — 세 test 파일이 L2 spec의 prose-only 규칙을 schema-level ass
 - `tests/runner/test_l2_promotion_gate.py` **tests** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 (5 차단 기준 #1~#5: reproducibility · GOLD∧1 · AMBIGUOUS∧c≠null · source identity · A-1 cross-ref).
 - `tests/runner/test_l2_promotion_gate.py::validate_promotion_gate` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 (test-scope helper; future refactor 대상은 `src/semi_design_runner/` 이동).
 
-## 12. Archived spec concept bridges
+## 12. L2Runtime real implementation ↔ L2 spec bridges
+
+Issue #12 — `src/semi_design_runner/l2_runtime.py` (commit `5c0077f`) 가 L2 derived spec §3.3 / §5 / §6.3 의 prose 규칙을 호출 가능한 메서드로 실체화. `recall` / `query` / `lint_check` / `promotion_gate_check` 4개 entry point는 모두 L2 contract surface (overview §3.2) 의 직접 구현.
+
+- `src/semi_design_runner/l2_runtime.py` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §6.3 (3-layer freeze: `__slots__` + `_FrozenMeta` metaclass + `MappingProxyType` → 모든 mutation 차단).
+- `src/semi_design_runner/l2_runtime.py::compute_score` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §5.3 (α=0.30·β=0.30·γ=0.20·δ=0.20 가중합 ranking — canonical decision 금지).
+- `src/semi_design_runner/l2_runtime.py::promotion_gate_check` **implements** `docs/superpowers/specs/2026-04-23-L2-substrate-design.md` §3.3 (5 차단 기준 #1~#5의 method-level enforcement).
+- `src/semi_design_runner/l2_runtime.py::recall` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §3.2 `L2.memory.recall()` interface contract.
+- `src/semi_design_runner/l2_runtime.py::lint_check` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §3.2 `L2.lint.check()` interface contract.
+- `tests/runner/test_l2_runtime.py` **tests** `src/semi_design_runner/l2_runtime.py` (21 assertion: 4 entry method × happy path/edge case + freeze enforcement + score weight invariant).
+- `tests/runner/test_l2_freeze.py` **migrates from** `src/semi_design_runner/l2_runtime.py` (이전 mock impl 의존성을 real impl 로 교체 — 동일 freeze 규칙을 schema-level 에서 검증).
+
+## 13. 6-stack CDK App composition ↔ overview spec §6 bridges
+
+Phase B exit (commit `a5dadef`) — `cdk/bin/semi-design.ts` 가 6 stack (Network → Storage → Container → Compute → Workflow → Observability) 을 순차 wiring. ObservabilityStack 신설로 spec §6.4 (CW dashboard + alarm + budget) 를 codify. NagSuppressions 4건은 모두 "Phase E 통합 시 해소" 표기 — 보안 invariant 침식 없음.
+
+- `cdk/bin/semi-design.ts` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §6 (4-plane × Local/AWS/Tool/Knowledge — AWS plane의 6 stack composition).
+- `cdk/lib/stacks/ObservabilityStack.ts` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §6.4 (CW dashboard + 3 alarms + $50 / $100 budget threshold).
+- `cdk/test/ObservabilityStack.test.ts` **tests** `cdk/lib/stacks/ObservabilityStack.ts` (5 dashboard widgets · 3 alarms · 2 budgets — schema-level 검증).
+- `cdk/test/snapshot.test.ts` **tests** `cdk/bin/semi-design.ts` (6 synthesized template snapshot — drift 자동 탐지).
+- `cdk/test/cdk-nag.test.ts` **enforces** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §6 보안 baseline (IAM5/SF1/VPC7/S1 의 4건 NagSuppression 은 Phase E 시점 issue 로 escalate, 다른 위반은 fail).
+- `cdk/test/app.test.ts` **tests** `cdk/bin/semi-design.ts` (0 stacks → 6 stacks regression — Phase B exit 시점 invariant).
+
+## 14. G1 mandatory kill-gates KG-A/D/E/F1 ↔ overview §8 bridges
+
+`scripts/kg/run-all.sh` 가 G1 exit criterion 7 (`make kg-all` exit 0) 의 단일 진입점 (commit `9e64043`). 4개 KG 의 individual smoke script + Python test 는 overview spec §8 의 G1 KG-* 를 schema-level 강제. SMOKE=1 모드는 AWS 미배포 상태에서 synthetic metrics 으로 self-test.
+
+- `scripts/kg/kg-a-librelane-fargate.sh` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §8 G1 KG-A (LibreLane 3.0.2 Fargate Spot reproducibility).
+- `scripts/kg/kg-d-spot-reclaim.sh` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §8 G1 KG-D (Spot reclaim graceful exit 143).
+- `scripts/kg/kg-e-ddb-write-amp.sh` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §8 G1 KG-E (DDB write amplification ≤ 5).
+- `scripts/kg/kg-f1-prebudget.sh` **implements** `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` §8 G1 KG-F1 (compute_budget_usd == sum(planned_cost_per_stage_usd) prebudget invariant).
+- `scripts/kg/run-all.sh` **aggregates** `scripts/kg/kg-a-librelane-fargate.sh`, `scripts/kg/kg-d-spot-reclaim.sh`, `scripts/kg/kg-e-ddb-write-amp.sh`, `scripts/kg/kg-f1-prebudget.sh` (G1 exit criterion 7 single-entry).
+- `tests/kg/test_kg_a.py` **tests** `scripts/kg/kg-a-librelane-fargate.sh` (smoke mode synthetic metrics path 검증).
+- `tests/kg/test_kg_d.py` **tests** `scripts/kg/kg-d-spot-reclaim.sh` (`SIMULATE_SPOT_RECLAIM=1` → exit 143 contract).
+- `tests/kg/test_kg_e.py` **tests** `scripts/kg/kg-e-ddb-write-amp.sh` (synthetic DDB write count → ratio invariant).
+- `tests/kg/test_kg_f1.py` **tests** `scripts/kg/kg-f1-prebudget.sh` (overbudget spec → reject; balanced spec → accept).
+- `Makefile` `kg-all` / `kg-all-smoke` target **implements** `scripts/kg/run-all.sh` (Make-friendly entry).
+- `specs/_kg_f1_overbudget.yaml` **grounds** `tests/kg/test_kg_f1.py` (overbudget fixture — KG-F1 reject path 의 anchor).
+
+## 15. Archived spec concept bridges
 
 2026-04-17 archived spec의 개념들은 2026-04-19 integrated spec이 **supersedes**.
 
