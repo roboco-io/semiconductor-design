@@ -25,9 +25,13 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PATH=/opt/tools/openroad/bin:/opt/tools/yosys/bin:/usr/local/bin:/usr/bin:/bin
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      build-essential clang bison flex \
-      git ca-certificates curl unzip python3 python3-pip \
-      python3-venv tcl-dev libffi-dev libreadline-dev zlib1g-dev libboost-all-dev \
+      build-essential clang cmake ninja-build bison flex \
+      pkg-config swig pandoc \
+      git ca-certificates curl unzip \
+      python3 python3-pip python3-venv python3-dev \
+      tcl-dev libffi-dev libreadline-dev zlib1g-dev libboost-all-dev \
+      libfmt-dev libspdlog-dev libeigen3-dev libomp-dev \
+      libpcre2-dev libpcre3-dev \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
