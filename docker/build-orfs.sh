@@ -13,7 +13,9 @@
 set -euo pipefail
 
 LOCKFILE="${LOCKFILE:-lockfile.yaml}"
-: "${ECR_REGISTRY:?ECR_REGISTRY required when --push}"
+if [[ "${1:-}" == "--push" ]]; then
+  : "${ECR_REGISTRY:?ECR_REGISTRY required when --push}"
+fi
 
 OPENROAD_SHA=$(yq -r '.commit_shas.openroad'  "$LOCKFILE")
 YOSYS_TAG=$(yq    -r '.commit_shas.yosys'     "$LOCKFILE")
@@ -22,7 +24,6 @@ L1_SHA=$(uv run semi-run lockfile-verify --scope l1 | jq -r '.l1_lockfile_sha' |
 
 IMAGE_NAME="semi/orfs-runner"
 LOCAL_TAG="${IMAGE_NAME}:${L1_SHA}"
-REMOTE_TAG="${ECR_REGISTRY}/${IMAGE_NAME}:${L1_SHA}"
 
 docker build \
   -t "$LOCAL_TAG" \
@@ -39,6 +40,7 @@ SIZE_MB=$(docker image inspect "$LOCAL_TAG" --format='{{.Size}}' | awk '{printf 
 echo "orfs-runner image size: ${SIZE_MB} MB"
 
 if [[ "${1:-}" == "--push" ]]; then
+  REMOTE_TAG="${ECR_REGISTRY}/${IMAGE_NAME}:${L1_SHA}"
   aws ecr get-login-password --region "$(echo "$ECR_REGISTRY" | cut -d. -f4)" \
     | docker login --username AWS --password-stdin "$ECR_REGISTRY"
   docker tag "$LOCAL_TAG" "$REMOTE_TAG"
