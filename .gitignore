@@ -54,6 +54,9 @@ docs/superpowers/plans/drafts/
 # Personal handoff file — never commit
 .handoff.md
 
+# Per-machine Claude Code overrides (settings.json은 팀 공유, .local.json은 개인용)
+.claude/settings.local.json
+
 # semi-run CLI runtime artifact (written by `init` to CWD for Makefile convenience)
 .last-run-id
 
