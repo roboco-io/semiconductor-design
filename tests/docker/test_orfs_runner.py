@@ -11,21 +11,25 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 IMAGE_TAG = "semi/orfs-runner:phaseC-test"
 DOCKERFILE = "docker/orfs-runner.Dockerfile"
 
 
+def _build_args_from_lockfile(repo_root: Path) -> dict[str, str]:
+    lockfile = yaml.safe_load((repo_root / "lockfile.yaml").read_text())
+    return {
+        "OPENROAD_SHA": lockfile["commit_shas"]["openroad"],
+        "YOSYS_TAG": lockfile["commit_shas"]["yosys"],
+        "OPEN_PDKS_SHA": lockfile["commit_shas"]["open_pdks"],
+    }
+
+
 @pytest.mark.slow
 @pytest.mark.requires_real_lockfile
 def test_orfs_runner_builds(repo_root: Path) -> None:
-    # Placeholder SHAs: real build uses `yq` to read `lockfile.yaml`; tests use
-    # values from the fixture because the repo lockfile is Phase E territory.
-    build_args = {
-        "OPENROAD_SHA": "1111111111111111111111111111111111111111",
-        "YOSYS_TAG": "yosys-0.55",
-        "OPEN_PDKS_SHA": "2222222222222222222222222222222222222222",
-    }
+    build_args = _build_args_from_lockfile(repo_root)
     cmd = [
         "docker", "build",
         "-t", IMAGE_TAG,

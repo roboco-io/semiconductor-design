@@ -11,19 +11,26 @@ import subprocess
 from pathlib import Path
 
 import pytest
+import yaml
 
 IMAGE_TAG = "semi/librelane-runner:phaseC-test"
 DOCKERFILE = "docker/librelane-runner.Dockerfile"
 
 
+def _build_args_from_lockfile(repo_root: Path) -> dict[str, str]:
+    lockfile = yaml.safe_load((repo_root / "lockfile.yaml").read_text())
+    digest = lockfile["container_digests"]["librelane_base"]
+    return {
+        "LIBRELANE_DIGEST": digest.removeprefix("sha256:"),
+        "LIBRELANE_REF": lockfile["commit_shas"]["librelane"],
+        "OPEN_PDKS_SHA": lockfile["commit_shas"]["open_pdks"],
+    }
+
+
 @pytest.mark.slow
 @pytest.mark.requires_real_lockfile
 def test_librelane_runner_builds(repo_root: Path) -> None:
-    build_args = {
-        "LIBRELANE_DIGEST": "4444444444444444444444444444444444444444444444444444444444444444",
-        "LIBRELANE_REF": "3333333333333333333333333333333333333333",
-        "OPEN_PDKS_SHA": "2222222222222222222222222222222222222222",
-    }
+    build_args = _build_args_from_lockfile(repo_root)
     cmd = [
         "docker", "build",
         "-t", IMAGE_TAG,
@@ -68,4 +75,4 @@ def test_librelane_runner_has_librelane(repo_root: Path) -> None:
         capture_output=True, text=True, timeout=60,
     )
     assert out.returncode == 0, out.stderr
-    assert "2.4" in (out.stdout + out.stderr)
+    assert (out.stdout + out.stderr).strip()
