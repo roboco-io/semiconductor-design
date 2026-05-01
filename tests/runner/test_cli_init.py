@@ -47,6 +47,23 @@ def test_init_writes_spec_to_s3_on_success(tmp_path):
     assert "s3://b/x" in result.output
 
 
+def test_init_defaults_to_cdk_table_name(tmp_path):
+    spec_file = tmp_path / "gcd.yaml"
+    spec_file.write_text(SPEC_YAML)
+    with (
+        patch("semi_design_runner.cli.make_client") as mk_client,
+        patch("semi_design_runner.cli.put_spec", return_value="s3://b/x"),
+        patch("semi_design_runner.cli.put_candidate_with_count") as put_candidate,
+    ):
+        mk_client.return_value = object()
+        result = CliRunner().invoke(
+            main,
+            ["init", "--spec", str(spec_file), "--bucket", "b", "--env", "dev"],
+        )
+    assert result.exit_code == 0, result.output
+    assert put_candidate.call_args.kwargs["table"] == "semi-design-dev-Candidates"
+
+
 def test_lockfile_verify_l1_scope(tmp_path):
     lock = tmp_path / "lockfile.yaml"
     lock.write_text(

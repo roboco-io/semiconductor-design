@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -28,6 +29,24 @@ from semi_design_runner.schemas import Spec
 from semi_design_runner.validator import RejectedNotInG1Scope, validate_spec_for_g1
 
 
+DEFAULT_APP_ENV = os.environ.get("SEMI_DESIGN_ENV", "dev")
+DEFAULT_REGION = os.environ.get("AWS_REGION", "us-east-1")
+
+
+def _table_name(app_env: str, suffix: str) -> str:
+    return f"semi-design-{app_env}-{suffix}"
+
+
+def _default_bucket(profile: str) -> str:
+    env_bucket = os.environ.get("SEMI_DESIGN_BUCKET")
+    if env_bucket:
+        return env_bucket
+    sts = make_client("sts", profile=profile)
+    account_id = sts.get_caller_identity()["Account"]
+    region = getattr(getattr(sts, "meta", None), "region_name", None) or DEFAULT_REGION
+    return f"semi-design-{account_id}-{region}"
+
+
 @click.group()
 @click.version_option(__version__, prog_name="semi-run")
 def main() -> None:
@@ -36,9 +55,17 @@ def main() -> None:
 
 @main.command("init")
 @click.option("--spec", "spec_path", type=click.Path(exists=True, path_type=Path), required=True)
-@click.option("--bucket", type=str, default="semi-design")
+@click.option("--bucket", type=str, default=None)
+@click.option("--env", "app_env", type=str, default=DEFAULT_APP_ENV, show_default=True)
+@click.option("--candidates-table", type=str, default=None)
 @click.option("--profile", type=str, default="semi-design-operator")
-def init_cmd(spec_path: Path, bucket: str, profile: str) -> None:
+def init_cmd(
+    spec_path: Path,
+    bucket: str | None,
+    app_env: str,
+    candidates_table: str | None,
+    profile: str,
+) -> None:
     raw = yaml.safe_load(spec_path.read_text())
     spec = Spec.model_validate(raw)
     try:
@@ -49,10 +76,11 @@ def init_cmd(spec_path: Path, bucket: str, profile: str) -> None:
 
     s3 = make_client("s3", profile=profile)
     ddb = make_client("dynamodb", profile=profile)
-    uri = put_spec(s3, bucket=bucket, run_id=spec.run_id, spec_yaml=spec_path.read_text())
+    bucket_name = bucket or _default_bucket(profile)
+    uri = put_spec(s3, bucket=bucket_name, run_id=spec.run_id, spec_yaml=spec_path.read_text())
     put_candidate_with_count(
         ddb,
-        table="Candidates",
+        table=candidates_table or _table_name(app_env, "Candidates"),
         run_id=spec.run_id,
         gen=0,
         cand=0,
@@ -113,13 +141,21 @@ def submit_cmd(run_id: str, state_machine_arn: str, profile: str) -> None:
 @main.command("status")
 @click.option("--run-id", type=str, required=True)
 @click.option("--execution-arn", type=str, required=True)
+@click.option("--env", "app_env", type=str, default=DEFAULT_APP_ENV, show_default=True)
+@click.option("--candidates-table", type=str, default=None)
 @click.option("--profile", type=str, default="semi-design-operator")
-def status_cmd(run_id: str, execution_arn: str, profile: str) -> None:
+def status_cmd(
+    run_id: str,
+    execution_arn: str,
+    app_env: str,
+    candidates_table: str | None,
+    profile: str,
+) -> None:
     ddb = make_client("dynamodb", profile=profile)
     sfn = make_client("stepfunctions", profile=profile)
     # `status` is a DynamoDB reserved word — must alias in ProjectionExpression.
     ddb_resp = ddb.get_item(
-        TableName="Candidates",
+        TableName=candidates_table or _table_name(app_env, "Candidates"),
         Key={
             "run_id": {"S": run_id},
             "gen_cand": {"S": "gen#0#cand#0"},
@@ -154,11 +190,13 @@ def artifacts_cmd(run_id: str, bucket: str, dest: Path, profile: str) -> None:
 
 @main.command("cost")
 @click.option("--run-id", type=str, required=True)
+@click.option("--env", "app_env", type=str, default=DEFAULT_APP_ENV, show_default=True)
+@click.option("--runs-table", type=str, default=None)
 @click.option("--profile", type=str, default="semi-design-operator")
-def cost_cmd(run_id: str, profile: str) -> None:
+def cost_cmd(run_id: str, app_env: str, runs_table: str | None, profile: str) -> None:
     ddb = make_client("dynamodb", profile=profile)
     resp = ddb.get_item(
-        TableName="Runs",
+        TableName=runs_table or _table_name(app_env, "Runs"),
         Key={"run_id": {"S": run_id}},
         ProjectionExpression="total_cost_usd",
     )

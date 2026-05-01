@@ -38,6 +38,7 @@ def test_status_joins_ddb_and_sfn():
     assert payload["sfn_status"] == "SUCCEEDED"
     # Lock in the reserved-word alias: `status` is a DDB reserved keyword.
     get_item_kwargs = ddb.get_item.call_args.kwargs
+    assert get_item_kwargs["TableName"] == "semi-design-dev-Candidates"
     assert get_item_kwargs["ProjectionExpression"] == "#s"
     assert get_item_kwargs["ExpressionAttributeNames"] == {"#s": "status"}
 
@@ -68,3 +69,29 @@ def test_cost_emits_budget_guard_check():
     assert result.exit_code == 0
     payload = json.loads(result.output)
     assert payload["total_cost_usd"] == 4.2
+    assert ddb.get_item.call_args.kwargs["TableName"] == "semi-design-dev-Runs"
+
+
+def test_status_allows_explicit_candidates_table():
+    ddb = MagicMock()
+    ddb.get_item.return_value = {"Item": {"status": {"S": "clean"}}}
+    sfn = MagicMock()
+    sfn.describe_execution.return_value = {"status": "SUCCEEDED"}
+    with patch(
+        "semi_design_runner.cli.make_client",
+        side_effect=lambda svc, **kw: {"dynamodb": ddb, "stepfunctions": sfn}[svc],
+    ):
+        result = CliRunner().invoke(
+            main,
+            [
+                "status",
+                "--run-id",
+                "r1",
+                "--execution-arn",
+                "arn:e",
+                "--candidates-table",
+                "Candidates",
+            ],
+        )
+    assert result.exit_code == 0
+    assert ddb.get_item.call_args.kwargs["TableName"] == "Candidates"
