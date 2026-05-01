@@ -156,7 +156,7 @@ export class WorkflowStack extends Stack {
       maxConcurrency: 10,
       itemsPath: "$.candidates",
     });
-    mapState.iterator(candidateChain);
+    mapState.itemProcessor(candidateChain);
 
     const definition = validate.next(initGen).next(mapState);
 

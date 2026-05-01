@@ -47,7 +47,7 @@ export class ComputeStack extends Stack {
 
     this.cluster = new ecs.Cluster(this, "Cluster", {
       vpc,
-      containerInsights: true,
+      containerInsightsV2: ecs.ContainerInsights.ENABLED,
       enableFargateCapacityProviders: true,
     });
 
