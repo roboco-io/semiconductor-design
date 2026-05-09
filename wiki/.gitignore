@@ -1,0 +1,4 @@
+# LLM Wiki — local-only artifacts
+.lancedb/
+private/
+.qmd-cache/
