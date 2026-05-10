@@ -22,7 +22,7 @@ The implemented code today is `src/semi_design_runner/` (L1 Process runner) + `s
 |---|---|---|
 | Phase 1a — Wiki Skill Engine | `src/semi_design_wiki/`, `tests/` | ⛔ **엔진 코드 폐기** (2026-04-22 graphify 전환, `docs/superpowers/specs/2026-04-22-graphify-adoption-design.md`). 마크다운 위키 자체는 2026-05-09 L23 행에서 운영 부활. |
 | Wiki → graphify 전환 (2026-04-22 history) | `scripts/graph_integrity_check.py` + `graphify-out/graph.json` + graphifyy v0.4.25 git dep | ✅ S1~S4 완료. 2026-05-09 wiki-first hybrid로 superseded — graphify는 보조 path 쿼리로 잔존. |
-| Wiki-first 컨텍스트 라우팅 (2026-05-09) | `wiki/index.md` + 컴파일 페이지 (Karpathy 패턴, default 라우팅) — graphify는 보조 path 쿼리로 격하 | 🟢 Phase-0 sessions 4 → 5 pages + K1 papers 4 → 4 pages + C-EDA flow operator guide → 1 page (총 10 페이지) 완료, K2 papers 4 + F-PDK 포맷 pending |
+| Wiki-first 컨텍스트 라우팅 (2026-05-09) | `wiki/index.md` + 컴파일 페이지 (Karpathy 패턴, default 라우팅) — graphify는 보조 path 쿼리로 격하 | 🟢 Phase-0 sessions 4 → 5 pages + K1 papers 4 → 4 pages + C-EDA flow → 1 page + F-PDK formats → 1 page (총 11 페이지) 완료, K2 papers 4 pending |
 | G0 Program bootstrap | K1 52 + K2 61 sources + direction report + overview spec + §7 operating rules + issues 재배치 | ✅ complete |
 | G1 L1 Process | SHA-pinned Nix (LibreLane 3.0.2 + OpenROAD + Yosys + sky130A) + Fargate Spot (ephemeral 200 GiB) + SFN Standard workflow + `make run` gcd; kill gates KG-A~KG-E | pending — L1 파생 spec (K2 ζ 갱신 필요) |
 | G2 L2 Substrate | typed-frontmatter memory + QMD + findings/failures/decisions + `L2.lint`·`skill_library`·`memory` interfaces | pending — L2 파생 spec (L1 완료 후 병렬) |
