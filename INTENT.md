@@ -85,3 +85,7 @@
 ## Learnings
 
 - **2026-05-10** — INTENT.md 첫 작성. 초안에서 (?)로 표시했던 4개 영역 중 H1a / H1b / H1c 정량 임계값이 모두 overview spec §5.4 에 이미 nail down되어 있음을 발견 (Codex 3차 리뷰에서 "H1a threshold 강화 / H1b 최소 3건 / H1c direction" 명시). **의도공학 layer 첫 invariant**: INTENT.md 는 spec 과 *정합* 해야지 *spec 을 다시 정의* 하면 안 된다. 진짜 (?)로 남는 것은 *주관적 의도 anchor* ("고객의 말 한 문장") 1개. spec 권한과 INTENT 권한의 layer 분리가 INTENT.md 단위에서 처음 명시됨.
+
+- **2026-05-10** (agent dogfooding 첫 시도) — 4 위임 agent 정의 commit 직후 `experiment-designer` 를 `Agent` tool로 호출하니 "Agent type not found" 오류. Available agents 목록에 본 프로젝트 agent 4개가 없음. **운영 invariant 발견**: agent 정의 ↔ 호출 가능성 사이에 *세션 재시작이 필요한 시간 지연*이 존재. 의도공학 layer가 의도(추상) → agent system prompt(구체) → *호출 가능 시점*(시간) 의 3 단계임을 첫 dogfooding이 드러냄. 향후 agent system 갱신 시 "정의 후 즉시 dogfooding 불가, 세션 재시작 필요"가 운영 규칙. 본 발견 자체가 의도공학 우수성 증명의 첫 evidence point — *추상 의도가 어디서 운영 boundary와 마찰하는가*.
+
+- **2026-05-10** (정합 작업) — 직전 turn에 "K2 cluster의 K2 → K1 backlink가 없는 비대칭" 이라 advisory를 적었으나, 실제 grep 검증 시 K2 4 페이지 모두 K1 backlink 풍부 보유 (k2-η·k2-θ는 K1 4개 모두). **추측이 사후 grep 검증을 대체하지 않는다는 invariant 확인** — 정합 작업 전 grep 검증이 default로 들어가야 함. 본 발견은 본 프로젝트 H3 가설(reasoning trace 복원 가능성)의 *작은 실패 사례* — Operator 검토가 추측을 잡아냄.

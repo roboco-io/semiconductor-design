@@ -47,10 +47,11 @@ K2 4축 × 평균 15 source = 61 paper. K1이 *forward synthesis*라면 K2는 sp
 
 ## 라우팅 규칙
 
-1. **위키 우선**: `index.md`에서 관련 페이지 진입 → `[[link]]` 2-hop 확장.
-2. **Spec/Plan**: program-level 결정은 `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` (단일 진실원천).
-3. **코드 직접 read/grep**: 구현 검증.
-4. **graphify 보조 쿼리**: cross-component path가 필요할 때 `uv run graphify query "..."` / `make graph-serve` MCP. 카탈로그는 `graphify-out/GRAPH_REPORT.md`.
+1. **의도 정합**: 모든 작업·답변·결정 전에 [`INTENT.md`](../INTENT.md) Why · What · Not 정합 점검 (status: clarified, 2026-05-10).
+2. **위키 우선**: `index.md`에서 관련 페이지 진입 → `[[link]]` 2-hop 확장.
+3. **Spec/Plan**: program-level 결정은 `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` (단일 진실원천).
+4. **코드 직접 read/grep**: 구현 검증.
+5. **graphify 보조 쿼리**: cross-component path가 필요할 때 `uv run graphify query "..."` / `make graph-serve` MCP. 카탈로그는 `graphify-out/GRAPH_REPORT.md`.
 
 ## Raw 소스
 

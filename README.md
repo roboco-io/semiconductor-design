@@ -66,7 +66,7 @@ wiki/
 - K1 raw axes (52건): `wiki/raw/papers/k1-{alpha,beta,gamma,delta}-*.md` → wiki에 4 synthesis 페이지로 컴파일 완료
 - K2 raw axes (61건, 2026-04-22): `wiki/raw/papers/k2-{epsilon,zeta,eta,theta}-*.md` → ingest pending
 - Source index (decision_anchors · spec_contradictions · critical_read): `wiki/raw/imports_manifest.yaml`
-- Operating rules (overview spec §7로 일부 흡수): `wiki/program/{program,scoring,promotion_policy}.md`
+- Operating rules: overview spec §7로 흡수 완료 (2026-04-19부 단일 진실원천, 별도 `wiki/program/` 디렉토리 없음).
 
 ## Phase 1a — Wiki Skill Engine (⛔ 엔진 코드 폐기, 위키 자체는 부활)
 
