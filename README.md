@@ -8,6 +8,10 @@ See [통합 프로그램 overview spec](docs/superpowers/specs/2026-04-19-integr
 
 Superseded: [2026-04-17 single-loop spec](docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md) (archived 2026-04-19).
 
+## Getting started
+
+신규 참여자는 [`docs/onboarding.md`](docs/onboarding.md) 부터 시작한다 — 역할별 (Operator / Researcher / Developer) 진입 경로 + 환경 준비 + 자주 쓰는 명령 + 작업 컨벤션이 한 곳에 정리되어 있다. 용어가 막히면 [`docs/glossary.md`](docs/glossary.md) 옆에 둔다.
+
 ## Current phase
 
 **G0 bootstrap → G1** (program overview approved; L1/L2/L3 파생 spec 착수 단계).
