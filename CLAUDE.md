@@ -18,6 +18,8 @@ The implemented code today is `src/semi_design_runner/` (L1 Process runner) + `s
 
 본 프로젝트의 *Why · What · Not · Learnings* 는 [`INTENT.md`](INTENT.md) 에 정리되어 있다 (status: clarified, 2026-05-10 작성). 메타 목적 두 가지 — (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution. **본 CLAUDE.md 의 모든 컨벤션 · 작업 규칙은 `INTENT.md` 의 Not 섹션을 어긴 의사결정을 차단하기 위한 substrate로 작동**한다. 새 spec/결정·위임 task 정의 시 `INTENT.md` 와 정합하는지 먼저 점검한다. 학습이 누적되면 `INTENT.md` Learnings 섹션에 기록 → 의도가 진화하고, 진화한 의도가 다시 spec·wiki·결정을 변형시키는 co-evolution 사이클이 본 프로젝트의 publishing 축.
 
+**Agent system**: 4 위임 agent — [`experiment-designer`](.claude/agents/experiment-designer.md) (실험 설계) · [`experiment-runner`](.claude/agents/experiment-runner.md) (실험 수행) · [`code-author`](.claude/agents/code-author.md) (코드 작성) · [`eda-code-reviewer`](.claude/agents/eda-code-reviewer.md) (1차 EDA 검사 + `pr-review-toolkit` plugin 오케스트레이션). 분업 매트릭스는 [`.claude/agents/README.md`](.claude/agents/README.md). 4 agent 모두 `INTENT.md` Not 정합 검사를 system prompt 공통 substrate로 가짐. **머지는 항상 Operator**.
+
 ## Implementation Status
 
 현재는 통합 프로그램 **G0 bootstrap → G1** 전환 단계. 이전 1a~6 번호는 구 spec(archived) 기준이라 새 G0~G4 gate로 매핑됨.

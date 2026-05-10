@@ -33,7 +33,7 @@
 - [ ] **L1 Process**: SHA-pinned Nix (LibreLane 3.0.2 + OpenROAD + Yosys + sky130A) + AWS Fargate Spot + Step Functions Distributed Map + S3 artifact lake + DynamoDB metadata.
 - [ ] **L2 Substrate**: typed-frontmatter memory + reversible-patch skill library + `L2.lint` · `skill_library` · `memory` 인터페이스 (graphify backend).
 - [ ] **L3 Content**: Open-Ideation Gemmini DSE on MLPerf Tiny v1.3 streaming (Marvin) + gcd / ibex / aes 평가.
-- [ ] **Operator 운영 인터페이스**: `semi-run` CLI + wiki-first hybrid 컨텍스트 라우팅 + 위임 task 정의 패턴.
+- [ ] **Operator 운영 인터페이스**: `semi-run` CLI + wiki-first hybrid 컨텍스트 라우팅 + 4 위임 agent (`experiment-designer` · `experiment-runner` · `code-author` · `eda-code-reviewer`, `.claude/agents/`) + 위임 task 정의 패턴.
 - [ ] **의도공학 layer**: `INTENT.md` 생명주기 + spec ↔ wiki ↔ 결정의 *Why* 추적.
 - [ ] **Co-evolution layer**: Operator Phase 0 학습 결과가 spec / wiki / skill library를 *역으로* 변형시키는 양방향 순환.
 

@@ -150,9 +150,11 @@ task 정의 시 에이전트가 따라야 할 순서*를 명시.
 - source 누락·왜곡 짚기 (특히 `wiki/raw/papers/`의 critical_read 표시 source).
 - 결정 승인 — wiki ingest, spec 갱신은 *에이전트 제안 → Operator 머지* 흐름.
 
-**위임 도구**: `documentation:llm-wiki` skill (5단계 ingest 워크플로),
-`pr-review-toolkit:code-reviewer` (spec doc 리뷰에도 적용 가능),
-Codex CLI (`/codex:rescue` for second-opinion review).
+**위임 agent**:
+- [`experiment-designer`](../.claude/agents/experiment-designer.md) — 실험 계획서 작성 (candidate set + seed + KG 매핑).
+- [`experiment-runner`](../.claude/agents/experiment-runner.md) — 승인된 plan 실행 + `*.rpt` 1차 정리.
+- `documentation:llm-wiki` skill — wiki ingest 5단계 워크플로.
+- `codex:codex-rescue` — 깊은 root-cause 디버깅·second-opinion.
 
 ### 4.3 Developer 채널 (에이전트에게 위임 → Operator는 코드 리뷰)
 
@@ -175,9 +177,12 @@ Codex CLI (`/codex:rescue` for second-opinion review).
 - 머지 결정 — *직접 commit*은 Operator만 (에이전트는 patch 제안 단계까지).
 - 의도 부합 검사 — 에이전트가 자신의 추측으로 spec 의미를 바꾸지 않았는가.
 
-**위임 도구**: `pr-review-toolkit:code-reviewer` /
-`pr-review-toolkit:code-simplifier` / `pr-review-toolkit:silent-failure-hunter`
-/ `pr-review-toolkit:type-design-analyzer` subagent, Codex CLI rescue.
+**위임 agent**:
+- [`code-author`](../.claude/agents/code-author.md) — patch 제안 (`src/` · `scripts/` · `tests/` · `Makefile`) + ruff + pytest + coverage.
+- [`eda-code-reviewer`](../.claude/agents/eda-code-reviewer.md) — 1차 EDA 도메인 검사 (lockfile · wiki frontmatter · spec citation · INTENT.md Not) + 2차 `pr-review-toolkit` plugin 5 agent 오케스트레이션.
+- `codex:codex-rescue` — 깊은 root-cause 디버깅.
+
+분업 매트릭스 + 호출 패턴은 [`.claude/agents/README.md`](../.claude/agents/README.md) 참조.
 
 ## 5. 자주 쓰는 명령
 
@@ -221,6 +226,8 @@ Codex CLI (`/codex:rescue` for second-opinion review).
 | `graphify-out/` | 보조 path 쿼리 산출물. |
 | `Makefile` | 모든 표준 명령 정의. |
 | `pyproject.toml` | uv 의존성 + ruff 설정 (100 char, py312) + script entrypoints. |
+| `.claude/agents/` | 4개 위임 agent 정의 (experiment-designer / experiment-runner / code-author / eda-code-reviewer) + README. |
+| `INTENT.md` | 프로젝트 Why · What · Not · Learnings (single source of truth, status: clarified). |
 
 ## 7. 작업 컨벤션 (요약)
 
