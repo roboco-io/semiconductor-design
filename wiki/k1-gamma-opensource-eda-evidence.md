@@ -114,6 +114,7 @@ Chipyard · **Gemmini** · NVDLA · CFU Playground · TVM-VTA. → 본 프로젝
 - [[cmos-fundamentals]] — sky130 130nm 노드의 의미
 - [[phase-0-eda-operator-lens]] — `.rpt` 해석이 본 페이지 도구의 산출물 해석 능력
 - (pending) `[[k1-delta-research-memory-evidence]]` — Karpathy AutoResearch / process novelty 패러다임
+- [[k2-theta-benchmark-license-evidence]] — sky130A stack + Efabless 셧다운 trigger가 §13 License Gate + shuttle 4축 후속 mapping으로 정제
 
 ## Source
 

@@ -83,6 +83,7 @@ related_specs:
 - (pending) `[[k1-beta-agentic-eda-evidence]]` — agent 패턴 source
 - (pending) `[[k1-gamma-opensource-eda-evidence]]` — Yosys/OpenROAD 도구 layer
 - (pending) `[[k1-delta-research-memory-evidence]]` — Karpathy AutoResearch 패러다임
+- [[k2-eta-patch-mutation-evidence]] — RTL agent 출력에 reversible patch + SISA mutation이 적용되는 spec-binding (H1b non-knob structural patch)
 
 ## Source
 

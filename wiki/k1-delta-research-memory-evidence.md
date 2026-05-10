@@ -114,6 +114,7 @@ related_decisions:
 - [[phase-0-eda-operator-lens]] — `.rpt` 해석 능력이 본 페이지 typed-memory의 전제
 - [[clock-and-timing]] — STA slack object의 의미
 - [[fsm-and-pipeline]] — reversible-patch가 적용될 RTL 단위
+- [[k2-epsilon-graph-quality-judge-evidence]] — typed-memory 패턴이 4 deferred items (per-node freshness, confidence_score 산식, ranking calibration, recall semantics) + LLM-as-judge κ ≥ 0.6 falsifier로 spec-binding
 
 ## Source
 

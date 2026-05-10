@@ -101,6 +101,7 @@ related_specs:
 - [[phase-0-eda-operator-lens]] — `.rpt` 해석 능력이 본 페이지 적용의 전제
 - (pending) `[[k1-gamma-opensource-eda-evidence]]` — Yosys/OpenROAD 도구 layer
 - (pending) `[[k1-delta-research-memory-evidence]]` — Karpathy AutoResearch + memory 패러다임
+- [[k2-zeta-l1-runtime-evidence]] — ORFS-agent reframe이 LibreLane 3.0.2 + Fargate Spot L1 runtime으로 구체화 (§6.2 lockfile + KG-A~KG-E)
 
 ## Source
 
