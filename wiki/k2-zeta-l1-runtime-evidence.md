@@ -34,7 +34,7 @@ related_wiki:
 
 ### LibreLane / Flow tooling (3종)
 - **LibreLane 3.0.2** (2026-04-02, critical-read): 3.0(2026-03-25)에서 Synlig→Slang, nix-eda 6, Python 3.10+, FP_ config 정리, KLayout DRC/LVS IHP 지원, SPICE RCX. 2.4.13(2026-02-19)이 2.x 종착. **§6.2 lockfile 재작성 trigger**.
-- **LibreLane 설치 매트릭스**: Nix(권장, x86_64/aarch64) / Docker(`--dockerized`, Windows) / pip(unsupported). **Fargate 표적은 Nix path가 SHA-pin 재현성 측면에서 §6.2 정합** ([[raw/docs/librelane-3-architecture-official]]).
+- **LibreLane 설치 매트릭스**: Nix(권장, x86_64/aarch64) / Docker(`--dockerized`, Windows) / pip(unsupported). **Fargate 표적은 Nix path가 SHA-pin 재현성 측면에서 §6.2 정합** (`raw/docs/librelane-3-architecture-official.md`).
 - **FOSSi LibreLane 2.4 발표** (2025-08-17, foundational): OpenLane2 → LibreLane rename의 1차 공식 소스. Efabless 2025-02 셧다운으로 `efabless/openlane2` namespace 회수 불가 → FOSSi 이관. immutable State + Step + metric 아키텍처 재확인 ([[k1-gamma-opensource-eda-evidence]] Trigger 2와 정합).
 
 ### AWS Fargate / Step Functions (5종)
@@ -71,7 +71,7 @@ related_wiki:
 
 | 컴포넌트 | SHA-pin 메커니즘 |
 |----------|------------------|
-| sky130A PDK | ciel `commit-hash` ([[raw/repos/open-pdks-installer-and-ciel]]) |
+| sky130A PDK | ciel `commit-hash` (`raw/repos/open-pdks-installer-and-ciel.md`) |
 | LibreLane 3.0.2 | Nix flake input commit hash |
 | OpenROAD / Yosys / KLayout | ORFS flake의 input commit hash |
 | Chipyard 1.13.0 | submodule SHA `69eba86` 명시 |
@@ -122,8 +122,8 @@ LibreLane 3.0.2
 - [[k1-beta-agentic-eda-evidence]] — ORFS-agent가 본 페이지 ORFS Nix flake 위에서 동작
 - [[pdk-file-formats]] — sky130A 디렉토리 + ciel SHA-pin 메커니즘
 - [[eda-flow-report-reading]] — Fargate task 로그·`*.rpt` 해석이 operator 책무
-- [[raw/repos/open-pdks-installer-and-ciel]] — ciel commit-hash 메커니즘
-- [[raw/docs/librelane-3-architecture-official]] — 5 strict 원칙 + State_i = Step_i 정식
+- `raw/repos/open-pdks-installer-and-ciel.md` — ciel commit-hash 메커니즘
+- `raw/docs/librelane-3-architecture-official.md` — 5 strict 원칙 + State_i = Step_i 정식
 - (pending) `[[k2-eta-patch-mutation-evidence]]` — reversible patch가 L1 candidate 사이 propagate
 - (pending) `[[k2-theta-benchmark-license-evidence]]` — MLPerf Tiny v1.3 evaluation이 L1 artifact lake 위에서
 

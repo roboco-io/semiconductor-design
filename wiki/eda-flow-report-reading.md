@@ -97,7 +97,7 @@ design__drc__violations__count
 4. **PRNG seed 고정** — reproducibility
 5. **결정성**: `State_i = Step_i(State_{i-1}, Config)` 함수형
 
-operator 함의: 어느 stage output이든 inspect 가능, intermediate에서 fork·재실행 trivial. 자세히는 [[raw/docs/librelane-3-architecture-official]] (공식 reference).
+operator 함의: 어느 stage output이든 inspect 가능, intermediate에서 fork·재실행 trivial. 자세히는 `raw/docs/librelane-3-architecture-official.md` (공식 reference).
 
 ## DRC violation top 10 sky130A — frequency 순서
 
@@ -146,7 +146,7 @@ operator 함의: 어느 stage output이든 inspect 가능, intermediate에서 fo
 
 ## 보조 도구
 
-- [[raw/repos/librelane-summary-tool]] — Matt Venn의 violation/antenna/cell-usage browser. Tool plane 후보.
+- `raw/repos/librelane-summary-tool.md` — Matt Venn의 violation/antenna/cell-usage browser. Tool plane 후보.
 
 ## 미해결 / 다음 ingest 후보
 

@@ -49,7 +49,7 @@ related_wiki:
 - **Efabless 후속 mapping** (critical-read): sky130 → ChipFoundry + Cadence Academic / gf180 → wafer.space / 130nm 유럽 → IHP SG13G2. Tiny Tapeout 세 경로 모두 인프라 포팅 중. **단일 turnkey 사라짐 → shuttle 캘린더 tracking이 program rule로 추가**.
 - **ChipFoundry.io** (sky130 default): 2026 사실상 sky130 MPW 상업 운영자. **단가 $14,950/tapeout** + 100 QFN + eval board + bare die. 확인 schedule: CI2605 (tapeout 2026-05-13 / delivery 2026-10-28), CI2609 (2026-09-16 / 2027-03-03).
 - **wafer.space** (gf180mcu): Swiss Chips/Tillitis 컨소시엄 자금. Tiny Tapeout을 gf180mcu에 포팅 중. 2025 말~2026 초 첫 shuttle. sky130/IHP 병행. **스케줄형(on-demand 아님)**, gf180 유일 소규모 공급자.
-- **IHP SG13G2 Open PDK** (학술 유럽): IHP Microelectronics(독일) **130nm SiGe BiCMOS**. `TO_Apr2025`, `TO_May2025` MPW 저장소. 후자 = "Experimental open-source Tiny Tapeout for IHP SG13G2"(IHP25a 라인). **LICENSE 파일 명시 미흡 — §13 open question**. 유럽 학술 경로. 본 페이지의 [[raw/repos/open-pdks-installer-and-ciel]]에서 사전 ciel 통합 확인.
+- **IHP SG13G2 Open PDK** (학술 유럽): IHP Microelectronics(독일) **130nm SiGe BiCMOS**. `TO_Apr2025`, `TO_May2025` MPW 저장소. 후자 = "Experimental open-source Tiny Tapeout for IHP SG13G2"(IHP25a 라인). **LICENSE 파일 명시 미흡 — §13 open question**. 유럽 학술 경로. 본 페이지의 `raw/repos/open-pdks-installer-and-ciel.md`에서 사전 ciel 통합 확인.
 
 ### PDK governance (1종)
 - **open_pdks** (Tim Edwards, critical-read): 본 프로젝트 Nix bundle 의존. SkyWater 자체 PDK 여전히 "experimental preview" (sky130_release_0.0.4a) + Google 경고. **2026-01 IonQ → SkyWater 인수 발표** (2026 Q2/Q3 closing 예상)로 거버넌스 장기 전망 불확실 — CHIPS Alliance 호스팅은 계속. **sky130A commit hash를 provenance.yaml에 고정 이유**.
