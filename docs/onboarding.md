@@ -16,6 +16,10 @@
 Design**. 한 줄로 — *EDA 도구가 만든 리포트와 실행 trace를 근거로 LLM
 에이전트가 작은 실험을 반복하고, 사람(Operator)이 감독하는 연구 프로그램.*
 
+메타 목적 두 가지 — (1) 의도공학(intent engineering) 패러다임 우수성 증명,
+(2) Operator 학습 ↔ 프로젝트 진화의 co-evolution. 자세히는
+[`INTENT.md`](../INTENT.md) + 본 가이드 §12.
+
 ### 3-layer 구조 (연구 프로그램의 층)
 
 | Layer | 역할 | 비유 |
@@ -298,6 +302,39 @@ Operator가 "이번 주는 어디 위임할까"를 결정할 때 본 표 + `issu
 → **개별 작업 단위가 모두 본 가설의 데이터 포인트**. 단순 productivity가
 아니라 *연구 contribution의 일부*로 다룬다는 자각이 본 프로젝트의 메타
 원칙.
+
+## 12. 프로젝트 메타 목적 — 의도공학 + co-evolution
+
+본 프로젝트는 단순히 H1/H2/H3 가설 검증을 위한 게 아니라 *두 가지 메타
+목적*을 동시에 추구한다.
+
+### 12.1 의도공학(intent engineering) 우수성 증명
+
+본 프로젝트는 *방법론으로서의 의도공학*이 vibe-coding + AutoResearch에 적용
+가능하고 우수함을 증명하는 *사례 연구*다. [`INTENT.md`](../INTENT.md) 의
+Why / What / Not / Learnings 4섹션이 프로젝트 의도의 *single source of
+truth* 이며, 이 문서를 명시·진화시키는 행위 자체가 evidence로 누적된다.
+
+따라서 spec 결정 · wiki ingest · 코드 변경의 *Why* 가 항상 의도 layer로
+추적되어야 한다. "이 결정은 어떤 의도에서 나왔는가" 가 reasoning trace의
+1급 시민.
+
+### 12.2 Operator·프로젝트 co-evolution
+
+Operator의 학습이 프로젝트를 진화시키고, 진화한 프로젝트가 Operator의 추가
+학습 영역을 열어주는 *양방향 순환*. 단순히 "Phase 0 학습 결과가 wiki에
+기록"되는 단방향이 아니라, 그 학습이 spec · 결정 · skill library를 *역으로*
+변형시키는 구조다.
+
+본 프로젝트의 publishing 가치는 최종 칩이나 PPA 가 아니라 *이 co-evolution
+흐름 자체* — H3 reasoning trace 복원 가설의 메타 layer.
+
+### 12.3 §11 과의 관계
+
+§11 "운영 모델 자체가 가설 검증 데이터" 는 본 §12 메타 목적의 *실행 layer*.
+Operator의 학습 곡선 · 위임 task 정의 · 머지 거절 사유 · 에이전트 false
+positive 패턴이 모두 §12.1 의도공학 evidence + §12.2 co-evolution 데이터의
+1급 입력.
 
 ---
 

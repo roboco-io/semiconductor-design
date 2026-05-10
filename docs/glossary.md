@@ -27,6 +27,8 @@
 | Process-as-contribution | 최종 PPA 수치만이 아니라 재현 가능한 실행 번들 · trace · 운영 절차 자체를 *연구 기여물*로 본다는 관점. 본 프로젝트의 publish 축. |
 | Operator | 칩 설계 전문가가 아니라 에이전트와 EDA 도구 출력을 *감독·디버깅*하는 사람. 셰프가 아니라 주방장 — 직접 칼질이 아니라 흐름이 옳은지 본다. Phase 0 학습의 목표 역할. |
 | Operator lens | Phase 0 학습 우선순위의 별명. "이론을 깊이 파는 게 아니라 리포트(`*.rpt`)와 파일 포맷(`.v/.lib/.lef/.def/.sdc`)을 비판적으로 *읽어내는* 능력". `[[phase-0-eda-operator-lens]]` 정책 페이지. |
+| Intent engineering | 프로젝트의 *Why · What · Not · Learnings* 를 한 문서(`INTENT.md`)로 명시하고, 학습으로 의도를 진화시키는 방법론. `workflow:intent` skill의 4섹션 템플릿 패턴. 본 프로젝트는 이 방법론 우수성 증명을 *메타 목적의 하나*로 추구. 의도가 명확하면 작업 우선순위 · 머지 결정 · 범위 거절이 자동 정렬됨. |
+| Co-evolution (Operator ↔ 프로젝트) | Operator 학습이 프로젝트를 진화시키고, 진화한 프로젝트가 Operator의 추가 학습 영역을 열어주는 *양방향 순환*. Phase 0 학습 통찰 → spec/wiki 갱신 → 새 학습 영역 → ... 사이클. 본 프로젝트의 publishing 가치는 최종 칩이 아니라 이 흐름 자체 (onboarding §12 + `INTENT.md` Why). |
 
 ## 연구 단계와 판단 기준
 

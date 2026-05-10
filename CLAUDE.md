@@ -14,6 +14,10 @@ The implemented code today is `src/semi_design_runner/` (L1 Process runner) + `s
 >
 > **범위 (layer 분리)**: 본 정책은 **human/LLM이 답변 작성 시 컨텍스트를 회수하는 라우팅 layer**만 다룬다. agent system 내부 API인 `L2.memory.recall` / `L2.skill_library.query` / `L2.lint.check` (overview spec §3.2 + L2-substrate-design §5.1)는 **graphify를 backend로 spec-freeze** 상태 — 본 wiki-first 라우팅 결정과 독립이며, 변경은 L2 spec-owner의 Codex 3-round review를 거쳐야 한다.
 
+## Intent
+
+본 프로젝트의 *Why · What · Not · Learnings* 는 [`INTENT.md`](INTENT.md) 에 정리되어 있다 (status: clarified, 2026-05-10 작성). 메타 목적 두 가지 — (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution. **본 CLAUDE.md 의 모든 컨벤션 · 작업 규칙은 `INTENT.md` 의 Not 섹션을 어긴 의사결정을 차단하기 위한 substrate로 작동**한다. 새 spec/결정·위임 task 정의 시 `INTENT.md` 와 정합하는지 먼저 점검한다. 학습이 누적되면 `INTENT.md` Learnings 섹션에 기록 → 의도가 진화하고, 진화한 의도가 다시 spec·wiki·결정을 변형시키는 co-evolution 사이클이 본 프로젝트의 publishing 축.
+
 ## Implementation Status
 
 현재는 통합 프로그램 **G0 bootstrap → G1** 전환 단계. 이전 1a~6 번호는 구 spec(archived) 기준이라 새 G0~G4 gate로 매핑됨.
