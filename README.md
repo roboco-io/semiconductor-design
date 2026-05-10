@@ -10,7 +10,7 @@ Superseded: [2026-04-17 single-loop spec](docs/superpowers/specs/2026-04-17-semi
 
 ## Getting started
 
-신규 참여자는 [`docs/onboarding.md`](docs/onboarding.md) 부터 시작한다 — 역할별 (Operator / Researcher / Developer) 진입 경로 + 환경 준비 + 자주 쓰는 명령 + 작업 컨벤션이 한 곳에 정리되어 있다. 용어가 막히면 [`docs/glossary.md`](docs/glossary.md) 옆에 둔다.
+본 프로젝트는 **Operator 1명이 다중 에이전트(Researcher/Developer 역할)를 감독·운영하는 single-operator multi-agent 구조**다. 신규 참여자(=Operator)는 [`docs/onboarding.md`](docs/onboarding.md) 부터 시작한다 — Operator의 세 감독 채널(학습 · Researcher 위임 · Developer 위임) + 환경 준비 + 자주 쓰는 명령 + 작업 컨벤션이 한 곳에 정리되어 있다. 용어가 막히면 [`docs/glossary.md`](docs/glossary.md) 옆에 둔다.
 
 ## Current phase
 
