@@ -8,7 +8,15 @@
 
 **문제**:
 - 칩 설계는 비전문가 진입 장벽이 매우 높다. 상용 EDA 도구는 비싸고 폐쇄적, 오픈소스 도구 체인은 분산되어 진입 비용이 큼.
-- 기존 agentic EDA (ORFS-agent 2025) 는 parameter knob tuning에 한정. 구조적 patch · reasoning trace 복원 가능성 · 비전문가 운영 모델 미검증.
+- 기존 agentic EDA는 *여러 패러다임이 이미 존재*하나 5개 차원 동시 결합 사례 없음 (2026-05-25 K3 positioning evidence 조사 결과):
+  - **ORFS-agent**(2025-06, UCSD/UCB) — LLM parameter knob tuning autotuner. WL/clock 13% 개선
+  - **AiEDA**(2024-08, [arxiv 2412.09745](https://ar5iv.labs.arxiv.org/html/2412.09745)) — concept-to-GDSII 4-stage agentic flow, sky130 채택, RAG Verilog gen
+  - **CHIPCRAFTBRAIN**(2026-04, [arxiv 2604.19856](https://arxiv.org/pdf/2604.19856.pdf)) — 6 agent + PPO orchestration + 321 패턴 + 971 ref impls
+  - **AuDoPEDA**(2026-01, [arxiv 2601.06268](https://arxiv.org/pdf/2601.06268v1.pdf)) — Codex-class agent가 OpenROAD source 직접 수정
+  - **VeriMaAS**(2025-09, [arxiv 2509.20182](https://arxiv.org/abs/2509.20182)) — multi-agent workflow + Yosys/OpenSTA error feedback
+  - **UCSD ABK ICCAD invited**(2025-09, [PDF](https://vlsicad.ucsd.edu/Publications/Conferences/423/c423.pdf)) — flow/code/meta-agent 3-tier *sustained program* roadmap
+
+  위 인접 작업 중 어느 것도 **(a) 의도공학 메타 layer (INTENT.md cycle) + (b) wiki-first hybrid context routing + (c) human-in-loop Operator authority (autonomous coordination 아님) + (d) reasoning trace fidelity를 primary scientific contribution (Cohen's κ ≥ 0.6 falsifier) + (e) reversible-patch skill library 누적** 5개 차원 *동시 결합* 사례 없음. 본 프로젝트 차별화는 *기술 substrate*(open-source EDA + multi-agent)이 아닌 **5축 조합의 novelty** + *프로세스 권한·측정 도구·축적 메커니즘*. 상세 비교: [`wiki/raw/papers/k3-{iota,kappa,lambda}-*.md`](wiki/raw/papers/).
 - 의도공학(intent engineering) 패러다임이 vibe-coding + AutoResearch 환경에서 우수한지에 대한 reproducible 사례 연구 부재.
 
 **목표 (6개월 후, 2026-11-10 무렵)**:
