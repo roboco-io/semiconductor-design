@@ -26,6 +26,7 @@ IMAGE_NAME="${IMAGE_NAME:-semi-design-${APP_ENV:-dev}-orfs-runner}"
 LOCAL_TAG="${IMAGE_NAME}:${L1_SHA}"
 
 docker build \
+  --provenance=false \
   -t "$LOCAL_TAG" \
   -f docker/orfs-runner.Dockerfile \
   --label "org.opencontainers.image.source=https://github.com/dohyunjung/semiconductor-design" \

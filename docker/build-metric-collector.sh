@@ -16,6 +16,7 @@ IMAGE_NAME="${IMAGE_NAME:-semi-design-${APP_ENV:-dev}-metric-collector}"
 LOCAL_TAG="${IMAGE_NAME}:${L1_SHA}"
 
 docker build \
+  --provenance=false \
   -t "$LOCAL_TAG" \
   -f docker/metric-collector.Dockerfile \
   --label "org.opencontainers.image.source=https://github.com/dohyunjung/semiconductor-design" \

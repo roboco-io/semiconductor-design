@@ -106,6 +106,10 @@ export class ComputeStack extends Stack {
         cpu: 4096,
         memoryLimitMiB: 16384,
         ephemeralStorageGiB: 21,
+        runtimePlatform: {
+          cpuArchitecture: ecs.CpuArchitecture.ARM64,
+          operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+        },
         taskRole,
       });
       td.addContainer("main", {
