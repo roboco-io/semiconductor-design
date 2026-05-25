@@ -9,6 +9,8 @@
 | [003](003-wiki-ingest-automation-trigger.md) | Wiki ingest 자동화 + QMD reindex | open (expanded) | L2 | G2 | QMD 도입으로 범위 확장 |
 | [004](004-dashboard-framework-decision.md) | Observability 대시보드 scope 재평가 | open (scope 재평가) | L1 or L3 | G1 or G3 | L1 operational vs L3 scientific 선행 질문 |
 | [005](005-graphify-refresh-and-integrity-policy.md) | graphify refresh + integrity policy + cross-links 정제 cadence | resolved (2026-04-23) | L2 | G0-continuous | GitHub Issue #4, issue 003 Resolution에서 예고됨 |
+| [006](006-showcase-rollout-publishing.md) | Showcase rollout — audience-targeted publishing artifacts | open | meta | G0-continuous | 3 sub-task (학술 position paper / Twitter/HN / Korean blog). README Highlights commit `2d7f697` 후속 |
+| [007](007-github-repo-external-metadata.md) | GitHub repo 외부 metadata + milestone tagging | open | meta | G0-continuous | public 전환 / Description+Topics / `v0.1-six-week-showcase` tag. Issue 006 전제 |
 
 ## 2026-04-19 재배치
 
