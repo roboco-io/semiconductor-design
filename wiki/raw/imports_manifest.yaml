@@ -294,3 +294,24 @@ phase_specific:
         comparison_focus: "sustained program positioning (multi-year academic initiative)"
         resources:
           - { id: ucsd-abk-iccad-invited, title: "Agentic AI for Physical Design R&D (ICCAD 2025 invited)", url: https://vlsicad.ucsd.edu/Publications/Conferences/423/c423.pdf, tags: [recent-SOTA, comparative-baseline, sustained-program] }
+      mu:
+        title: "VeriMaAS — multi-agent RTL workflow + Yosys/OpenSTA error feedback"
+        raw_file: wiki/raw/papers/k3-mu-verimaas-comparative.md
+        source_count: 1
+        comparison_focus: "L2.memory.recall design (workflow-internal log-grounded vs project-wide wiki-first)"
+        resources:
+          - { id: verimaas, title: "VeriMaAS (2025-09-24)", url: https://arxiv.org/abs/2509.20182, tags: [recent-SOTA, comparative-baseline, multi-agent, open-source] }
+      nu:
+        title: "AuDoPEDA — repository-grounded EDA tool source modification (complementary layer)"
+        raw_file: wiki/raw/papers/k3-nu-audopeda-comparative.md
+        source_count: 1
+        comparison_focus: "layer separation (RTL/constraint design vs EDA tool source) — complementary"
+        resources:
+          - { id: audopeda, title: "AuDoPEDA (2026-01)", url: https://arxiv.org/pdf/2601.06268v1.pdf, tags: [recent-SOTA, comparative-baseline, code-mod-layer, complementary] }
+      xi:
+        title: "OpenROAD Agent (ASU Chhabria lab) — fine-tuned script generation"
+        raw_file: wiki/raw/papers/k3-xi-openroad-agent-asu-comparative.md
+        source_count: 1
+        comparison_focus: "single-domain fine-tuned model vs LLM-agnostic 4-role split"
+        resources:
+          - { id: openroad-agent-asu, title: "OpenROAD Agent (ASU, ICLAD 2025)", url: "https://asu.elsevierpure.com/en/publications/openroad-agent-an-intelligent-self-correcting-script-generator-fo/", tags: [recent-SOTA, comparative-baseline, single-agent, open-source, asu-chhabria-lab] }

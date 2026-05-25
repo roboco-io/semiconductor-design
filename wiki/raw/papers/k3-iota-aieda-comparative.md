@@ -46,7 +46,7 @@ intent: "본 프로젝트와 *scope에서 가장 유사*한 인접 작업. conce
 
 ## 본 K3 evidence의 spec/INTENT 영향
 
-- **INTENT.md Why §11** 갱신 후보: "기존 agentic EDA (ORFS-agent 2025)는 parameter knob tuning에 한정" → **"AiEDA(2024)·CHIPCRAFTBRAIN(2026)·VeriMaAS(2025) 등 multi-agent agentic flow 시도도 의도공학 + wiki-first + Operator authority + reasoning trace + reversible-patch 5축 동시 결합 사례 없음"**
+- **INTENT.md Why > 문제 두 번째 bullet 갱신 ✅** (commit `4148ff5`, 2026-05-25) — "기존 agentic EDA (ORFS-agent 2025)는 parameter knob tuning에 한정" → "기존 agentic EDA는 *여러 패러다임이 이미 존재*하나 5개 차원(의도공학/wiki-first/Operator authority/reasoning trace fidelity/reversible-patch) 동시 결합 사례 없음"으로 확장. AiEDA·CHIPCRAFTBRAIN·VeriMaAS·AuDoPEDA·OpenROAD Agent·UCSD ABK 6 인접 작업 verified URL 인용 포함. ⚠ 직전 wording "§11"은 INTENT.md에 numbered section 부재(Why/What/Not/Learnings thematic만)임에도 spec §-naming 패턴 self-misapply 사례 — Operating Invariant #4 (AI grounding 검증) agent self-output에도 적용 확인.
 - **본 K3 페이지는 *컴파일 대상 아님*** — wiki/{slug}.md 페이지로 격상은 K1/K2 evidence와 cross-link 이후 별도 결정 (skim-and-defer 권장)
 
 ## Pending (Operator 결정)
