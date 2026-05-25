@@ -1,12 +1,13 @@
 $schema: null
-version: "0.2.0"
-date: 2026-04-22
+version: "0.3.0"
+date: 2026-05-25
 curator: claude-opus-4-7
-phases: [K1, K2]
+phases: [K1, K2, K3]
 intent: >
   AI+반도체 설계 도전적 연구의 방향 판단(K1, 2026-04-19 52 sources)과 S3/G1/L2 파생 spec
   착수 전 결정 baseline 확보(K2, 2026-04-22 61 sources)를 위한 지식 기반.
   축별 seminal+recent 자료를 wiki/raw/papers/k{1,2}-*.md에 저장하고 graphify가 그래프 인덱스 생성.
+  K3(2026-05-25 3 sources)는 *competitive positioning evidence*에 한정 — K1(forward synthesis)/K2(backward spec backing)와 달리 *각 axis 1 verified competitor + 본 프로젝트와의 5-axis 비교표* 구조. 본 프로젝트의 차별화 boundary 정량화.
 
 axes:
   alpha:
@@ -43,7 +44,7 @@ axes:
       - { id: alphachip, title: "AlphaChip (Nature 2021 + 2024 Addendum)", url: https://www.nature.com/articles/s41586-021-03544-w, tags: [foundational, RL-for-chip] }
       - { id: false-dawn, title: "The False Dawn (arXiv 2306.09633)", url: https://arxiv.org/abs/2306.09633, tags: [critical-read, RL-for-chip] }
       - { id: chip-has-sailed, title: "That Chip Has Sailed (arXiv 2411.10053)", url: https://arxiv.org/abs/2411.10053, tags: [critical-read, RL-for-chip] }
-      - { id: circuitnet-2, title: "CircuitNet 2.0 (ICLR 2024)", url: https://openreview.net/forum?id=nMFSUjxMIl, tags: [foundational, open-source-impl] }
+      - { id: circuitnet-2, title: "CircuitNet 2.0 (ICLR 2024)", url: "https://openreview.net/forum?id=nMFSUjxMIl", tags: [foundational, open-source-impl] }
       - { id: bo-autotuner-bundle, title: "PTPT + RankTuner + MO-TuRBO", url: https://ieeexplore.ieee.org/document/9758073, tags: [autotuner-impl] }
       - { id: chipnemo-beta, title: "ChipNeMo (NVIDIA 2023)", url: https://arxiv.org/abs/2311.00176, tags: [foundational], note: "duplicate of alpha.chipnemo" }
       - { id: commercial-copilots, title: "Cadence Cerebrus/JedAI + Synopsys DSO.ai/Copilot + Siemens Solido", url: https://www.cadence.com/en_US/home/tools/digital-design-and-signoff/soc-implementation-and-floorplanning/cadence-cerebrus-ai-studio.html, tags: [commercial-copilot] }
@@ -259,3 +260,37 @@ next_actions:
     description: "L1 파생 spec에서 SFN Standard/Express 분기 정책 + Fargate 200 GiB 활용 방안 확정"
   - task_id: "P2"
     description: "docs/graphify/cross-links.md bridge manifest 작성 (10-20개, K2 cross-axis signals 활용)"
+  - task_id: "K3-followup"
+    description: "K3 ι/κ/λ 본문(comparative tables) 검토 → INTENT.md Why §11 갱신 trigger 여부 결정. K3-λ ABK lab 후속 작업 모니터링 시작."
+  - task_id: "K3-extension"
+    description: "추가 K3 axis 후보 — μ(VeriMaAS, multi-agent + verification feedback), ν(AuDoPEDA, repository-grounded code mod), ξ(OpenROAD Agent ASU). 본 프로젝트 spec/INTENT 영향 우선순위에 따라 점진 ingest."
+
+phase_specific:
+  K3:
+    nature: "competitive positioning evidence (not forward synthesis like K1, not backward spec backing like K2)"
+    axis_naming: "Greek continuation — ι(iota) / κ(kappa) / λ(lambda) / μ(mu) / ν(nu) / ξ(xi) ..."
+    source_count_per_axis: 1
+    structure: "Meta + Primary Source + 5-axis comparison vs this project + K1/K2 cross-link candidates + spec/INTENT impact + Pending decisions"
+    boundary: "K1+K2 cut-off(2026-04-22) 이후 발표된 직접 인접 작업 + 본 프로젝트와의 차별화 boundary 정량화에 한정"
+    axes:
+      iota:
+        title: "AiEDA — concept-to-GDSII 4-stage agentic flow"
+        raw_file: wiki/raw/papers/k3-iota-aieda-comparative.md
+        source_count: 1
+        comparison_focus: "scope (full RTL-to-GDS agentic, sky130 채택)"
+        resources:
+          - { id: aieda, title: "AiEDA (2024-08-29)", url: https://ar5iv.labs.arxiv.org/html/2412.09745, tags: [foundational, comparative-baseline] }
+      kappa:
+        title: "CHIPCRAFTBRAIN — 6-agent + PPO orchestration"
+        raw_file: wiki/raw/papers/k3-kappa-chipcraftbrain-comparative.md
+        source_count: 1
+        comparison_focus: "agent role split + coordination philosophy (autonomous PPO vs Operator authority)"
+        resources:
+          - { id: chipcraftbrain, title: "CHIPCRAFTBRAIN (2026-04)", url: https://arxiv.org/pdf/2604.19856.pdf, tags: [recent-SOTA, comparative-baseline, multi-agent] }
+      lambda:
+        title: "UCSD ABK lab — sustained agentic EDA program (ORFS-agent → ICCAD invited)"
+        raw_file: wiki/raw/papers/k3-lambda-ucsd-abk-program-comparative.md
+        source_count: 1
+        comparison_focus: "sustained program positioning (multi-year academic initiative)"
+        resources:
+          - { id: ucsd-abk-iccad-invited, title: "Agentic AI for Physical Design R&D (ICCAD 2025 invited)", url: https://vlsicad.ucsd.edu/Publications/Conferences/423/c423.pdf, tags: [recent-SOTA, comparative-baseline, sustained-program] }
