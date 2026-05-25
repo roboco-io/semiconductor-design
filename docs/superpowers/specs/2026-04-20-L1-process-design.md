@@ -235,6 +235,8 @@ Object Lock은 **각 final object의 `PutObject`/`CopyObject` 시점에 retentio
 | `semi/librelane-runner` | LibreLane 3.0.2 공식 Nix | LibreLane 3.0.2 SHA-pinned + sky130A | ~4GB | `pnr(librelane)` |
 | `semi/metric-collector` | `python:3.12-slim` | `semi_design_runner.metrics` 모듈 (동일 Python 코드, 컨테이너는 wheel 설치) | ~150MB | `metrics` stage |
 
+**Deployment-realized name (2026-05-26 amendment)**: CDK `ContainerStack` (cdk/lib/stacks/ContainerStack.ts:51-59) creates ECR repositories as `semi-design-${env}-<name>` (예: `semi-design-dev-orfs-runner`) — 2c8b5f7 stack id prefix 결정과 동일 paradigm. 위 `semi/<name>` 식별자는 *image identity*의 canonical name (spec citation · src docstring에서 사용); `docker/build-*.sh`는 `APP_ENV` env var (default `dev`)로 deployment-realized name을 ECR push 시 사용. 본 amendment는 *naming convention 추가*이지 *정량 임계값 재정의 아님* — Learnings #1 invariant 정합.
+
 **Codex #8 반영 — Verilator 제외**: G1 scope가 functional simulation을 포함하지 않으므로 `orfs-runner`에서 Verilator 제거. L3 활성화 시 `semi/sim-runner` 신설.
 
 **Codex #8 반영 — Double-maintenance 방지**: `metric-collector` 이미지는 `semi_design_runner.metrics` Python 모듈을 wheel로 설치. 즉 파서 구현은 **패키지 한 곳에만 존재**하며 컨테이너 ENTRYPOINT가 wheel 모듈을 호출.

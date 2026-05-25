@@ -22,7 +22,7 @@ YOSYS_TAG=$(yq    -r '.commit_shas.yosys'     "$LOCKFILE")
 OPEN_PDKS_SHA=$(yq -r '.commit_shas.open_pdks' "$LOCKFILE")
 L1_SHA=$(uv run semi-run lockfile-verify --scope l1 | jq -r '.l1_lockfile_sha' | sed 's/sha256://;s/^\(.\{12\}\).*/\1/')
 
-IMAGE_NAME="semi/orfs-runner"
+IMAGE_NAME="${IMAGE_NAME:-semi-design-${APP_ENV:-dev}-orfs-runner}"
 LOCAL_TAG="${IMAGE_NAME}:${L1_SHA}"
 
 docker build \
