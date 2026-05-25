@@ -10,7 +10,14 @@ Superseded: [2026-04-17 single-loop spec](docs/superpowers/specs/2026-04-17-semi
 
 ## Getting started
 
-본 프로젝트는 **Operator 1명이 다중 에이전트(Researcher/Developer 역할)를 감독·운영하는 single-operator multi-agent 구조**다. 신규 참여자(=Operator)는 [`docs/onboarding.md`](docs/onboarding.md) 부터 시작한다 — Operator의 세 감독 채널(학습 · Researcher 위임 · Developer 위임) + 환경 준비 + 자주 쓰는 명령 + 작업 컨벤션이 한 곳에 정리되어 있다. 용어가 막히면 [`docs/glossary.md`](docs/glossary.md) 옆에 둔다.
+본 프로젝트는 **Operator 1명이 다중 에이전트(Researcher/Developer 역할)를 감독·운영하는 single-operator multi-agent 구조**다.
+
+두 가지 진입로가 있다 — 본인의 역할에 맞는 쪽으로 시작:
+
+- **외부 개발자 / 일반 소프트웨어 엔지니어** (칩 설계 비전문가): [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) — 30분 분량 6 chapter, 소프트웨어 비유로 본 프로젝트가 *무엇을 하고 왜 흥미로운지* 파악. RTL/sign-off 같은 칩 설계 용어를 *컴파일/CI green* 같은 친숙한 비유로 매핑.
+- **Operator (신규 참여자)**: [`docs/onboarding.md`](docs/onboarding.md) 부터 시작 — Operator의 세 감독 채널(학습 · Researcher 위임 · Developer 위임) + 환경 준비 + 자주 쓰는 명령 + 작업 컨벤션이 한 곳에 정리.
+
+용어가 막히면 [`docs/glossary.md`](docs/glossary.md) 옆에 둔다. 프로젝트가 *어떻게 진화했는지*는 [`docs/vibe-coding-tutorial/`](docs/vibe-coding-tutorial/) (시간 흐름 case study).
 
 ## Current phase
 
