@@ -1,4 +1,4 @@
-.PHONY: install test lint fmt clean graph-update graph-build graph-serve graph-lint freshness-inject kg-all kg-all-smoke run
+.PHONY: install test lint fmt clean graph-update graph-build graph-serve graph-lint freshness-inject kg-all kg-all-smoke run lockfile-verify
 
 install:
 	uv sync --all-extras
@@ -43,30 +43,46 @@ kg-all:
 kg-all-smoke:
 	SMOKE=1 bash scripts/kg/run-all.sh
 
+# Verify lockfile.yaml integrity (L1 scope) — wrapper for `semi-run lockfile-verify`.
+# Required by docs/superpowers/plans/2026-05-10-g1-first-smoke.md §2.1 pre-flight.
+# Exit 0 on pass, 1 on fail (CLI raises SystemExit(1) when result.verified == false).
+lockfile-verify:
+	uv run semi-run lockfile-verify --scope l1
+
 # Submit one of the checked-in sample specs to the deployed Step Functions
 # state machine. specs/<DESIGN>-<STACK>.yaml is treated as a template — the
-# `run_id` and `l1_lockfile_sha` fields (left blank in git) are filled at
+# `run_id`, `l1_lockfile_sha`, and optionally `seed` fields are filled at
 # submission time so checked-in samples never go stale against the lockfile.
 #
 # Usage:
 #   make run DESIGN=gcd  STACK=orfs       BUCKET=... STATE_MACHINE_ARN=...
+#   make run DESIGN=gcd  STACK=orfs SEED=1337  BUCKET=... STATE_MACHINE_ARN=...
 #   make run DESIGN=gcd  STACK=librelane  BUCKET=... STATE_MACHINE_ARN=...
 #   make run DESIGN=ibex STACK=orfs       BUCKET=... STATE_MACHINE_ARN=...   # post-G1: rejects
 #   make run DESIGN=aes  STACK=orfs       BUCKET=... STATE_MACHINE_ARN=...   # post-G1: rejects
 #
 # Required: DESIGN, STACK, BUCKET, STATE_MACHINE_ARN
+# Optional: SEED (default: spec yaml's existing `seed:` value preserved verbatim).
+#   SEED= enables the G1 smoke seed-sweep pattern (plan §2.3): primary seed=42,
+#   replay seed=42, distribution sanity seed=1337 / seed=31415. When SEED is
+#   omitted, the spec's frozen `seed:` field is left untouched so the legacy
+#   single-seed invocation remains byte-identical (reversible-patch invariant).
+#   The RUN_ID embeds `-s<SEED>` only when SEED is provided, keeping the
+#   default RUN_ID shape stable for existing callers.
 run:
 	@test -n "$(DESIGN)" || { echo "error: DESIGN= required (gcd|ibex|aes)"; exit 1; }
 	@test -n "$(STACK)"  || { echo "error: STACK= required (orfs|librelane)";  exit 1; }
 	@test -f "specs/$(DESIGN)-$(STACK).yaml" || { echo "error: specs/$(DESIGN)-$(STACK).yaml not found"; exit 1; }
 	@test -n "$(BUCKET)" || { echo "error: BUCKET= required (S3 bucket name)"; exit 1; }
 	@test -n "$(STATE_MACHINE_ARN)" || { echo "error: STATE_MACHINE_ARN= required"; exit 1; }
-	@RUN_ID="$(DESIGN)-$(STACK)-$$(date +%s)"; \
+	@SEED_SUFFIX=$$(test -n "$(SEED)" && echo "-s$(SEED)" || echo ""); \
+	 RUN_ID="$(DESIGN)-$(STACK)-$$(date +%s)$$SEED_SUFFIX"; \
 	 L1_SHA=$$(uv run semi-run lockfile-verify --scope l1 | jq -r '.l1_lockfile_sha'); \
 	 TMP_SPEC=$$(mktemp -t spec-XXXXXX.yaml); \
 	 cp "specs/$(DESIGN)-$(STACK).yaml" "$$TMP_SPEC"; \
 	 yq -i ".run_id = \"$$RUN_ID\" | .l1_lockfile_sha = \"$$L1_SHA\"" "$$TMP_SPEC"; \
-	 echo "Generated spec: $$TMP_SPEC (run_id=$$RUN_ID, l1_sha=$$L1_SHA)"; \
+	 if [ -n "$(SEED)" ]; then yq -i ".seed = $(SEED)" "$$TMP_SPEC"; fi; \
+	 echo "Generated spec: $$TMP_SPEC (run_id=$$RUN_ID, l1_sha=$$L1_SHA, seed=$$(yq -r '.seed' "$$TMP_SPEC"))"; \
 	 uv run semi-run init --spec "$$TMP_SPEC" --bucket $(BUCKET) && \
 	 uv run semi-run submit --run-id "$$RUN_ID" --state-machine-arn $(STATE_MACHINE_ARN); \
 	 rc=$$?; rm -f "$$TMP_SPEC"; exit $$rc
