@@ -2,6 +2,55 @@
 
 AI-agent research for open-source EDA + DL accelerator design — **Report-Grounded Vibe-Coded AutoResearch** (통합 프로그램, 2026-04-19).
 
+## ✨ Highlights
+
+> 본 프로젝트는 *6주 운영 결과로 프로세스 + 의도공학(intent engineering) + sustained execution* 자체를 publishable evidence로 누적 중. PPA 수치·H1/H2/H3 측정값은 아직 없음 (G1 진입, G3+G4 도달 후) — *결과 자랑이 아닌 프로세스 자랑*. 본 boundary는 [What's not yet there](#whats-not-yet-there-정직) 섹션 참조.
+
+### 무엇이 다른가 — 5축 조합 novelty
+
+본 프로젝트와 인접한 6개 sustained agentic EDA 작업 (ORFS-agent / AiEDA / CHIPCRAFTBRAIN / VeriMaAS / AuDoPEDA / OpenROAD Agent (ASU) / UCSD ABK ICCAD invited) 중 어느 것도 5축 *동시* 결합 사례 없음 — 2026-05-25 [K3 positioning evidence](wiki/raw/papers/) 6 axes 조사 결과:
+
+| 축 | 본 프로젝트 | 인접 작업 일반 |
+|---|---|---|
+| **(a) 의도공학 메타 layer** | [`INTENT.md`](INTENT.md) cycle (Why/What/Not/Learnings) — 운영 중 evolving | 부재 |
+| **(b) Context routing** | wiki-first hybrid (Karpathy 패턴) — 토큰 −53.6%, 시간 −39.3%, 품질 +6% ([72-run 벤치](https://roboco.io/posts/karpathy-llm-wiki-72-run-benchmark/)) | RAG / fine-tuning |
+| **(c) Agent 분업** | [4-role 위임 agent](.claude/agents/README.md) + **human-in-loop Operator authority** (머지는 *항상* Operator) | autonomous PPO orchestration / single fine-tuned model |
+| **(d) Scientific contribution** | **reasoning trace fidelity** (Cohen's κ ≥ 0.6 falsifier, [spec §5.4](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md)) | pass@k / PPA 개선 |
+| **(e) Skill accumulation** | reversible-patch skill library (iteration-grow, Voyager × EDA) | 정적 catalog / transient workflow |
+
+### 구체 evidence (claim 아닌 fact, 2026-05-25 기준)
+
+- **119 verified sources**: K1 forward synthesis 52 + K2 backward spec backing 61 + K3 competitive positioning 6 axes — [`wiki/raw/papers/`](wiki/raw/papers/) 트리에 각 axis별 raw + 5축 비교표.
+- **5 Operating Invariants** codified ([CLAUDE.md](CLAUDE.md)): agent staleness / 추측 vs grep 검증 / INTENT-spec authority 분리 / AI 도구 grounding 검증 — 6주 운영 중 발견된 마찰을 *영구 규칙*으로 결정화. 각 invariant는 [INTENT.md Learnings](INTENT.md) 1-5 entry로 trace.
+- **Codex Learnings #4 retain** (2026-05-25): Codex(OpenAI)가 작성한 reflection을 Claude 작성 INTENT system이 *수정 없이 retain* 결정. spec §5.4 **H3 evaluator separation rule** (Claude 생성 ↔ Codex 평가 ↔ Operator 결정)의 *first complete operational cycle* N=1. [INTENT.md](INTENT.md) Learnings #4 참조.
+- **G1 첫 smoke plan freeze** (2026-05-10): `experiment-designer` agent dogfooding 1st success. plan markdown + git tag `g1-smoke-pre` ([commit `2be69ed`](https://github.com/roboco-io/semiconductor-design/commit/2be69ed), Operator 권장 5/5 수용). 의도공학 layer가 *agent 단위*에서 처음 작동한 evidence point.
+- **30분 외부 진입로**: [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) — 칩 설계 비전문가용 6 chapter, 소프트웨어 비유 사전 (Synthesis ≈ 컴파일 / DRC ≈ Lint / STA ≈ profiler / sign-off clean ≈ CI green).
+
+### 깊이 진입 (관심별)
+
+| 관심사 | 시작 위치 |
+|---|---|
+| **AI + 오픈소스 EDA로 칩 설계** (일반 개발자) | [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) → [`wiki/tutorial-project-intro.md`](wiki/tutorial-project-intro.md) (wiki routing 표) |
+| **학술 reviewer** (DAC/ICCAD/MLCAD) | [overview spec](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) §3.2 contract + §5.3 decision table + §5.4 H1/H2/H3 thresholds. K3 비교 6 axes: [`wiki/raw/papers/k3-*.md`](wiki/raw/papers/) (5-dim 표) |
+| **AI agent 운영 paradigm** (Karpathy 류) | [`INTENT.md`](INTENT.md) Why/What/Not/Learnings + [`.claude/agents/`](.claude/agents/) 4 위임 agent + [CLAUDE.md "Operating Invariants"](CLAUDE.md) |
+| **프로젝트 *역사*** (어떻게 진화했는가) | [`docs/vibe-coding-tutorial/`](docs/vibe-coding-tutorial/) — chapter별 시간 흐름 case study (60시간 / 12시간 / ... wall clock 추적) |
+| **Operator 신규 참여** (Korean 한국어) | [`docs/onboarding.md`](docs/onboarding.md) + [`docs/glossary.md`](docs/glossary.md) (12살용 풀이 포함) |
+| **3-layer L1/L2/L3 deep dive** | [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) chapter 4-5 + [overview spec §3.2-3.3](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) |
+
+### What's not yet there (정직)
+
+본 프로젝트의 *boundary*를 명시 — 본 boundary 위반 자랑 발견 시 → [INTENT.md Learnings](INTENT.md)에 *self-rejection* 기록 + 갱신. 정직성 자체가 의도공학 evidence.
+
+- ❌ G1 KG-A~E 실 통과 (현재 첫 smoke plan freeze만, Fargate Spot 실 run pending — [G1 first smoke plan](docs/superpowers/plans/2026-05-10-g1-first-smoke.md))
+- ❌ H1/H2/H3 정량 측정값 (G3+G4 단계 도달 후 — 현재는 *측정 도구·환경* 정합 단계)
+- ❌ Chipyard + Gemmini Docker images (build 미완 — L1 파생 spec 후속)
+- ❌ L2 substrate runtime 구현 (`scripts/graph_integrity_check.py` L2.lint.check만 ✅, recall / skill_library 확장 pending)
+- ❌ MLPerf Tiny v1.3 실 평가 (L3 + [License Gate §13](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) 통과 후)
+- ❌ 외부 contributor merge (single-operator multi-agent 구조 유지 — [INTENT.md Not](INTENT.md) 절대금지 #6)
+- ❌ ABK lab AuDoPEDA 저자 verify (K3-ν Pending 항목)
+
+---
+
 ## Program overview
 
 See [통합 프로그램 overview spec](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) for the authoritative design. 3-layer 구조 — **L1 Process** (SHA-pinned Nix + AWS Fargate Spot) + **L2 Substrate** (report-grounded memory + reversible-patch skill library) + **L3 Content** (Open-Ideation Gemmini DSE on MLPerf Tiny v1.3 streaming). Novelty hypotheses, evaluation thresholds, and publish/kill decisions all centralized at §4/§5/§5.3 of the overview spec (Codex 3-round review passed).
