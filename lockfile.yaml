@@ -51,7 +51,14 @@ container_digests:
   orfs-runner: null
   librelane-runner: null
   metric-collector: null
-source_tarball_mirrors: {}
+source_tarball_mirrors:
+  # Metadata-only field (no code path consumes it as of 2026-05-25 — grep src/).
+  # Literal `<sha>` placeholder per plan §2.1 (line 5790-5794); production fill
+  # resolves to actual tarball SHA at mirror-upload time.
+  openroad: "s3://semi-design/mirrors/openroad/<sha>.tar.gz"
+  librelane: "s3://semi-design/mirrors/librelane/<sha>.tar.gz"
+  yosys: "s3://semi-design/mirrors/yosys/<sha>.tar.gz"
+  open_pdks: "s3://semi-design/mirrors/open_pdks/<sha>.tar.gz"
 pdk_digests:
   # sky130A content digest is computed AFTER open_pdks builds and writes to
   # $PDK_ROOT in the orfs-runner image. Until then, `null` (same drop semantics).
