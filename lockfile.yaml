@@ -28,10 +28,10 @@ updated_by: phase-e1-fill
 #      L3 is unblocked. A non-null L3 value here will silently expand the
 #      `verify_scope("full")` check surface and is a Phase E error, not C.
 commit_shas:
-  openroad: "e5ce907f878490bf9947347f4cd4b73e97451c80"   # ORFS master tip 2026-04-27 (rolling master — no release tags published)
-  librelane: "c82049f0234a49bbf72ebcc89539529f31d8997e"  # tag 3.0.2 (2025-04-02) — canonical LibreLane release per spec K2 ζ
-  yosys: "yosys-0.64"                                    # latest stable YosysHQ release (2026-04-08)
-  open_pdks: "78f0ccbb45a0d560890540a1ebc5ccf4d8370c70"  # tag 1.0.581 == master tip 2026-04-24 (most recent stable open_pdks tag)
+  openroad: "e5ce907f878490bf9947347f4cd4b73e97451c80" # ORFS master tip 2026-04-27 (rolling master — no release tags published)
+  librelane: "c82049f0234a49bbf72ebcc89539529f31d8997e" # tag 3.0.2 (2025-04-02) — canonical LibreLane release per spec K2 ζ
+  yosys: "yosys-0.64" # latest stable YosysHQ release (2026-04-08)
+  open_pdks: "78f0ccbb45a0d560890540a1ebc5ccf4d8370c70" # tag 1.0.581 == master tip 2026-04-24 (most recent stable open_pdks tag)
   verilator: null
   cocotb: null
   chipyard: null
@@ -50,7 +50,7 @@ container_digests:
   librelane_base: "sha256:4b8a8c160ada41cf10e2e35c7a2ebca6a643b0d399a183793c61119d9637c7c2"
   orfs-runner: null
   librelane-runner: null
-  metric-collector: null
+  metric-collector: sha256:b132cd6e7dd3524414ebb9593eed10127aef8e1c6925dc9fa4796dc29df2ca0d
 source_tarball_mirrors:
   # Metadata-only field (no code path consumes it as of 2026-05-25 — grep src/).
   # Literal `<sha>` placeholder per plan §2.1 (line 5790-5794); production fill

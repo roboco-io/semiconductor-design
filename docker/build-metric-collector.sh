@@ -29,7 +29,8 @@ echo "metric-collector image size: ${SIZE_MB} MB"
 
 if [[ "${1:-}" == "--push" ]]; then
   REMOTE_TAG="${ECR_REGISTRY}/${IMAGE_NAME}:${L1_SHA}"
-  aws ecr get-login-password --region "$(echo "$ECR_REGISTRY" | cut -d. -f4)" \
+  REGION=$(echo "$ECR_REGISTRY" | cut -d. -f4)
+  aws ecr get-login-password --region "$REGION" \
     | docker login --username AWS --password-stdin "$ECR_REGISTRY"
   docker tag "$LOCAL_TAG" "$REMOTE_TAG"
   docker push "$REMOTE_TAG"
@@ -37,6 +38,7 @@ if [[ "${1:-}" == "--push" ]]; then
   DIGEST=$(aws ecr describe-images \
     --repository-name "$IMAGE_NAME" \
     --image-ids "imageTag=${L1_SHA}" \
+    --region "$REGION" \
     --query 'imageDetails[0].imageDigest' --output text)
   echo "metric-collector ECR digest: ${DIGEST}"
   yq -i ".container_digests.\"metric-collector\" = \"${DIGEST}\"" "$LOCKFILE"
