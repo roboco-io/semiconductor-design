@@ -13,12 +13,12 @@ describe("App bootstrap", () => {
     expect(cloudAssembly.stacks.length).toBe(6);
     const stackNames = cloudAssembly.stacks.map((s) => s.stackName).sort();
     expect(stackNames).toEqual([
-      "ComputeStack",
-      "ContainerStack",
-      "NetworkStack",
-      "ObservabilityStack",
-      "StorageStack",
-      "WorkflowStack",
+      "semi-design-dev-ComputeStack",
+      "semi-design-dev-ContainerStack",
+      "semi-design-dev-NetworkStack",
+      "semi-design-dev-ObservabilityStack",
+      "semi-design-dev-StorageStack",
+      "semi-design-dev-WorkflowStack",
     ]);
   });
 

@@ -2,7 +2,7 @@
 
 exports[`App resource-type fingerprint dev env fingerprint matches snapshot 1`] = `
 {
-  "ComputeStack": {
+  "semi-design-dev-ComputeStack": {
     "AWS::ECS::Cluster": 1,
     "AWS::ECS::ClusterCapacityProviderAssociations": 1,
     "AWS::ECS::TaskDefinition": 4,
@@ -10,10 +10,10 @@ exports[`App resource-type fingerprint dev env fingerprint matches snapshot 1`] 
     "AWS::IAM::Role": 8,
     "AWS::Logs::LogGroup": 4,
   },
-  "ContainerStack": {
+  "semi-design-dev-ContainerStack": {
     "AWS::ECR::Repository": 3,
   },
-  "NetworkStack": {
+  "semi-design-dev-NetworkStack": {
     "AWS::EC2::RouteTable": 2,
     "AWS::EC2::SecurityGroup": 8,
     "AWS::EC2::Subnet": 2,
@@ -21,19 +21,19 @@ exports[`App resource-type fingerprint dev env fingerprint matches snapshot 1`] 
     "AWS::EC2::VPC": 1,
     "AWS::EC2::VPCEndpoint": 9,
   },
-  "ObservabilityStack": {
+  "semi-design-dev-ObservabilityStack": {
     "AWS::Budgets::Budget": 2,
     "AWS::CloudWatch::Alarm": 3,
     "AWS::CloudWatch::Dashboard": 1,
   },
-  "StorageStack": {
+  "semi-design-dev-StorageStack": {
     "AWS::DynamoDB::Table": 4,
     "AWS::KMS::Alias": 1,
     "AWS::KMS::Key": 1,
     "AWS::S3::Bucket": 1,
     "AWS::S3::BucketPolicy": 1,
   },
-  "WorkflowStack": {
+  "semi-design-dev-WorkflowStack": {
     "AWS::EC2::SecurityGroup": 1,
     "AWS::Events::Rule": 3,
     "AWS::IAM::Policy": 4,

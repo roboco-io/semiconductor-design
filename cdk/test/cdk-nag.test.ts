@@ -6,28 +6,27 @@ describe("cdk-nag AwsSolutionsChecks", () => {
   const app = buildApp({ env: "dev" });
   app.synth();
 
+  // Stack ids are prefixed with `semi-design-${env}-` in bin/semi-design.ts
+  // to avoid CloudFormation collisions when this app is deployed alongside
+  // other projects in the same AWS account (e.g. Roboco 779411790546 already
+  // hosts a 'serverless-openclaw' project with bare StorageStack / NetworkStack).
+  const stackIds = [
+    "semi-design-dev-NetworkStack",
+    "semi-design-dev-StorageStack",
+    "semi-design-dev-ContainerStack",
+    "semi-design-dev-ComputeStack",
+    "semi-design-dev-WorkflowStack",
+    "semi-design-dev-ObservabilityStack",
+  ];
+
   it("composes the expected 6 stacks at the App root", () => {
-    for (const stackName of [
-      "NetworkStack",
-      "StorageStack",
-      "ContainerStack",
-      "ComputeStack",
-      "WorkflowStack",
-      "ObservabilityStack",
-    ]) {
+    for (const stackName of stackIds) {
       expect(app.node.tryFindChild(stackName)).toBeDefined();
     }
   });
 
   it("has zero unsuppressed Error-level cdk-nag findings on each stack", () => {
-    for (const stackName of [
-      "NetworkStack",
-      "StorageStack",
-      "ContainerStack",
-      "ComputeStack",
-      "WorkflowStack",
-      "ObservabilityStack",
-    ]) {
+    for (const stackName of stackIds) {
       const stack = app.node.tryFindChild(stackName) as Stack | undefined;
       if (!stack) continue;
       const errors = Annotations.fromStack(stack).findError(
@@ -39,7 +38,7 @@ describe("cdk-nag AwsSolutionsChecks", () => {
   });
 
   it("Fargate TaskDefinitions declare EphemeralStorage.SizeInGiB=21 (load-bearing § ephemeral)", () => {
-    const compute = app.node.tryFindChild("ComputeStack") as Stack;
+    const compute = app.node.tryFindChild("semi-design-dev-ComputeStack") as Stack;
     expect(compute).toBeDefined();
     const tmpl = Template.fromStack(compute).toJSON();
     const tds = Object.values(
@@ -53,7 +52,7 @@ describe("cdk-nag AwsSolutionsChecks", () => {
   });
 
   it("task role kms:Decrypt binds to specific CMK ARN, never '*'", () => {
-    const compute = app.node.tryFindChild("ComputeStack") as Stack;
+    const compute = app.node.tryFindChild("semi-design-dev-ComputeStack") as Stack;
     const tmpl = Template.fromStack(compute).toJSON();
     const policies = Object.values(
       tmpl.Resources as Record<string, { Type: string; Properties: unknown }>,
@@ -73,7 +72,7 @@ describe("cdk-nag AwsSolutionsChecks", () => {
   });
 
   it("Events DynamoDB TTL is enabled on attribute 'ttl'", () => {
-    const storage = app.node.tryFindChild("StorageStack") as Stack;
+    const storage = app.node.tryFindChild("semi-design-dev-StorageStack") as Stack;
     const tmpl = Template.fromStack(storage).toJSON();
     const tables = Object.values(
       tmpl.Resources as Record<string, { Type: string; Properties: unknown }>,

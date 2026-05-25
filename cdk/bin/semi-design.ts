@@ -23,7 +23,14 @@ export function buildApp(opts: BuildAppOptions): App {
   // (Budget.costFilters.TagKeyValue = ["user:project$semi-design-{env}"]).
   Tags.of(app).add("project", `semi-design-${ctx.env}`);
 
-  const network = new NetworkStack(app, "NetworkStack", { env: ctx.env });
+  // Stack name prefix to avoid CloudFormation collisions when this app is
+  // deployed into a shared AWS account (e.g. Roboco 779411790546 already hosts
+  // a 'serverless-openclaw' project that publishes bare 'StorageStack' /
+  // 'NetworkStack' names). The prefix `semi-design-${env}-` makes every
+  // CloudFormation stack and Construct id globally unique to this project.
+  const prefix = `semi-design-${ctx.env}`;
+
+  const network = new NetworkStack(app, `${prefix}-NetworkStack`, { env: ctx.env });
   NagSuppressions.addStackSuppressions(
     network,
     [
@@ -37,7 +44,7 @@ export function buildApp(opts: BuildAppOptions): App {
     ],
     true,
   );
-  const storage = new StorageStack(app, "StorageStack", { env: ctx.env });
+  const storage = new StorageStack(app, `${prefix}-StorageStack`, { env: ctx.env });
   NagSuppressions.addStackSuppressions(
     storage,
     [
@@ -52,8 +59,8 @@ export function buildApp(opts: BuildAppOptions): App {
     ],
     true,
   );
-  const container = new ContainerStack(app, "ContainerStack", { env: ctx.env });
-  const compute = new ComputeStack(app, "ComputeStack", {
+  const container = new ContainerStack(app, `${prefix}-ContainerStack`, { env: ctx.env });
+  const compute = new ComputeStack(app, `${prefix}-ComputeStack`, {
     env: ctx.env,
     vpc: network.vpc,
     bucketCmk: storage.bucketCmk,
@@ -62,7 +69,7 @@ export function buildApp(opts: BuildAppOptions): App {
     librelaneRunnerRepo: container.librelaneRunnerRepo,
     metricCollectorRepo: container.metricCollectorRepo,
   });
-  const workflow = new WorkflowStack(app, "WorkflowStack", {
+  const workflow = new WorkflowStack(app, `${prefix}-WorkflowStack`, {
     env: ctx.env,
     cluster: compute.cluster,
     orfsRunnerTaskDef: compute.orfsRunnerTaskDef,
@@ -73,7 +80,7 @@ export function buildApp(opts: BuildAppOptions): App {
     runsTable: storage.runsTable,
     eventsTable: storage.eventsTable,
   });
-  new ObservabilityStack(app, "ObservabilityStack", {
+  new ObservabilityStack(app, `${prefix}-ObservabilityStack`, {
     env: ctx.env,
     candidatesTable: storage.candidatesTable,
     runsTable: storage.runsTable,

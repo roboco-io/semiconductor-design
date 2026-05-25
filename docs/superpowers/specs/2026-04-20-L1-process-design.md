@@ -256,6 +256,8 @@ Object Lock은 **각 final object의 `PutObject`/`CopyObject` 시점에 retentio
 | `WorkflowStack` | SFN Standard Workflow + Map state + Lambda × 3 (`ValidateSpec`, `InitGeneration`, `Finalize`) + EventBridge rules | Compute + Storage |
 | `ObservabilityStack` | CloudWatch dashboards (Spot reclaim rate, SFN failure rate, cost, **per-candidate `ddb_write_count`**) + alarms ($50 / $100 budget, Spot fail > 30%, cost/candidate > $5) | Storage |
 
+> **Naming convention** (2026-05-25 amendment): 위 6 stack은 `bin/semi-design.ts` 인스턴스화 시 `semi-design-${env}-` prefix가 자동 적용됨 (예: `semi-design-dev-NetworkStack`). 본 prefix는 deployment account 내 sibling 프로젝트와의 CloudFormation 이름 충돌을 차단한다 (예: Roboco 779411790546은 `serverless-openclaw` 프로젝트가 bare `StorageStack` / `NetworkStack`을 이미 점유). 본 amendment는 *naming convention 추가*이지 spec §5.4 정량 임계값 / §6.1 stack 구성 / §6.2 schema 재정의 0건 (Learnings #1 invariant 정합).
+
 ### 6.2 DynamoDB 스키마 (Codex #7 반영)
 
 | Table | PK | SK | Key attributes |
