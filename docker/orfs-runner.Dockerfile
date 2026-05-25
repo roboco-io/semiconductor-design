@@ -30,7 +30,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # satisfy with hand-picked packages. awscli stays here because
 # entrypoints/run-stage.sh uses it for S3 sync.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      git ca-certificates curl unzip sudo \
+      git ca-certificates curl wget unzip sudo \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
