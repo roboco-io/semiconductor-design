@@ -56,6 +56,7 @@ sources: [docs/learning/phase-0-curriculum.md, raw/sessions/phase-0-a1-cmos.md, 
 ## 교차 참조
 
 - [[cmos-fundamentals]], [[digital-logic-gates]], [[clock-and-timing]], [[fsm-and-pipeline]]
+- [[tutorial-project-intro]] — 외부 개발자 진입로 정책. 본 페이지(Operator 관점)와 직교 — 본 페이지는 *내부 학습 자*(Operator)용, tutorial-project-intro는 *외부 공유*용.
 
 ## Source
 
