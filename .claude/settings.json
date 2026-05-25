@@ -37,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run python scripts/graphify_auto_context.py"
+            "command": "(cd \"$CLAUDE_PROJECT_DIR\" && uv run python scripts/graphify_auto_context.py) || true"
           }
         ]
       }
