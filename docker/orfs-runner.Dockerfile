@@ -31,6 +31,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # entrypoints/run-stage.sh uses it for S3 sync.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       git ca-certificates curl wget unzip sudo \
+      build-essential cmake python3 lsb-release \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
