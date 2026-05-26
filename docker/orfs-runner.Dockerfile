@@ -67,7 +67,6 @@ RUN mkdir -p /opt/src/or-tools && cd /opt/src/or-tools \
       -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF \
       -DCMAKE_BUILD_TYPE=Release \
  && cmake --build build --target install -j2 \
- && ldconfig \
  && rm -rf /opt/src/or-tools
 
 # --- OpenROAD / ORFS (pinned by SHA) ---------------------------------------
