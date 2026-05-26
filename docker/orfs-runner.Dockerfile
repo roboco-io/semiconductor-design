@@ -30,14 +30,19 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # satisfy with hand-picked packages. awscli stays here because
 # entrypoints/run-stage.sh uses it for S3 sync.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      git ca-certificates curl wget unzip sudo \
-      build-essential cmake python3 python3-dev lsb-release \
-      bison flex m4 swig gawk \
-      autoconf automake libtool pkg-config \
-      tcl-dev libreadline-dev libffi-dev libssl-dev zlib1g-dev \
-      libboost-all-dev libeigen3-dev libfmt-dev libspdlog-dev \
-      libgsl-dev liblapack-dev libblas-dev \
-      ninja-build \
+      git ca-certificates curl wget unzip sudo tzdata \
+      build-essential clang cmake ninja-build \
+      python3 python3-dev libpython3.11 \
+      lsb-release pandoc \
+      bison flex m4 swig gawk libfl-dev \
+      autoconf automake libtool pkg-config autotools-dev \
+      tcl-dev tcllib libtcl8.6 \
+      libreadline-dev libffi-dev libssl-dev zlib1g-dev libbz2-dev \
+      libgomp1 libomp-dev libpcre2-dev \
+      libboost-all-dev libeigen3-dev libfmt-dev libspdlog-dev libyaml-cpp-dev \
+      libgsl-dev liblapack-dev libblas-dev libortools-dev \
+      qt5-image-formats-plugins libqt5charts5-dev \
+      qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
