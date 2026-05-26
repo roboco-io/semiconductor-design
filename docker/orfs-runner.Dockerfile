@@ -31,7 +31,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # entrypoints/run-stage.sh uses it for S3 sync.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       git ca-certificates curl wget unzip sudo tzdata \
-      build-essential clang cmake ninja-build \
+      build-essential clang ninja-build \
       python3 python3-dev libpython3.11 \
       lsb-release pandoc \
       bison flex m4 swig gawk libfl-dev \
@@ -46,14 +46,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       awscli \
  && rm -rf /var/lib/apt/lists/*
 
-# --- OR-Tools source build (arm64 — Google upstream binary 부재) ----------
+# --- CMake 3.31.9 (Kitware aarch64) — Debian 12 apt = 3.25, too old --------
+# OR-Tools/OpenROAD FetchContent uses SYSTEM keyword (CMake 3.25+ in some
+# code paths). OpenROAD upstream DependencyInstaller expects exact 3.31.9.
+RUN cd /tmp && wget -q https://github.com/Kitware/CMake/releases/download/v3.31.9/cmake-3.31.9-linux-aarch64.sh \
+ && chmod +x cmake-3.31.9-linux-aarch64.sh \
+ && ./cmake-3.31.9-linux-aarch64.sh --skip-license --prefix=/usr/local \
+ && rm cmake-3.31.9-linux-aarch64.sh
+
+# --- OR-Tools v9.14 source build (arm64 — Google upstream binary 부재) -----
 # DependencyInstaller가 /usr/local /usr /opt에서 libortools.so.*를 find하면
 # download skip path 진입. ARM64 Debian/Ubuntu에 libortools-dev 패키지
 # 부재 (Google releases AlmaLinux arm64 only). Source build로 system-wide
 # 설치하여 DependencyInstaller 자동 detection.
+# OR-Tools version pinned to OpenROAD upstream OR_TOOLS_VERSION_BIG=9.14.
 # BUILD_DEPS=ON: abseil/protobuf 등 bundled deps도 함께 compile.
 RUN mkdir -p /opt/src/or-tools && cd /opt/src/or-tools \
- && git clone --depth 1 --branch v9.15 https://github.com/google/or-tools.git . \
+ && git clone --depth 1 --branch v9.14 https://github.com/google/or-tools.git . \
  && cmake -S . -B build -DBUILD_DEPS=ON \
       -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF \
       -DCMAKE_BUILD_TYPE=Release \
