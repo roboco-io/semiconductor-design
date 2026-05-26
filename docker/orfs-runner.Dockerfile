@@ -66,7 +66,7 @@ RUN mkdir -p /opt/src/or-tools && cd /opt/src/or-tools \
  && cmake -S . -B build -DBUILD_DEPS=ON \
       -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF \
       -DCMAKE_BUILD_TYPE=Release \
- && cmake --build build --target install -j"$(nproc)" \
+ && cmake --build build --target install -j2 \
  && ldconfig \
  && rm -rf /opt/src/or-tools
 
@@ -81,7 +81,7 @@ RUN mkdir -p /opt/src && cd /opt/src \
  && cd orfs \
  && git checkout "${OPENROAD_SHA}" \
  && ./tools/OpenROAD/etc/DependencyInstaller.sh -base -common \
- && ./build_openroad.sh --local --threads "$(nproc)" \
+ && ./build_openroad.sh --local --threads 2 \
  && mv tools/OpenROAD/build /opt/tools/openroad \
  && ln -s /opt/src/orfs /opt/tools/orfs
 
@@ -94,7 +94,7 @@ RUN mkdir -p /opt/src/yosys && cd /opt/src/yosys \
  && git checkout "${YOSYS_TAG}" \
  && git submodule update --init --recursive \
  && make config-clang \
- && make -j"$(nproc)" PREFIX=/opt/tools/yosys \
+ && make -j2 PREFIX=/opt/tools/yosys \
  && make install PREFIX=/opt/tools/yosys \
  && rm -rf /opt/src/yosys/.git
 
@@ -103,7 +103,7 @@ RUN mkdir -p /opt/src/open_pdks && cd /opt/src/open_pdks \
  && git clone https://github.com/RTimothyEdwards/open_pdks.git . \
  && git checkout "${OPEN_PDKS_SHA}" \
  && ./configure --enable-sky130-pdk --prefix="${PDK_ROOT}" \
- && make -j"$(nproc)" && make install \
+ && make -j2 && make install \
  && rm -rf /opt/src/open_pdks/.git
 
 # --- Shared ENTRYPOINT contract --------------------------------------------
