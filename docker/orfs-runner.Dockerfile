@@ -40,11 +40,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libreadline-dev libffi-dev libssl-dev zlib1g-dev libbz2-dev \
       libgomp1 libomp-dev libpcre2-dev \
       libboost-all-dev libeigen3-dev libfmt-dev libspdlog-dev libyaml-cpp-dev \
-      libgsl-dev liblapack-dev libblas-dev libortools-dev \
+      libgsl-dev liblapack-dev libblas-dev \
       qt5-image-formats-plugins libqt5charts5-dev \
       qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
       awscli \
  && rm -rf /var/lib/apt/lists/*
+
+# --- OR-Tools source build (arm64 — Google upstream binary 부재) ----------
+# DependencyInstaller가 /usr/local /usr /opt에서 libortools.so.*를 find하면
+# download skip path 진입. ARM64 Debian/Ubuntu에 libortools-dev 패키지
+# 부재 (Google releases AlmaLinux arm64 only). Source build로 system-wide
+# 설치하여 DependencyInstaller 자동 detection.
+# BUILD_DEPS=ON: abseil/protobuf 등 bundled deps도 함께 compile.
+RUN mkdir -p /opt/src/or-tools && cd /opt/src/or-tools \
+ && git clone --depth 1 --branch v9.15 https://github.com/google/or-tools.git . \
+ && cmake -S . -B build -DBUILD_DEPS=ON \
+      -DBUILD_SAMPLES=OFF -DBUILD_EXAMPLES=OFF \
+      -DCMAKE_BUILD_TYPE=Release \
+ && cmake --build build --target install -j"$(nproc)" \
+ && ldconfig \
+ && rm -rf /opt/src/or-tools
 
 # --- OpenROAD / ORFS (pinned by SHA) ---------------------------------------
 # DependencyInstaller is the canonical OpenROAD entry point for system deps.
