@@ -1,146 +1,26 @@
-# semiconductor-design
+# semiconductor-design — AutoResearch for EDA Surrogate Models
 
-AI-agent research for open-source EDA + DL accelerator design — **Report-Grounded Vibe-Coded AutoResearch** (통합 프로그램, 2026-04-19).
+> 2026-05-29 피벗됨. 이전 통합 프로그램(L1/L2/L3 3-layer, 전체 RTL→GDSII)은
+> `archive/integrated-program-3layer` 브랜치에 보존되어 있다.
 
-## ✨ Highlights
+karpathy [AutoResearch](https://github.com/karpathy/autoresearch)의 population-based evolution
+루프를 **EDA surrogate 지표예측 모델 학습**에 적용하는 연구 프로젝트. 구조는
+[roboco-io/serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch)의
+HUGI Spot 패턴을 따른다.
 
-> 본 프로젝트는 *6주 운영 결과로 프로세스 + 의도공학(intent engineering) + sustained execution* 자체를 publishable evidence로 누적 중. PPA 수치·H1/H2/H3 측정값은 아직 없음 (G1 진입, G3+G4 도달 후) — *결과 자랑이 아닌 프로세스 자랑*. 본 boundary는 [What's not yet there](#whats-not-yet-there-정직) 섹션 참조.
+- **무엇**: 합성 직후 feature → 최종 PPA/routability를 예측하는 surrogate 모델을, 에이전트가
+  학습 스크립트(`train.py`)를 반복 변형하며 자동으로 더 잘 학습.
+- **어떻게**: 세대마다 N개 후보 변형 → 병렬 SageMaker Spot 학습 → 단일 val 지표로 winner 선택
+  → **Operator 승인 후** git tag commit.
+- **차별 축**: Operator 감독 + (2차 연기) reasoning trace 증거.
 
-### 무엇이 다른가 — 5축 조합 novelty
+## 문서
 
-본 프로젝트와 인접한 6개 sustained agentic EDA 작업 (ORFS-agent / AiEDA / CHIPCRAFTBRAIN / VeriMaAS / AuDoPEDA / OpenROAD Agent (ASU) / UCSD ABK ICCAD invited) 중 어느 것도 5축 *동시* 결합 사례 없음 — 2026-05-25 [K3 positioning evidence](wiki/raw/papers/) 6 axes 조사 결과:
+- 제품 요구사항: [`PRD.md`](PRD.md)
+- 설계 lineage: [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md)
+- 프로젝트 의도: [`INTENT.md`](INTENT.md) (피벗 반영 재작성 예정)
 
-| 축 | 본 프로젝트 | 인접 작업 일반 |
-|---|---|---|
-| **(a) 의도공학 메타 layer** | [`INTENT.md`](INTENT.md) cycle (Why/What/Not/Learnings) — 운영 중 evolving | 부재 |
-| **(b) Context routing** | wiki-first hybrid (Karpathy 패턴) — 토큰 −53.6%, 시간 −39.3%, 품질 +6% ([72-run 벤치](https://roboco.io/posts/karpathy-llm-wiki-72-run-benchmark/)) | RAG / fine-tuning |
-| **(c) Agent 분업** | [4-role 위임 agent](.claude/agents/README.md) + **human-in-loop Operator authority** (머지는 *항상* Operator) | autonomous PPO orchestration / single fine-tuned model |
-| **(d) Scientific contribution** | **reasoning trace fidelity** (Cohen's κ ≥ 0.6 falsifier, [spec §5.4](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md)) | pass@k / PPA 개선 |
-| **(e) Skill accumulation** | reversible-patch skill library (iteration-grow, Voyager × EDA) | 정적 catalog / transient workflow |
+## 구조
 
-### 구체 evidence (claim 아닌 fact, 2026-05-25 기준)
-
-- **119 verified sources**: K1 forward synthesis 52 + K2 backward spec backing 61 + K3 competitive positioning 6 axes — [`wiki/raw/papers/`](wiki/raw/papers/) 트리에 각 axis별 raw + 5축 비교표.
-- **5 Operating Invariants** codified ([CLAUDE.md](CLAUDE.md)): agent staleness / 추측 vs grep 검증 / INTENT-spec authority 분리 / AI 도구 grounding 검증 — 6주 운영 중 발견된 마찰을 *영구 규칙*으로 결정화. 각 invariant는 [INTENT.md Learnings](INTENT.md) 1-5 entry로 trace.
-- **Codex Learnings #4 retain** (2026-05-25): Codex(OpenAI)가 작성한 reflection을 Claude 작성 INTENT system이 *수정 없이 retain* 결정. spec §5.4 **H3 evaluator separation rule** (Claude 생성 ↔ Codex 평가 ↔ Operator 결정)의 *first complete operational cycle* N=1. [INTENT.md](INTENT.md) Learnings #4 참조.
-- **G1 첫 smoke plan freeze** (2026-05-10): `experiment-designer` agent dogfooding 1st success. plan markdown + git tag `g1-smoke-pre` ([commit `2be69ed`](https://github.com/roboco-io/semiconductor-design/commit/2be69ed), Operator 권장 5/5 수용). 의도공학 layer가 *agent 단위*에서 처음 작동한 evidence point.
-- **30분 외부 진입로**: [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) — 칩 설계 비전문가용 6 chapter, 소프트웨어 비유 사전 (Synthesis ≈ 컴파일 / DRC ≈ Lint / STA ≈ profiler / sign-off clean ≈ CI green).
-
-### 깊이 진입 (관심별)
-
-| 관심사 | 시작 위치 |
-|---|---|
-| **AI + 오픈소스 EDA로 칩 설계** (일반 개발자) | [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) → [`wiki/tutorial-project-intro.md`](wiki/tutorial-project-intro.md) (wiki routing 표) |
-| **학술 reviewer** (DAC/ICCAD/MLCAD) | [overview spec](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) §3.2 contract + §5.3 decision table + §5.4 H1/H2/H3 thresholds. K3 비교 6 axes: [`wiki/raw/papers/k3-*.md`](wiki/raw/papers/) (5-dim 표) |
-| **AI agent 운영 paradigm** (Karpathy 류) | [`INTENT.md`](INTENT.md) Why/What/Not/Learnings + [`.claude/agents/`](.claude/agents/) 4 위임 agent + [CLAUDE.md "Operating Invariants"](CLAUDE.md) |
-| **프로젝트 *역사*** (어떻게 진화했는가) | [`docs/vibe-coding-tutorial/`](docs/vibe-coding-tutorial/) — chapter별 시간 흐름 case study (60시간 / 12시간 / ... wall clock 추적) |
-| **Operator 신규 참여** (Korean 한국어) | [`docs/onboarding.md`](docs/onboarding.md) + [`docs/glossary.md`](docs/glossary.md) (12살용 풀이 포함) |
-| **3-layer L1/L2/L3 deep dive** | [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) chapter 4-5 + [overview spec §3.2-3.3](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) |
-
-### What's not yet there (정직)
-
-본 프로젝트의 *boundary*를 명시 — 본 boundary 위반 자랑 발견 시 → [INTENT.md Learnings](INTENT.md)에 *self-rejection* 기록 + 갱신. 정직성 자체가 의도공학 evidence.
-
-- ❌ G1 KG-A~E 실 통과 (현재 첫 smoke plan freeze만, Fargate Spot 실 run pending — [G1 first smoke plan](docs/superpowers/plans/2026-05-10-g1-first-smoke.md))
-- ❌ H1/H2/H3 정량 측정값 (G3+G4 단계 도달 후 — 현재는 *측정 도구·환경* 정합 단계)
-- ❌ Chipyard + Gemmini Docker images (build 미완 — L1 파생 spec 후속)
-- ❌ L2 substrate runtime 구현 (`scripts/graph_integrity_check.py` L2.lint.check만 ✅, recall / skill_library 확장 pending)
-- ❌ MLPerf Tiny v1.3 실 평가 (L3 + [License Gate §13](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) 통과 후)
-- ❌ 외부 contributor merge (single-operator multi-agent 구조 유지 — [INTENT.md Not](INTENT.md) 절대금지 #6)
-- ❌ ABK lab AuDoPEDA 저자 verify (K3-ν Pending 항목)
-
----
-
-## Program overview
-
-See [통합 프로그램 overview spec](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) for the authoritative design. 3-layer 구조 — **L1 Process** (SHA-pinned Nix + AWS Fargate Spot) + **L2 Substrate** (report-grounded memory + reversible-patch skill library) + **L3 Content** (Open-Ideation Gemmini DSE on MLPerf Tiny v1.3 streaming). Novelty hypotheses, evaluation thresholds, and publish/kill decisions all centralized at §4/§5/§5.3 of the overview spec (Codex 3-round review passed).
-
-Superseded: [2026-04-17 single-loop spec](docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md) (archived 2026-04-19).
-
-## Getting started
-
-본 프로젝트는 **Operator 1명이 다중 에이전트(Researcher/Developer 역할)를 감독·운영하는 single-operator multi-agent 구조**다.
-
-두 가지 진입로가 있다 — 본인의 역할에 맞는 쪽으로 시작:
-
-- **외부 개발자 / 일반 소프트웨어 엔지니어** (칩 설계 비전문가): [`docs/tutorial/PROJECT_TUTORIAL.md`](docs/tutorial/PROJECT_TUTORIAL.md) — 30분 분량 6 chapter, 소프트웨어 비유로 본 프로젝트가 *무엇을 하고 왜 흥미로운지* 파악. RTL/sign-off 같은 칩 설계 용어를 *컴파일/CI green* 같은 친숙한 비유로 매핑.
-- **Operator (신규 참여자)**: [`docs/onboarding.md`](docs/onboarding.md) 부터 시작 — Operator의 세 감독 채널(학습 · Researcher 위임 · Developer 위임) + 환경 준비 + 자주 쓰는 명령 + 작업 컨벤션이 한 곳에 정리.
-
-용어가 막히면 [`docs/glossary.md`](docs/glossary.md) 옆에 둔다. 프로젝트가 *어떻게 진화했는지*는 [`docs/vibe-coding-tutorial/`](docs/vibe-coding-tutorial/) (시간 흐름 case study).
-
-## Current phase
-
-**G0 bootstrap → G1** (program overview approved; L1/L2/L3 파생 spec 착수 단계).
-
-| Gate | Description | Status |
-|---|---|---|
-| G0 | Program bootstrap (K1 52 + K2 61 sources + overview spec + 부수 문서 정리) | ✅ complete |
-| G1 | L1 Process bootstrap (SHA-pinned Nix + Fargate Spot + `make run` gcd SFN 완주, KG-A~KG-E kill gates) | pending — L1 파생 spec |
-| G2 | L2 Substrate (typed-frontmatter memory + `L2.memory.recall` graphify backend + reversible-patch skill library) | pending (L1 완료 후 병렬) |
-| G3 | L3 Content MVP (Open-Ideation DSE on Gemmini, gcd/ibex/aes) | pending |
-| G4 | 통합 실험 + 논문 figure (overview spec §5.3 publish/reframed/kill 결정) | pending |
-
-**컨텍스트 관리 (2026-05-09부)**: `wiki/index.md` + 컴파일 페이지가 **default 라우팅**, graphify는 cross-component path 보조 — 자세히는 아래 [Knowledge base](#knowledge-base-wiki-first-hybrid-2026-05-09) 섹션.
-
-## Knowledge base (wiki-first hybrid, 2026-05-09~)
-
-**Default 컨텍스트 라우팅**은 `wiki/index.md` 기반 마크다운 위키. **보조**로 graphify가 cross-component path 쿼리를 담당. 근거는 [Karpathy LLM Wiki 72-run 벤치마크](https://roboco.io/posts/karpathy-llm-wiki-72-run-benchmark/) (wiki vs graphify: 토큰 −53.6%, 시간 −39.3%, 품질 +6%, p<0.01) — 본 프로젝트의 multi-source synthesis(K1/K2 paper 종합·spec 작성)가 정확히 wiki 우위 영역.
-
-**전환 이력**: Phase 1a Wiki Skill Engine (S3 코드, 2026-04-17~22 폐기) → graphify-only ([adoption design](docs/superpowers/specs/2026-04-22-graphify-adoption-design.md), [evaluation](docs/superpowers/specs/2026-04-22-graphify-evaluation.md) S1 4/5 PASS) → **wiki-first hybrid** (2026-05-09~).
-
-### 1. Default — wiki primary
-
-```
-wiki/
-├── index.md            # 라우팅 카탈로그 (← 답변 시 1차 진입)
-├── log.md              # ingest 이력
-├── {slug}.md           # 컴파일 페이지 (concept · policy · synthesis · decision · entity)
-└── raw/                # 불변 원본 (sessions · papers · blogs · repos · docs · benchmarks)
-```
-
-- 답변 작성 시 `[[페이지명]]` 인용 **강제**.
-- 페이지 frontmatter `sources` / `related_specs` 명시 → spec 결정의 evidence 그래프 자동 형성.
-- 컴파일 진척 (2026-05-09): **9 페이지** (Phase-0 sessions 4 → concept 4 + policy 1; K1 papers 4 → synthesis 4). K2 papers 4 (ε / ζ / η / θ) pending.
-- 새 raw 노트 ingest는 `documentation:llm-wiki` skill의 5단계 워크플로 사용.
-
-### 2. 보조 — graphify cross-component path
-
-- **언제**: wiki에 답이 없거나 spec 결정 ↔ source paper 의존성 같은 그래프 탐색이 필요할 때.
-- **명령**: `make graph-serve` (MCP 서버), `uv run graphify query "<question>"` (BFS), `graphify path "A" "B"` (최단 경로), `graphify explain "X"` (노드 설명).
-- **인덱스**: `graphify-out/GRAPH_REPORT.md` (커뮤니티·god-node), `graphify-out/graph.json` (구조), `graphify-out/graph.html` (시각화).
-- **업데이트**: `make graph-update` (AST 증분, LLM 비용 0), 전체 rebuild는 Claude Code 세션에서 `/graphify .`.
-- **lint**: `make graph-lint` — orphan=0 / dangling=0 / AMBIGUOUS ≤ 0.3.
-
-### 3. Layer 분리 (중요)
-
-본 wiki-first 정책은 **human/LLM 컨텍스트 회수 layer**만 다룬다. agent system 내부 API인 `L2.memory.recall` / `L2.skill_library.query` / `L2.lint.check`는 [overview spec §3.2](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) + [L2-substrate-design §5.1](docs/superpowers/specs/2026-04-23-L2-substrate-design.md)에서 **graphify backend로 spec-freeze** — 변경은 L2 spec-owner Codex 3-round review를 거쳐야 한다.
-
-### 4. 원본 자료 (raw seed)
-
-- Project glossary: `docs/glossary.md`
-- K1 direction report (52 sources 종합): `docs/knowledge-base/2026-04-19-k1-direction-report.md`
-- K1 raw axes (52건): `wiki/raw/papers/k1-{alpha,beta,gamma,delta}-*.md` → wiki에 4 synthesis 페이지로 컴파일 완료
-- K2 raw axes (61건, 2026-04-22): `wiki/raw/papers/k2-{epsilon,zeta,eta,theta}-*.md` → ingest pending
-- Source index (decision_anchors · spec_contradictions · critical_read): `wiki/raw/imports_manifest.yaml`
-- Operating rules: overview spec §7로 흡수 완료 (2026-04-19부 단일 진실원천, 별도 `wiki/program/` 디렉토리 없음).
-
-## Phase 1a — Wiki Skill Engine (⛔ 엔진 코드 폐기, 위키 자체는 부활)
-
-> 2026-04-22 graphify 전환으로 `src/semi_design_wiki/` **엔진 코드**는 폐기됐지만, 마크다운 위키 자체는 2026-05-09 wiki-first hybrid에서 부활 — 위 [Knowledge base](#knowledge-base-wiki-first-hybrid-2026-05-09) 섹션 참조. 아래 CLI 명령은 historical reference (대체 워크플로는 `documentation:llm-wiki` skill).
-
-```bash
-make install      # uv sync
-make test         # pytest
-# legacy (제거됨):
-# uv run wiki-init --root wiki
-# uv run wiki-sync --root wiki
-# uv run wiki-lint --root wiki
-```
-
-## Learning (parallel)
-
-Phase 0 curriculum (EDA operator lens): `docs/learning/phase-0-curriculum.md`. Q&A 불변 원본: `wiki/raw/sessions/`. **컴파일 진입점**: [`wiki/phase-0-eda-operator-lens.md`](wiki/phase-0-eda-operator-lens.md) (policy) — Branch A 4 concept 페이지([[cmos-fundamentals]], [[digital-logic-gates]], [[clock-and-timing]], [[fsm-and-pipeline]])로 라우팅.
-
-## Open decisions
-
-Tracked in [issues/](issues/README.md). 2026-04-19 재배치 완료 — 각 이슈는 L1/L2/L3 파생 spec 범위로 이관.
+`PRD.md` §5 참조. `prepare.py`/`train.py`/`program.md`/`config.yaml`은 현재 **placeholder**이며
+구현 plan 승인 후 작성한다.

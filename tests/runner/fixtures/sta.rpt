@@ -1,4 +1,0 @@
-startpoint: req_msg[0] (input)
-endpoint: resp_msg[0] (output)
-path delay: 4.520 ns
-slack:  0.480 ns (MET)

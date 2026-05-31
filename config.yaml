@@ -1,0 +1,17 @@
+# config.yaml — AWS / 파이프라인 설정 (placeholder)
+# serverless-autoresearch config.yaml 아날로그. 구현 plan 승인 후 채운다.
+
+aws:
+  profile: TODO
+  region: TODO            # Spot placement score에 따라 선택 (PRD 설계 spec 참조)
+  role_arn: TODO
+
+sagemaker:
+  instance_type: TODO     # 예: ml.g7e.2xlarge (L40S) / ml.p5.4xlarge (H100)
+  use_spot: true
+  max_run_seconds: TODO   # 고정 학습 예산
+
+pipeline:
+  generations: TODO       # 진화 세대 수
+  population_size: TODO    # 세대당 후보 수 (예: 10, HUGI 병렬)
+  metric: TODO            # surrogate val 지표 (최소화 대상)
