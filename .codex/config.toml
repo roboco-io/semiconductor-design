@@ -1,0 +1,16 @@
+[mcp_servers.graphify]
+args = [
+    "run",
+    "python",
+    "-m",
+    "graphify.serve",
+    "graphify-out/graph.json",
+]
+command = "uv"
+
+[mcp_servers.perplexity]
+args = [
+    "-y",
+    "@perplexity-ai/mcp-server",
+]
+command = "npx"
