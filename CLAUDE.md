@@ -102,6 +102,7 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 - `PRD.md` — 제품 요구 + ERD + 리포 구조 single source.
 - `INTENT.md` — Why/What/Not/Learnings (status: exploring). 피벗 이전 6 Learnings 는 archived 하위 섹션에 보존.
 - `prepare.py` / `train.py` — 현재 `raise NotImplementedError("skeleton: 구현 plan 승인 후 작성")` placeholder.
+- `issues/` — 열린 결정 트래커 (피벗 후 재생성). PRD §10 Open Decisions(OD-1~5)를 추적. 설계 fork는 spec에 인라인하지 말고 issue로. OD-1(지표)이 나머지의 선행.
 - `.claude/agents/*.md`, `.claude/skills/semi-design-learning/` — **stale, rework 대기** (위 Operating Model 참조).
 - 구 3-layer 자산(wiki·graphify·CDK·`src/semi_design_runner`·issues·learning curriculum)은
   **`archive/integrated-program-3layer` 브랜치에만** 존재. main에서 찾지 말 것.
