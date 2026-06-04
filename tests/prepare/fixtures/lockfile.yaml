@@ -1,0 +1,7 @@
+# fixture flow lockfile (재현성 앵커 대상)
+flow: openroad-flow-scripts
+design: gcd
+pdk: sky130A
+tools:
+  yosys: "0.44"
+  openroad: "2.0"
