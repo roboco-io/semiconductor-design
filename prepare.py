@@ -7,9 +7,16 @@ OD-1=per-path timing slack. 같은 flow 1회의 합성 후·라우팅 후 STA re
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import click
 
-from prepare_lib.dataset import build_dataset, write_dataset
+# 스크립트 직접 실행(`python prepare.py`) 시 pytest pythonpath가 적용되지 않으므로
+# 자기 src 디렉터리를 import path에 부트스트랩한다.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from prepare_lib.dataset import build_dataset, write_dataset  # noqa: E402
 
 
 @click.command()
