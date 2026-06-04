@@ -6,13 +6,12 @@ import hashlib
 import json
 from pathlib import Path
 
+from prepare_lib.report import parse_report
+from prepare_lib.transform import FEATURE_NAMES, LABEL_NAME, group_key, join_paths
+
 
 def flow_lockfile_sha(lockfile_path: str | Path) -> str:
     return hashlib.sha256(Path(lockfile_path).read_bytes()).hexdigest()
-
-
-from prepare_lib.report import parse_report
-from prepare_lib.transform import FEATURE_NAMES, LABEL_NAME, group_key, join_paths
 
 
 def build_dataset(

@@ -1,13 +1,17 @@
 from pathlib import Path
 
 from prepare_lib.report import parse_report
-from prepare_lib.transform import FEATURE_NAMES, extract_features
+from prepare_lib.transform import FEATURE_NAMES, extract_features, extract_label, group_key, join_paths
 
 FIX = Path(__file__).parent / "fixtures"
 
 
 def _synth():
     return parse_report((FIX / "synth.rpt").read_text())
+
+
+def _route():
+    return parse_report((FIX / "route.rpt").read_text())
 
 
 def test_feature_names_frozen_order():
@@ -33,13 +37,6 @@ def test_extract_features_first_path():
 def test_features_cover_exactly_feature_names():
     f = extract_features(_synth()[0])
     assert set(f.keys()) == set(FEATURE_NAMES)
-
-
-from prepare_lib.transform import extract_label, group_key, join_paths
-
-
-def _route():
-    return parse_report((FIX / "route.rpt").read_text())
 
 
 def test_extract_label_is_route_slack():

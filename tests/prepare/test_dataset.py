@@ -1,7 +1,9 @@
 import hashlib
+import json as _json
 from pathlib import Path
 
-from prepare_lib.dataset import flow_lockfile_sha
+from prepare_lib.dataset import build_dataset, flow_lockfile_sha, write_dataset
+from prepare_lib.transform import FEATURE_NAMES
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -16,12 +18,6 @@ def test_flow_lockfile_sha_matches_sha256():
 def test_flow_lockfile_sha_is_deterministic():
     path = FIX / "lockfile.yaml"
     assert flow_lockfile_sha(path) == flow_lockfile_sha(path)
-
-
-import json as _json
-
-from prepare_lib.dataset import build_dataset, write_dataset
-from prepare_lib.transform import FEATURE_NAMES
 
 
 def test_build_dataset_rows_and_manifest():
