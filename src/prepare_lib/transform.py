@@ -31,3 +31,31 @@ def extract_features(p: PathRecord) -> dict:
         "endpoint_is_ff": int(p.endpoint_is_ff),
         "path_group": p.path_group,
     }
+
+
+def extract_label(p: PathRecord) -> float:
+    return p.slack_ns
+
+
+def group_key(path_group: str, design_id: str) -> str:
+    return f"{design_id}:{path_group}"
+
+
+def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
+    route_by_key = {(p.startpoint, p.endpoint, p.path_group): p for p in route}
+    rows: list[dict] = []
+    for sp in synth:
+        key = (sp.startpoint, sp.endpoint, sp.path_group)
+        rp = route_by_key.get(key)
+        if rp is None:
+            continue  # unmatched synth path dropped (no post-route label)
+        rows.append(
+            {
+                "startpoint": sp.startpoint,
+                "endpoint": sp.endpoint,
+                "path_group": sp.path_group,
+                **extract_features(sp),
+                LABEL_NAME: extract_label(rp),
+            }
+        )
+    return rows

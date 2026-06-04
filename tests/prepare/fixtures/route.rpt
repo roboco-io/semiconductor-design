@@ -1,0 +1,49 @@
+Startpoint: _0_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _1_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Delay    Time   Description
+-----------------------------------------------------------
+   0.00    0.00 ^ _0_/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.40    0.40 ^ _0_/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.55    0.95 v _2_/Y (sky130_fd_sc_hd__nand2_1)
+   0.20    1.15 ^ _1_/D (sky130_fd_sc_hd__dfxtp_1)
+           1.15   data arrival time
+           2.00   data required time
+   ---------------------------------------------------------
+           0.85   slack (MET)
+
+
+Startpoint: _3_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _4_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Delay    Time   Description
+-----------------------------------------------------------
+   0.00    0.00 ^ _3_/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.42    0.42 ^ _3_/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.70    1.12 v _6_/Y (sky130_fd_sc_hd__or3_1)
+   0.28    1.40 v _7_/Y (sky130_fd_sc_hd__nand3_1)
+   0.20    1.60 ^ _4_/D (sky130_fd_sc_hd__dfxtp_1)
+           1.60   data arrival time
+           2.00   data required time
+   ---------------------------------------------------------
+           0.40   slack (MET)
+
+
+Startpoint: _9_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _10_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+   Delay    Time   Description
+-----------------------------------------------------------
+   0.00    0.00 ^ _9_/CLK (sky130_fd_sc_hd__dfxtp_1)
+   0.33    0.33 ^ _9_/Q (sky130_fd_sc_hd__dfxtp_1)
+   0.19    0.52 ^ _10_/D (sky130_fd_sc_hd__dfxtp_1)
+           0.52   data arrival time
+           2.00   data required time
+   ---------------------------------------------------------
+           1.48   slack (MET)
