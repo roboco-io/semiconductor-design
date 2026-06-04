@@ -1,105 +1,87 @@
-# INTENT — semiconductor-design (Report-Grounded Vibe-Coded AutoResearch)
+# INTENT — semiconductor-design (AutoResearch for EDA Surrogate Models)
 
-> status: clarified
-> created: 2026-05-10
-> spec authority: [`docs/superpowers/specs/2026-04-19-integrated-research-program-design.md`](docs/superpowers/specs/2026-04-19-integrated-research-program-design.md) (Codex 3-round review 통과)
+> status: exploring
+> created: 2026-05-10 · pivoted: 2026-05-29
+> 설계: [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md) · [`PRD.md`](PRD.md)
+> 이전 의도(통합 프로그램 3-layer, clarified)는 `archive/integrated-program-3layer` 브랜치에 보존.
 
 ## Why
 
+**메타 목적 (피벗 후에도 유지)**: (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution.
+
 **문제**:
-- 칩 설계는 비전문가 진입 장벽이 매우 높다. 상용 EDA 도구는 비싸고 폐쇄적, 오픈소스 도구 체인은 분산되어 진입 비용이 큼.
-- 기존 agentic EDA는 *여러 패러다임이 이미 존재*하나 5개 차원 동시 결합 사례 없음 (2026-05-25 K3 positioning evidence 조사 결과):
-  - **ORFS-agent**(2025-06, UCSD/UCB) — LLM parameter knob tuning autotuner. WL/clock 13% 개선
-  - **AiEDA**(2024-08, [arxiv 2412.09745](https://ar5iv.labs.arxiv.org/html/2412.09745)) — concept-to-GDSII 4-stage agentic flow, sky130 채택, RAG Verilog gen
-  - **CHIPCRAFTBRAIN**(2026-04, [arxiv 2604.19856](https://arxiv.org/pdf/2604.19856.pdf)) — 6 agent + PPO orchestration + 321 패턴 + 971 ref impls
-  - **AuDoPEDA**(2026-01, [arxiv 2601.06268](https://arxiv.org/pdf/2601.06268v1.pdf)) — Codex-class agent가 OpenROAD source 직접 수정
-  - **VeriMaAS**(2025-09, [arxiv 2509.20182](https://arxiv.org/abs/2509.20182)) — multi-agent workflow + Yosys/OpenSTA error feedback
-  - **UCSD ABK ICCAD invited**(2025-09, [PDF](https://vlsicad.ucsd.edu/Publications/Conferences/423/c423.pdf)) — flow/code/meta-agent 3-tier *sustained program* roadmap
+- EDA surrogate 모델(합성 직후 feature → 최종 PPA/routability 예측)은 *성숙한* 분야다 — CircuitNet 2.0(20K+ 샘플, routability·IR-drop·timing), RouteNet(조기 DRV 예측), Net2(post-placement wirelength), MasterRTL/SNS(pre-synthesis PPA), "Circuit as Set of Points"(NeurIPS 2023). 그러나 모델 구조·하이퍼파라미터·feature 설계의 *탐색 루프는 여전히 사람이 수작업*한다. 이 루프 자체는 기계적이다.
+- karpathy [AutoResearch](https://github.com/karpathy/autoresearch)는 "research를 search로 환원"해 이 루프를 에이전트에 위임했으나 대상은 *LLM 학습*이고, **EDA surrogate 학습에 적용된 사례 없음**.
+- AutoResearch와 그 형식화 [AutoResearch-RL](https://arxiv.org/abs/2603.07300)(PPO 메타정책)의 명시적 전제는 *no human in the loop* — "human might be asleep, you are autonomous". 비전문가 Operator가 다중 에이전트를 *감독*하며 EDA surrogate 연구를 수행할 수 있는지, 그 감독이 자율 무인보다 재현성·신뢰성에서 나은지에 대한 사례는 부재.
 
-  위 인접 작업 중 어느 것도 **(a) 의도공학 메타 layer (INTENT.md cycle) + (b) wiki-first hybrid context routing + (c) human-in-loop Operator authority (autonomous coordination 아님) + (d) reasoning trace fidelity를 primary scientific contribution (Cohen's κ ≥ 0.6 falsifier) + (e) reversible-patch skill library 누적** 5개 차원 *동시 결합* 사례 없음. 본 프로젝트 차별화는 *기술 substrate*(open-source EDA + multi-agent)이 아닌 **5축 조합의 novelty** + *프로세스 권한·측정 도구·축적 메커니즘*. 상세 비교: [`wiki/raw/papers/k3-{iota,kappa,lambda}-*.md`](wiki/raw/papers/).
-- 의도공학(intent engineering) 패러다임이 vibe-coding + AutoResearch 환경에서 우수한지에 대한 reproducible 사례 연구 부재.
+**가설**:
+- AutoResearch의 population-based evolution 루프([serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를 EDA surrogate 모델 학습에 적용하면, 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다.
+- 자율 무인(AutoResearch-RL) 대신 **Operator-in-loop**(winner 선택·머지는 항상 사람)를 유지해도 성능을 잃지 않으며, reasoning trace 누적(2차 연기)으로 재현성·신뢰성에서 차별화된다.
 
-**목표 (6개월 후, 2026-11-10 무렵)**:
-- L1/L2/L3 파생 spec 완료. gcd → ibex → aes 3 디자인의 sign-off clean run 완주. ORFS-agent baseline 대비 H1a/H1b/H1c 검증 결과 도출 (overview spec §5.3 canonical decision table 따라 publish/reframed/kill).
-- Operator 1명이 K1 + K2 누적 위에서 spec → 코드 → 위키 → 결정의 cycle을 안정 운영. 의도공학 + Operator·프로젝트 co-evolution 1차 사례 연구 published.
-
-**지표** (overview spec §5.4 인용 — spec authority가 nail down):
-- KG-A ~ KG-E 전부 통과 (overview spec §8 G1 exit criterion).
-- **H1a Finding reuse rate**: linear regression slope > 0, α = 0.05, R² ≥ 0.3 + blinded audit N ≥ 2 일치율 ≥ 80%.
-- **H1b Non-knob structural patch**: 부록 C 제외 transform이 sign-off clean × seed×3 재현, **최소 3건**.
-- **H1c Cold-start failure rate**: ORFS-agent baseline 대비 **감소** (seed × 3 평균).
-- **H3 LLM-as-judge** κ ≥ 0.6 (§5.3 falsifier).
-- Coverage ≥ 85% per module (`src/semi_design_runner/`).
-- Graph integrity: orphan = 0 / dangling = 0 / AMBIGUOUS ≤ 0.3.
-
-**고객의 말 (한 문장)**:
-> 비전문가인 내가 다중 에이전트를 감독해 칩 설계 연구를 수행하면서 동시에 학습할 수 있었다 — 이 패러다임 자체가 새 모범.
+**확인 방법**:
+- 기존 EDA flow 1회로 생성한 고정 데이터셋 위에서, 루프가 만든 surrogate winner의 val 지표를 사람-수작업 baseline과 비교 (낮으면 가설 지지).
+- Operator-in-loop 구성이 자율 무인 대비 성능 손실 없이 winner를 선택하는지 세대 로그로 확인.
+- (?) 정확한 비교 baseline·지표 임계값은 데이터셋 확정 후.
 
 ## What
 
-**핵심 기능** (각 항목 *italic 단락*은 2026-05-25 K3 positioning evidence 대비 차별):
-- [ ] **L1 Process**: SHA-pinned Nix (LibreLane 3.0.2 + OpenROAD + Yosys + sky130A) + AWS Fargate Spot + Step Functions Distributed Map + S3 artifact lake + DynamoDB metadata. *K3 차별: K3-λ ABK ICCAD invited(2025-09)의 flow-agent autonomous coordination 대신 Operator-supervised + KG-A run #1↔#2 hash byte-identical determinism + freeze tag(`g1-smoke-pre`) 실증.*
-- [ ] **L2 Substrate**: typed-frontmatter memory + reversible-patch skill library + `L2.lint` · `skill_library` · `memory` 인터페이스 (graphify backend). *K3 차별: K3-κ CHIPCRAFTBRAIN(2026-04) 정적 321 패턴 KB 대신 iteration-grow reversible patch + tier/confidence 진화 (L2 파생 spec §3.2 alternative B). K3-μ VeriMaAS workflow-internal log-grounded ranking 대신 project-wide wiki-first hybrid.*
-- [ ] **L3 Content**: Open-Ideation Gemmini DSE on MLPerf Tiny v1.3 streaming (Marvin) + gcd / ibex / aes 평가. *K3 차별: K3-ι AiEDA(2024-08) single-run self-reflection 대신 H1b non-knob 3건 × seed×3 cross-iteration 누적 + 부록 C exclusion list freeze.*
-- [ ] **Operator 운영 인터페이스**: `semi-run` CLI + wiki-first hybrid 컨텍스트 라우팅 + 4 위임 agent (`experiment-designer` · `experiment-runner` · `code-author` · `eda-code-reviewer`, `.claude/agents/`) + 위임 task 정의 패턴. *K3 차별: K3-κ CHIPCRAFTBRAIN의 PPO autonomous orchestration 대신 human-in-loop Operator authority 명시 — 머지는 항상 Operator. K3-ξ OpenROAD Agent(ASU) fine-tuned single model 대신 LLM-agnostic 4-role 분업.*
-- [ ] **의도공학 layer**: `INTENT.md` 생명주기 + spec ↔ wiki ↔ 결정의 *Why* 추적. *K3 차별: 인접 6 작업(ι/κ/λ/μ/ν/ξ) 모두 부재 — INTENT.md cycle은 본 프로젝트 unique meta layer.*
-- [ ] **Co-evolution layer**: Operator Phase 0 학습 결과가 spec / wiki / skill library를 *역으로* 변형시키는 양방향 순환. *K3 차별: 인접 6 작업 모두 부재 — Operator·project co-evolution은 본 프로젝트 unique publishing 축.*
+**핵심 기능**:
+- [ ] **데이터셋 자가생성**(`prepare.py`): EDA flow 1회 → feature(합성 직후) + label(최종 PPA/routability) 쌍. CircuitNet 류 태스크 참조. `DATASET.flow_lockfile_sha`로 재현성 앵커.
+- [ ] **AutoResearch 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → 단일 val 지표 selection → Operator 승인 후 git tag(`gen-NNN-best`).
+- [ ] **Operator 감독 인터페이스**: winner 선택·머지는 항상 사람.
+- [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 2차 세대.
 
 **사용자 흐름**:
-1. Operator가 spec 결정 또는 위임 task 정의 (CLAUDE.md "Before Non-Trivial Work" 5단계 인용).
-2. 에이전트 (Researcher / Developer 채널) 가 patch 또는 evidence 제안.
-3. Operator가 검토 · 디버깅 · 머지 · 결정 승인.
-4. `wiki/raw/` 에 결과 (reasoning trace · finding · decision) 누적 → wiki 컴파일 → 다음 cycle.
-5. Phase 0 학습 통찰이 spec / wiki 갱신 후보로 자동 식별 → co-evolution 사이클 1회전.
+1. Operator가 `program.md`(지시문)·`config.yaml`(예산·세대수) 설정.
+2. 에이전트가 `train.py` 변형 후보 N개 생성·병렬 학습.
+3. 루프가 val 지표로 winner 후보 제시.
+4. Operator가 검토·승인·git tag commit → 다음 세대 baseline.
 
 **엣지 케이스**:
-- Fargate Spot 회수 시 retry / fallback (issue #002 partially-resolved).
-- 에이전트가 spec 의도를 왜곡한 patch 제안 → Operator 머지 거절 + reasoning trace 누적 (H3 evidence).
-- Phase 0 학습 lens 부족으로 출력 검수 실패 → 학습 채널 강화 (co-evolution 신호).
-- License Gate 위반 source ingest 시도 → overview spec §13 차단.
+- Spot 회수 시 job 재시도 (CANDIDATE 1:N JOB).
+- 후보가 데이터 누수/과적합으로 val 지표만 좋은 경우 → Operator 거절 (+연기된 trace).
+- (?) surrogate 지표가 복수일 때(slack vs area vs routability) 단일화 방법.
 
 ## Not
 
 **절대 금지**:
-- PPA absolute 수치 자체를 publish 축으로 삼지 않는다 (process novelty + 학술 contribution이 본진).
-- 상용 EDA 도구 체인 사용. 오픈소스만.
-- Efabless 경로 의존 (2025-02 셧다운으로 폐기, 대체 경로는 Iter 3+ 결정).
-- functional simulation 없는 sign-off clean으로 functional correctness 주장.
-- `wiki/raw/` 원본 수정 (불변 read-only).
-- Researcher / Developer 역할을 사람이 추가로 수행 (single-operator multi-agent 구조 유지).
+- 자율 무인 루프로 winner 무검토 머지 (AutoResearch-RL의 *no-human* 전제를 따르지 않음 — Operator authority 유지).
+- 상용 EDA 도구. 오픈소스만 (OpenROAD/Yosys 등).
+- functional correctness를 surrogate 예측으로 주장 (surrogate는 근사 예측).
+- `prepare.py`(데이터·평가 프로토콜) 변경을 에이전트에 허용 (frozen environment — 공정 비교 보장).
 
 **기술 제약**:
-- Python 3.12, uv 관리. ruff 100 char, target-version py312, `src tests scripts` 모두 lint/fmt.
-- SHA-pinning + `lockfile.yaml` 로 도구 drift 차단.
-- Reversible patch 정신 — baseline 직접 덮지 않고 patch 단위 (overview spec §7).
-- 답변 · 문서 작성 시 `[[wiki/페이지]]` 인용 강제 (CLAUDE.md L13 wiki-first).
-- 테스트는 `tmp_path` + fixture, `wiki/raw/` 실데이터 절대 미사용.
-- Direct commits to `main` 외 feature branch 워크플로 (현재).
+- Python 3.12, uv. ruff 100 char, target-version py312.
+- 에이전트는 `train.py` 단일 파일만 변형, 신규 의존성 금지, 고정 학습 예산 (AutoResearch 제약 계승).
+- Direct commit to `main` (현재 워크플로).
 
 **범위 밖**:
-- 모바일·웹 앱 인터페이스 (CLI + wiki 만).
-- 다중 사용자·팀 협업 기능 (single-operator).
-- 칩 양산·상용화 (학술 reproducible run 까지).
-- Parameter sweep 단독 (ORFS-agent 영역, 본 프로젝트는 Open-Ideation + structural patch가 차별화 축).
-- Agent system 내부 API (`L2.memory.recall` 등) 에 wiki-first 정책 적용 — spec-frozen graphify backend 유지.
+- 전체 RTL→GDSII 공정 운영 (`archive/integrated-program-3layer`로 분리).
+- Parameter sweep 단독 (ORFS-agent 영역) — 본 프로젝트는 surrogate *모델 학습*의 자동 연구.
+- 모바일·웹 UI, 다중 사용자.
+- (1차) process novelty 증거 평면 — 2차 연기.
 
 **품질 기준**:
-- Coverage ≥ 85% per module (`src/semi_design_runner/`).
-- Graph integrity: orphan = 0 / dangling = 0 / AMBIGUOUS ≤ 0.3.
-- LLM-as-judge κ ≥ 0.6 (H3 falsifier).
-- KG-A ~ KG-E 전부 통과 (G1 exit).
-- Reasoning trace 복원 가능 (H3 충족).
+- surrogate winner val 지표 < 사람-수작업 baseline (가설 지지 조건, (?) 임계값 데이터 확정 후).
+- 세대 간 결과 재현 (동일 데이터셋·lockfile_sha).
+- (연기) reasoning trace 복원 가능.
 
 ## Learnings
 
-- **2026-05-10** — INTENT.md 첫 작성. 초안에서 (?)로 표시했던 4개 영역 중 H1a / H1b / H1c 정량 임계값이 모두 overview spec §5.4 에 이미 nail down되어 있음을 발견 (Codex 3차 리뷰에서 "H1a threshold 강화 / H1b 최소 3건 / H1c direction" 명시). **의도공학 layer 첫 invariant**: INTENT.md 는 spec 과 *정합* 해야지 *spec 을 다시 정의* 하면 안 된다. 진짜 (?)로 남는 것은 *주관적 의도 anchor* ("고객의 말 한 문장") 1개. spec 권한과 INTENT 권한의 layer 분리가 INTENT.md 단위에서 처음 명시됨.
+- **2026-05-29** (피벗) — 통합 프로그램(L1/L2/L3 3-layer × 5축)이 Operator 1명 6개월에 과도하다는 판단으로 **AutoResearch 기반 EDA surrogate 모델 자동 연구**로 축소 피벗(brainstorming 6문항). Perplexity grounded 조사로 positioning 확인: surrogate ML-for-EDA(CircuitNet 등)도, AutoResearch(karpathy/AutoResearch-RL)도 각각 성숙하나 *AutoResearch 루프로 EDA surrogate를 학습 + Operator-in-loop 감독*의 결합은 부재. 차별 축은 기술 substrate가 아니라 **자율 무인(AutoResearch-RL의 "human asleep") 대비 Operator authority + (연기) reasoning trace**. 의도가 clarified → exploring으로 *되돌아간 것 자체*가 co-evolution 신호 — 의도공학 layer가 "범위 과대"라는 운영 마찰을 흡수해 의도를 재수렴시킴. 기존 3-layer 전량은 archive 브랜치에 보존(무손실), main은 PRD 중심 serverless-autoresearch 정렬 골격으로 재편.
 
-- **2026-05-10** (agent dogfooding 첫 시도) — 4 위임 agent 정의 commit 직후 `experiment-designer` 를 `Agent` tool로 호출하니 "Agent type not found" 오류. Available agents 목록에 본 프로젝트 agent 4개가 없음. **운영 invariant 발견**: agent 정의 ↔ 호출 가능성 사이에 *세션 재시작이 필요한 시간 지연*이 존재. 의도공학 layer가 의도(추상) → agent system prompt(구체) → *호출 가능 시점*(시간) 의 3 단계임을 첫 dogfooding이 드러냄. 향후 agent system 갱신 시 "정의 후 즉시 dogfooding 불가, 세션 재시작 필요"가 운영 규칙. 본 발견 자체가 의도공학 우수성 증명의 첫 evidence point — *추상 의도가 어디서 운영 boundary와 마찰하는가*.
+## Learnings (archived — 통합 프로그램 3-layer)
 
-- **2026-05-10** (정합 작업) — 직전 turn에 "K2 cluster의 K2 → K1 backlink가 없는 비대칭" 이라 advisory를 적었으나, 실제 grep 검증 시 K2 4 페이지 모두 K1 backlink 풍부 보유 (k2-η·k2-θ는 K1 4개 모두). **추측이 사후 grep 검증을 대체하지 않는다는 invariant 확인** — 정합 작업 전 grep 검증이 default로 들어가야 함. 본 발견은 본 프로젝트 H3 가설(reasoning trace 복원 가능성)의 *작은 실패 사례* — Operator 검토가 추측을 잡아냄.
+> 아래는 피벗 이전 통합 프로그램에서 누적된 학습. 메타 패턴(검증 invariant·의도공학 dogfooding)은 피벗 후에도 유효하므로 보존한다.
 
-- **2026-05-10** (agent dogfooding 첫 성공) — Codex 관찰: 세션 재시작 후 `experiment-designer` agent가 정상 호출되어 `docs/superpowers/plans/2026-05-10-g1-first-smoke.md`를 message-only로 산출했고, Operator는 권장 5/5 Q&A를 모두 수용한 뒤 commit `2be69ed` 및 freeze tag `g1-smoke-pre`로 고정했다. plan은 INTENT.md `Not` 7항목 declaration table을 먼저 세워 위반 없음 여부를 명시했고, spec §5.4 정량 임계값은 *복사 인용*만 하며 재정의하지 않아 Learnings #1의 **INTENT 권한 vs spec 권한 분리** invariant를 지켰다. 또한 KG-A determinism을 run #1 vs #2 동일 seed hash byte-identical로 검사하도록 두어 spec §8 KG-A를 재정의하지 않고 더 엄격한 reproducibility test로 해석했다. smoke level declaration은 H1/H2/H3 동시 검증 유혹을 끊고 G1 toolchain sanity에 scope를 묶었다는 점에서 실험 설계의 자기 제한이 선명했다. Operator 검토에서 5/5 수용이 발생했다는 것은 agent 출력이 1차 검토에서 추가 round-trip 없이 통과 가능한 품질에 도달했음을 뜻한다. Learnings #2가 같은 날 `Agent type not found`라는 *negative* path를 기록했다면, 본 entry는 세션 재시작 후 같은 invariant가 *positive* path에서도 성립했음을 보여준다. Learnings #1·#2·#3이 문서/세션 layer evidence였다면, 여기서부터는 의도공학 layer가 *agent 단위*에서 처음 작동한 evidence point다. 추상 의도(`INTENT.md`/spec) → system prompt(`.claude/agents/*.md`) → plan markdown(agent 출력)의 3단 계단이 처음 닫혔다. *"Codex(third-party reviewer) reflection — Operator(serithemage) 2026-05-25 검토 후 *retain* 결정. 본 entry는 spec §5.4 H3 evaluator separation rule(Claude 생성 ↔ Codex 평가 ↔ Operator 결정)의 *first complete operational cycle*으로 보존."*
+- **2026-05-10** — INTENT.md 첫 작성. 초안에서 (?)로 표시했던 4개 영역 중 H1a / H1b / H1c 정량 임계값이 모두 overview spec §5.4 에 이미 nail down되어 있음을 발견. **의도공학 layer 첫 invariant**: INTENT.md 는 spec 과 *정합* 해야지 *spec 을 다시 정의* 하면 안 된다. spec 권한과 INTENT 권한의 layer 분리가 INTENT.md 단위에서 처음 명시됨.
 
-- **2026-05-25** (AI 도구의 grounding 검증) — 본 프로젝트와 인접한 *AI + 오픈소스 EDA* 연구 동향 조사를 위해 Perplexity `perplexity_research` (Sonar Deep Research) 모델을 호출한 결과, **citation 0개의 49.9 KB confabulated 응답** 반환 — 응답 본문에 "Despite the absence of specific search results... logical extrapolation of research momentum" 자백 + "LibreSoC's LibreLane" 같은 명시적 사실 오류(LibreLane은 OpenROAD/Efabless 후속이지 LibreSoC와 무관) 포함. 동일 service의 `perplexity_search`(grounded)는 36개 실 URL 반환, 본 프로젝트와 직접 인접한 7개 verified 작업(AiEDA / CHIPCRAFTBRAIN / VeriMaAS / AIvril2 / AuDoPEDA / OpenROAD Agent / UCSD ABK ICCAD invited)을 식별 가능했음. **Learnings #3 "추측 vs grep 검증" invariant의 *AI 도구 환경* 1차 확장 사례** — `*research*` 도구의 *추측 verbosity*는 grounded `*search*` 결과로만 검증 가능. 본 invariant를 CLAUDE.md Operating Invariants 4번째 항목으로 격상 (AI 도구 grounding 검증 default). 본 발견 자체가 의도공학 layer가 *human 의사결정*을 넘어 *AI tool meta-layer*로 확장됨을 드러냄 — Operator가 검증할 대상은 더 이상 agent 출력만이 아니라 *agent가 사용하는 도구*까지 포함.
+- **2026-05-10** (agent dogfooding 첫 시도) — 4 위임 agent 정의 commit 직후 `experiment-designer` 호출 시 "Agent type not found" 오류. **운영 invariant**: agent 정의 ↔ 호출 가능성 사이에 *세션 재시작이 필요한 시간 지연*이 존재. 의도공학 layer가 의도(추상) → agent system prompt(구체) → *호출 가능 시점*(시간) 의 3 단계임을 첫 dogfooding이 드러냄.
 
-- **2026-05-25** (agent dogfooding 5-cycle + invariant cascade) — `experiment-designer` commit `2be69ed`/freeze tag `g1-smoke-pre` → `code-author` commit `8438f30`(Makefile `SEED` + `lockfile-verify`) → `eda-code-reviewer` 1st verdict `MERGE` → `code-author` CDK prefix patch(`semi-design-${env}-` on 6 stack ids) → `eda-code-reviewer` 2nd verdict `MERGE-WITH-FIXES` → Action A spec footnote commit `2c8b5f7`까지 5-cycle agent dogfooding chain이 Operator의 merge 외 개입 없이 self-stably 종료됐다. **통합 관찰: Learnings #3/#5의 검증 invariant가 이제 agent 운영 loop 내부에서 반복 발화하며, agent self-output을 다른 agent가 독립 grep으로 검증하는 meta-layer까지 확장됐다.** 같은 turn 안에서 Operating Invariant #3(추측 vs grep 검증)은 AWS deploy stack-name collision 확인(`serverless-openclaw`가 bare `NetworkStack`/`StorageStack`/`ComputeStack` 소유, DDB output literals `serverless-openclaw-Settings`/`TaskState`/`PendingMessages` + ECR repo `serverless-openclaw`), user assertion의 external project ownership grep 확인, `cdk/lib/network-stack.ts:26`의 `us-east-1` hardcode 확인으로 directive scope auto-reduction, 그리고 `code-author`의 "no spec section names the 6 stacks" claim을 `eda-code-reviewer`가 re-grep하여 `docs/superpowers/specs/2026-04-20-L1-process-design.md` §6.1 L252-258의 명시 enumeration을 찾아낸 false negative catch까지 4-5회 cascade했다. Operator가 merge 전 L1 spec 존재를 3번째로 확인한 것은 이 invariant가 첫 발견이 아니라 운영 성숙도 단계로 들어섰음을 보여준다. Operating Invariant #4(AI grounding 검증)도 Learnings #5의 external `*research*` tool 검증에서 agent self-output 검증을 지나, 이제 `eda-code-reviewer`가 `code-author`의 grep claim을 assertion으로 수용하지 않고 independent grep으로 검증하는 agent-to-agent verification으로 확장됐다. 즉 Operator의 검증 대상은 한 agent의 산출물뿐 아니라 *한 agent가 다른 agent의 검증 claim을 어떻게 검증하는가*까지 포함한다. 동시에 GitHub push `8438f30..2c8b5f7`가 server-side HTTP 500(Request IDs `211e9c543d68d969d09b89926e3d4074` + `CB05:26DE6C:7449D9:9824A6:6A1410D0`)로 SSH/HTTPS 모두 실패해 external SPOF가 노출됐지만, gitignored `.handoff.md` persistence와 atomic local commits가 모든 work product를 보존했고 다음 세션 retry 성공으로 transient임이 확인됐다. Issue 007(public 전환 + repo metadata)은 이 GitHub external SPOF에 대한 indirect mitigation candidate로 남는다. 의도공학 layer 관점에서 이번 thread는 추상 의도(`INTENT.md`/Operating Invariants) → agent prompt/role → agent-to-agent 검증 → local persistence/handoff → external GitHub transport failure recovery까지 닫힌 운영 loop가 실제 장애와 false negative를 흡수한 사례다. *"Claude/agent chain generates → Codex evaluates/reflects → Operator decides retain"* 구조를 Codex가 지금 이 Learnings #6 reflection entry로 다시 작성하고 있다는 점에서, 본 entry 자체가 Learnings #4에서 처음 명시된 evaluator separation rule의 *second complete operational cycle*임을 보존한다.
+- **2026-05-10** (정합 작업) — 직전 turn에 "K2 → K1 backlink 비대칭" 이라 advisory를 적었으나 grep 검증 시 K2 4 페이지 모두 K1 backlink 풍부 보유. **추측이 사후 grep 검증을 대체하지 않는다는 invariant 확인** — 정합 작업 전 grep 검증이 default.
+
+- **2026-05-10** (agent dogfooding 첫 성공) — 세션 재시작 후 `experiment-designer`가 정상 호출되어 `g1-first-smoke` plan을 message-only로 산출, Operator가 5/5 Q&A 수용 후 commit `2be69ed`·freeze tag `g1-smoke-pre`로 고정. plan이 INTENT.md `Not` declaration table을 먼저 세우고 spec §5.4를 *복사 인용*만 해 INTENT 권한 vs spec 권한 분리 invariant를 지킴. 추상 의도 → system prompt → plan markdown의 3단 계단이 처음 닫힘. Codex reflection — Operator 2026-05-25 *retain* 결정, spec §5.4 H3 evaluator separation rule의 first complete operational cycle로 보존.
+
+- **2026-05-25** (AI 도구의 grounding 검증) — Perplexity `perplexity_research`(Sonar Deep Research) 호출 결과 **citation 0개의 49.9 KB confabulated 응답** 반환("logical extrapolation" 자백 + "LibreSoC's LibreLane" 사실 오류). 동일 service `perplexity_search`(grounded)는 36개 실 URL 반환. **추측 vs grep 검증 invariant의 AI 도구 환경 확장** — `*research*` 도구의 추측 verbosity는 grounded `*search*` 결과로만 검증. CLAUDE.md Operating Invariant 4번째 항목으로 격상.
+
+- **2026-05-25** (agent dogfooding 5-cycle + invariant cascade) — `experiment-designer` → `code-author`(Makefile `SEED`+`lockfile-verify`) → `eda-code-reviewer` MERGE → `code-author` CDK prefix patch → `eda-code-reviewer` MERGE-WITH-FIXES → spec footnote `2c8b5f7`까지 5-cycle이 Operator merge 외 개입 없이 self-stably 종료. 검증 invariant가 agent 운영 loop 내부에서 반복 발화하며 agent self-output을 다른 agent가 독립 grep 검증하는 meta-layer로 확장. GitHub push가 서버측 HTTP 500으로 실패했으나 `.handoff.md` persistence + atomic local commits로 work product 보존, 다음 세션 retry 성공으로 transient 확인. evaluator separation rule의 second complete operational cycle.

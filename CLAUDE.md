@@ -4,130 +4,127 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Context
 
-This repo is an **AI agent research project**: **"Report-Grounded Vibe-Coded AutoResearch for Open-Source DL Accelerator Design"** (통합 프로그램, 2026-04-19 overview spec). 3-layer 구조 — **L1 Process** (SHA-pinned Nix bundle + AWS Fargate Spot) + **L2 Substrate** (report-grounded memory + reversible-patch skill library) + **L3 Content** (Open-Ideation Gemmini DSE on MLPerf Tiny v1.3 streaming). Deliverables: 논문 + 오픈소스 reference + process reasoning-trace evidence. Target: **academic/process novelty vs commercial chips**, not absolute PPA.
+This repo is an **AI agent research project**, pivoted **2026-05-29** to:
+**"AutoResearch 기반 EDA Surrogate 모델 자동 연구"**.
 
-All novelty hypotheses (H1/H2/H3 with falsifiers), evaluation thresholds, publish/reframed/kill decisions, and layer interfaces live in the overview spec. §5.3 **canonical decision table** is the single source of truth for publish/kill — no other file declares its own criteria.
+karpathy [AutoResearch](https://github.com/karpathy/autoresearch)의 population-based evolution 루프
+([roboco-io/serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를
+**EDA surrogate 지표예측 모델**(합성 직후 feature → 최종 PPA/routability 예측) 학습에 적용한다.
+에이전트는 학습 스크립트 한 파일(`train.py`)만 변형하고, 고정 예산으로 학습 후 단일 val 지표로
+keep/discard하며, **Operator가 세대 winner 선택을 감독**한다.
 
-The implemented code today is `src/semi_design_runner/` (L1 Process runner) + `scripts/graph_integrity_check.py` (L2.lint.check substrate). L1/L2/L3 agent system is designed but not yet built. Do not assume other subsystems exist in code.
-
-> **컨텍스트 관리 정책 (2026-05-09 갱신, wiki-first 하이브리드)**: [Karpathy LLM Wiki 72-run 벤치마크](https://roboco.io/posts/karpathy-llm-wiki-72-run-benchmark/) (wiki vs graphify: 토큰 −53.6%, 시간 −39.3%, 품질 +6%, p<0.01)를 근거로 **`wiki/index.md` 기반 마크다운 위키를 default 컨텍스트 라우팅**으로 사용한다. 답변 작성 시 `[[wiki/페이지]]` 인용을 강제한다. graphify는 **보조 도구** — cross-component path 탐색(예: spec 결정 ↔ source paper 의존성)이나 wiki에 아직 컴파일되지 않은 영역에 한해 `make graph-serve` MCP / `uv run graphify query "..."`를 사용한다. 2026-04-22의 graphify-only 결정은 본 항목으로 대체된다 (graphify-out/는 보조용으로 commit 유지).
->
-> **범위 (layer 분리)**: 본 정책은 **human/LLM이 답변 작성 시 컨텍스트를 회수하는 라우팅 layer**만 다룬다. agent system 내부 API인 `L2.memory.recall` / `L2.skill_library.query` / `L2.lint.check` (overview spec §3.2 + L2-substrate-design §5.1)는 **graphify를 backend로 spec-freeze** 상태 — 본 wiki-first 라우팅 결정과 독립이며, 변경은 L2 spec-owner의 Codex 3-round review를 거쳐야 한다.
+- **목표**: 절대 PPA가 아니라 **(1) 자율 무인(AutoResearch-RL "human asleep") 대비 Operator-in-loop authority**,
+  **(2) (연기) reasoning trace** 라는 거버넌스/프로세스 축의 novelty.
+- 설계 lineage(brainstorming 전문): [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md)
+- 제품 요구: [`PRD.md`](PRD.md) (4-엔티티 ERD + 리포지토리 구조의 single source).
+- 이전 의도/구현(통합 프로그램 3-layer L1/L2/L3)은 **`archive/integrated-program-3layer` 브랜치에 무손실 보존**.
+  main에는 더 이상 존재하지 않으며, 새 작업의 근거로 삼지 않는다.
 
 ## Intent
 
-본 프로젝트의 *Why · What · Not · Learnings* 는 [`INTENT.md`](INTENT.md) 에 정리되어 있다 (status: clarified, 2026-05-10 작성). 메타 목적 두 가지 — (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution. **본 CLAUDE.md 의 모든 컨벤션 · 작업 규칙은 `INTENT.md` 의 Not 섹션을 어긴 의사결정을 차단하기 위한 substrate로 작동**한다. 새 spec/결정·위임 task 정의 시 `INTENT.md` 와 정합하는지 먼저 점검한다. 학습이 누적되면 `INTENT.md` Learnings 섹션에 기록 → 의도가 진화하고, 진화한 의도가 다시 spec·wiki·결정을 변형시키는 co-evolution 사이클이 본 프로젝트의 publishing 축.
+본 프로젝트의 *Why · What · Not · Learnings* 는 [`INTENT.md`](INTENT.md) 에 정리되어 있다
+(**status: exploring**, 2026-05-29 피벗 재작성). 메타 목적 두 가지 —
+(1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구,
+(2) Operator 학습 ↔ 프로젝트 진화의 co-evolution.
+**본 CLAUDE.md 의 모든 컨벤션·작업 규칙은 `INTENT.md` 의 `Not` 섹션을 어긴 의사결정을 차단하는 substrate로 작동**한다.
+새 spec/결정·task 정의 시 `INTENT.md` 와 정합하는지 먼저 점검한다. 학습이 누적되면 `INTENT.md` Learnings 에 기록 →
+의도가 진화하고, 진화한 의도가 다시 spec·결정을 변형시키는 co-evolution 사이클이 본 프로젝트의 publishing 축.
+(status가 clarified → exploring 으로 *되돌아간 것 자체*가 co-evolution 신호 — INTENT.md Learnings #1.)
 
-**Agent system**: 4 위임 agent — [`experiment-designer`](.claude/agents/experiment-designer.md) (실험 설계) · [`experiment-runner`](.claude/agents/experiment-runner.md) (실험 수행) · [`code-author`](.claude/agents/code-author.md) (코드 작성) · [`eda-code-reviewer`](.claude/agents/eda-code-reviewer.md) (1차 EDA 검사 + `pr-review-toolkit` plugin 오케스트레이션). 분업 매트릭스는 [`.claude/agents/README.md`](.claude/agents/README.md). 4 agent 모두 `INTENT.md` Not 정합 검사를 system prompt 공통 substrate로 가짐. **머지는 항상 Operator**.
+## Operating Model
+
+**Operator 1명 + 에이전트** single-operator multi-agent 구조. 사용자는 **Operator(감독자)** —
+Researcher/Developer 역할은 에이전트가 수행하고, **머지·winner 선택은 항상 Operator**.
+
+> **⚠️ 위임 agent rework 대기**: `.claude/agents/*.md` 의 4 agent
+> (`experiment-designer` · `experiment-runner` · `code-author` · `eda-code-reviewer`)는
+> 피벗 이전 **EDA flow / Gemmini DSE / KG-A~E gate** 를 전제로 작성돼 **현재 stale**.
+> 피벗 구조(prepare/train/세대 루프)에 맞춘 재정의 전까지 활성 분업 매트릭스로 신뢰하지 않는다.
+> `.claude/skills/semi-design-learning/` (Phase 0 학습 skill) 도 같은 사유로 stale.
 
 ## Implementation Status
 
-현재는 통합 프로그램 **G0 bootstrap → G1** 전환 단계. 이전 1a~6 번호는 구 spec(archived) 기준이라 새 G0~G4 gate로 매핑됨.
+피벗 직후 **골격 단계** — placeholder만 존재하고 구현은 plan 승인 후 착수.
 
-| Gate / Sub-plan | Scope | Status |
+| 항목 | Scope | Status |
 |---|---|---|
-| Phase 1a — Wiki Skill Engine | `src/semi_design_wiki/`, `tests/` | ⛔ **엔진 코드 폐기** (2026-04-22 graphify 전환, `docs/superpowers/specs/2026-04-22-graphify-adoption-design.md`). 마크다운 위키 자체는 2026-05-09 L23 행에서 운영 부활. |
-| Wiki → graphify 전환 (2026-04-22 history) | `scripts/graph_integrity_check.py` + `graphify-out/graph.json` + graphifyy v0.4.25 git dep | ✅ S1~S4 완료. 2026-05-09 wiki-first hybrid로 superseded — graphify는 보조 path 쿼리로 잔존. |
-| Wiki-first 컨텍스트 라우팅 (2026-05-09) | `wiki/index.md` + 컴파일 페이지 (Karpathy 패턴, default 라우팅) — graphify는 보조 path 쿼리로 격하 | ✅ Phase-0 sessions 5 + K1 evidence 4 + K2 evidence 4 + C-EDA flow 1 + F-PDK formats 1 (총 **15 페이지** = concept 6 + policy 1 + synthesis 8) 완료. K1+K2 evidence 그래프 종결 (8 페이지). 다음 ingest 후보: B branch (HDL) · KG-E DDB · Si2 Liberty / Cadence LEF·DEF / OpenSTA full ref. |
-| G0 Program bootstrap | K1 52 + K2 61 sources + direction report + overview spec + §7 operating rules + issues 재배치 | ✅ complete |
-| G1 L1 Process | SHA-pinned Nix (LibreLane 3.0.2 + OpenROAD + Yosys + sky130A) + Fargate Spot (ephemeral 200 GiB) + SFN Standard workflow + `make run` gcd; kill gates KG-A~KG-E | pending — L1 파생 spec (K2 ζ 갱신 필요) |
-| G2 L2 Substrate | typed-frontmatter memory + QMD + findings/failures/decisions + `L2.lint`·`skill_library`·`memory` interfaces | pending — L2 파생 spec (L1 완료 후 병렬) |
-| G3 L3 Content | Open-Ideation DSE on Gemmini + MLPerf Tiny v1.3 streaming, gcd/ibex/aes | pending — L3 파생 spec, License Gate §13 선행 |
-| G4 통합 실험 | 복리 효과 + reasoning trace + ORFS-agent 대조. publish/reframed/kill 은 overview spec §5.3 | pending |
-
-Phase 0 (learning) runs **in parallel** with implementation; its state lives in `docs/learning/phase-0-curriculum.md`, `wiki/raw/sessions/phase-0-*.md` (불변 원본), and the compiled `wiki/phase-0-eda-operator-lens.md` policy page (Branch A 진입점, 2026-05-09 컴파일).
+| 피벗 설계 + ERD | 설계 spec + `PRD.md` (4-엔티티 ERD) | ✅ commit `e631e79`·`5e361aa` |
+| main 골격 재편 | serverless-autoresearch 정렬 디렉터리 + placeholder | ✅ `prepare.py`/`train.py`/`program.md`/`config.yaml` 골격 |
+| 구 3-layer 보존 | wiki K1+K2 113 sources, CDK, agent system 전량 | ✅ `archive/integrated-program-3layer` (로컬+원격) |
+| `prepare.py` 구현 | EDA flow 1회 → feature+label 데이터셋 (frozen, 사람 유지) | ⏳ plan 대기 |
+| `train.py` 구현 | surrogate 학습 (에이전트 변형 단일 파일) | ⏳ plan 대기 |
+| 진화 루프 (src/pipeline) | candidate_gen · batch_launcher · result_collector · selection | ⏳ plan 대기 |
+| (연기) reasoning trace | reasoning_trace·decision·finding 증거 평면 | 2차 세대 |
 
 ## Commands
 
 ```bash
-make install                     # uv sync --all-extras
-make test                        # pytest -v
-make lint                        # ruff check src tests scripts
-make fmt                         # ruff format src tests scripts
-make clean                       # drop caches/build artifacts
-
-make graph-update                # graphify update . (AST-only incremental, fast)
-make graph-build                 # (안내만) full rebuild은 /graphify . 로 AI 세션에서
-make graph-serve                 # graphify MCP server (L2.memory.recall 공급)
-make graph-lint                  # graph integrity check (L2.lint.check: orphan=0 / dangling=0 / AMBIGUOUS≤0.3)
-uv run graphify query "..."      # ad-hoc BFS 질의
-uv run graphify explain "<node>" # 단일 노드 plain-language 설명
-
-# single test
-uv run pytest tests/test_graph_integrity.py::test_clean_graph_passes -v
+make install   # uv sync --all-extras
+make test      # pytest -v
+make lint      # ruff check
+make fmt       # ruff format
+make clean     # drop caches/build artifacts
 ```
 
-Python 3.12, `uv`-managed. Wheel target `src/semi_design_runner/` with CLI entry points (`semi-run`, `semi-metric-collector`) declared in `pyproject.toml`. Dev dep에 `graphifyy` (graphify git+SHA, PyPI dist 이름은 double-y, CLI는 `graphify`).
+Python 3.12, `uv`-managed. `pyproject.toml` 은 name `semi-design`, version `0.2.0`,
+optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry points 제거됨.
 
 ## Architecture (big picture)
 
-Two overlapping views (둘 다 overview spec `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md`에서 정의됨 — 본 CLAUDE.md는 요약이고 spec이 authoritative):
+`PRD.md` 가 authoritative — 아래는 요약.
 
-- **4-plane** — Local / AWS / Tool / Knowledge (실행 substrate)
-- **3-layer** — L1 Process / L2 Substrate / L3 Content (연구 프로그램 구성). Layer 간 인터페이스는 spec §3.2 contract table에 고정 — `L1.run(spec_uri)`, `L2.skill_library.query()`, `L2.memory.recall()`, `L2.lint.check()`. Breaking change 시 overview spec 재승인 필요.
+**리포지토리 구조 (serverless-autoresearch 정렬)**:
+- `prepare.py` — EDA 데이터셋 준비 (**read-only / frozen** — 에이전트 변경 금지, 공정 비교 보장).
+- `train.py` — surrogate 학습 (**에이전트가 변형하는 단일 파일**, 신규 의존성 금지, 고정 예산).
+- `program.md` — 에이전트 baseline 지시문. `config.yaml` — AWS/파이프라인 설정.
+- `src/pipeline/` — orchestrator · candidate_gen · batch_launcher · result_collector · selection.
+- `src/sagemaker/` — training entry / wrapper. `data/raw/` — 데이터 참조(실데이터는 S3).
+- `experiments/` — 세대별 리포트. `models/` — 학습 artifact.
 
-Planes:
-- **Local plane**: Python CLI orchestrator + LLMs (Claude Code SDK + Codex SDK). All LLM calls run locally.
-- **AWS plane** (CDK TypeScript, not yet written): Step Functions `Map` (maxConcurrency=10) → Fargate Spot per-candidate pipeline. S3 artifact lake + DynamoDB 4 tables + ECR. SHA-pinned via `lockfile.yaml` (spec §6.2).
-- **Tool plane**: Wrapped open-source EDA binaries (Yosys, **LibreLane 3.0.2** — OpenLane2 → LibreLane rename은 K1에서, 2.4 → 3.0.2 버전 갱신은 K2 ζ 2026-04-22에서 확정, OpenROAD, Verilator, cocotb, mlcommons/tiny **v1.3**). **Anti-reinvention principle**. Efabless 경로는 **2025-02 셧다운으로 폐기** — 대체 경로는 Iter 3+ 결정.
-- **Knowledge plane**: `wiki/index.md` + 컴파일 페이지 (default 라우팅, Karpathy LLM Wiki 패턴) + `wiki/raw/**` (불변 seed corpus — K1+K2 papers, sessions, blogs, repos) + `graphify-out/{graph.json, GRAPH_REPORT.md, graph.html}` (보조 path 쿼리, Option A+ commit policy) + `scripts/graph_integrity_check.py` (L2.lint.check).
+**데이터 모델 (최소 4-엔티티)**: `DATASET ─< GENERATION ─< CANDIDATE ─< JOB`,
+`CANDIDATE ─< CANDIDATE`(parent self-ref, crossover). 속성 표는 `PRD.md` §4.
 
-**Search strategy** is **2-tier**:
-1. Template DSE over Gemmini parameters (safe baseline)
-2. Open Ideation — agents propose **template-breaking microarchitectures** (H1b novelty dimension)
-
-Never reduce the project to a pure parameter sweep — ORFS-agent(2025) 이미 그 영역 공략함. **H1b "non-knob structural patch"** (spec 부록 C exclusion list 대상 아닌 transform)가 idea-generation dimension의 핵심 지표.
-
-**Evaluation/decision rule**: publish/reframed-publish/kill 분기는 overview spec **§5.3 Canonical Decision Table**만이 결정 — `H1 pass count × H3 validity` (H2는 보조). 본 리포의 어떤 문서도 자체 publish/kill 기준을 선언하지 않는다.
+**4-step 루프**: Candidate Generation → Batch Launch(병렬 Spot) → Result Collection → Selection,
+세대 winner는 Operator 승인 후 git tag `gen-NNN-best`.
 
 ## Code Conventions
 
 - **Direct commits to `main`** is the user's explicit workflow (no feature branches for now).
-- **Conventional commit prefixes** in active use: `docs(phase-0): ...`, `docs(wiki): ...`, `docs: ...`, `chore: ...`, `test: ...`. Keep subject imperative.
-- **Tests**: pytest; use `tmp_path` and fixtures. Never touch real `wiki/raw/` in tests — write fixture graphs to `tmp_path`. `scripts/graph_integrity_check.py` supports both NetworkX (`links`) and graphify-native (`edges`) JSON formats.
-- **Coverage target**: ≥85% per module for `src/semi_design_runner/`. `scripts/` 라인 수가 적어 coverage target은 not enforced이지만 새 path마다 test 필수.
-- **Ruff 100 char line limit**, `target-version = "py312"`. `src tests scripts` 세 디렉토리 모두 lint/fmt 대상.
+- **Conventional commit prefixes**: `docs: ...`, `chore: ...`, `test: ...`, `feat: ...`. Keep subject imperative.
+- **Tests**: pytest; use `tmp_path` and fixtures. Never touch real data/artifacts in tests.
+- **Ruff 100 char line limit**, `target-version = "py312"`.
+- 에이전트가 작성하는 코드 변경은 `INTENT.md` `Not` 정합 검사를 통과해야 하며, **Operator가 머지**한다.
 
 ## Repository Map (non-obvious parts)
 
-- `docs/superpowers/specs/2026-04-19-integrated-research-program-design.md` — **THE** active program overview spec. Codex 3-round review 통과. Read before any non-trivial change to program-level decisions.
-- `docs/superpowers/specs/2026-04-17-semiconductor-design-agent-design.md` — **ARCHIVED** 2026-04-19. Retained for history only. Do NOT base new work on it (Efabless 셧다운·OpenLane2 rename·MLPerf v1.2 등 stale gates 다수).
-- `docs/knowledge-base/2026-04-19-k1-direction-report.md` — K1 지식 기반 방향 판단 리포트. 통합 프로그램 방향의 근거.
-- `docs/superpowers/plans/` — per-phase TDD implementation plans. Phase 1a done; L1/L2/L3 파생 plans pending.
-- `docs/learning/phase-0-curriculum.md` — **retargeted 2026-04-19** to "EDA operator lens". Source of truth for learning.
-- `docs/eda_agent_handoff.md` — prior ORFS autotuning-focused 핸드오프. **Superseded** by integrated program — ORFS-agent(2025) 존재로 autotuning 단독 MVP 가정은 무효.
-- `issues/*.md` — local issue tracker. 2026-04-19 재배치 — 각 이슈 상단 "재배치 노트" 참조.
-- `wiki/{slug}.md` — **컴파일된 default 컨텍스트 페이지** (concept · policy · synthesis · decision · entity types). frontmatter `sources` / `related_specs` 명시 필수, 답변 시 `[[slug]]` 인용. 2026-05-09 1차 ingest 9 페이지 (Phase-0 4 concept + 1 policy + K1 4 synthesis), K2 4 papers pending.
-- `wiki/raw/sessions/phase-0-*.md` — Phase 0 Q&A 불변 원본. wiki ingest로 `wiki/{concept}.md` 컴파일 페이지 생성, graphify는 보조로 인덱싱.
-- `wiki/raw/papers/k1-{alpha,beta,gamma,delta}-*.md` — K1 축별 52 sources (방향판단).
-- `wiki/raw/papers/k2-{epsilon,zeta,eta,theta}-*.md` — K2 축별 61 sources (S3/G1/L2 파생 spec 착수 전 결정 baseline, 2026-04-22).
-- `wiki/raw/imports_manifest.yaml` — K1+K2 structured index with decision anchors, spec_contradictions, critical_read highlights.
-- `scripts/graph_integrity_check.py` — L2.lint.check substrate (orphan=0 / dangling=0 / AMBIGUOUS≤0.3).
-- `graphify-out/{graph.json, GRAPH_REPORT.md, graph.html}` — **보조** path-query 도구 (커밋 대상, Option A+ policy). cross-component 의존성 탐색에만 사용 — default 컨텍스트 라우팅은 `wiki/index.md`. `graphify-out/cache/` 및 `.graphify_*` 는 gitignore.
-- `graphify-out/memory/` — `graphify query` / `path` / `explain` 결과가 markdown으로 저장되어 다음 `--update` 시 재인제스트.
-- `.claude/skills/semi-design-learning/` — Phase 0 학습 skill (wiki-aware, 학습 세션 후 `wiki/raw/sessions/`에 저장 → wiki ingest로 `wiki/{concept}.md` 컴파일 → 보조로 `make graph-update`). Triggers on "학습 재개", "Phase 0", "마인드맵".
-
-## Project-Specific Working Rules
-
-- **Learning lens** (feedback, 2026-04-19): Phase 0 is for the user to become an **EDA operator who can supervise/debug agents**, not a chip designer. When writing learning material, prioritize reading LLM-generated RTL critically, interpreting `*.rpt` files (synth area, STA slack, DRC violations), and understanding file formats (`.v/.lib/.lef/.def/.sdc`). Skip deep theory unless it blocks report interpretation. `C` (EDA Flow) and `F` (PDK formats) are elevated; `B/D/E` are compact.
-- **Assistant-led Q&A**: For Phase 0 sessions, I explain 5–10 lines first, user confirms or asks. Record Q&A into the session file as it happens. Mark complete only after the user says "다음" or equivalent.
-- **Open decisions stay in `issues/`**: Don't inline them into the spec. When a design fork appears, create an issue file using `issues/README.md` conventions.
-- **Korean content is expected** throughout docs, commits, and wiki body. Technical terms (file formats, tool names, module identifiers) stay in English. **예외**: wiki page slug과 frontmatter `title`은 영어/하이픈 (Obsidian `[[link]]` 호환 + cross-tool grep 안정성). 본문·표·`sources`·`related_specs` 값은 Korean.
-- **wiki ingest 워크플로**: 새 raw 노트는 `wiki/raw/{sessions,papers,blogs,repos,docs,benchmarks}/`에 드롭 → `documentation:llm-wiki` skill의 ingest 5단계로 `wiki/{slug}.md` 컴파일 → frontmatter `sources`/`related_specs` 명시 → `wiki/log.md` 항목 추가 → 보조로 `make graph-update`. 컴파일 페이지 type은 `concept`/`decision`/`policy`/`synthesis`/`entity` 중 선택 (skill 문서 [page-templates.md] 참조).
+- `docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md` — **THE** active 설계 spec
+  (brainstorming 6문항 + Perplexity grounded positioning + 4-엔티티 ERD). non-trivial 변경 전 필독.
+- `PRD.md` — 제품 요구 + ERD + 리포 구조 single source.
+- `INTENT.md` — Why/What/Not/Learnings (status: exploring). 피벗 이전 6 Learnings 는 archived 하위 섹션에 보존.
+- `prepare.py` / `train.py` — 현재 `raise NotImplementedError("skeleton: 구현 plan 승인 후 작성")` placeholder.
+- `.claude/agents/*.md`, `.claude/skills/semi-design-learning/` — **stale, rework 대기** (위 Operating Model 참조).
+- 구 3-layer 자산(wiki·graphify·CDK·`src/semi_design_runner`·issues·learning curriculum)은
+  **`archive/integrated-program-3layer` 브랜치에만** 존재. main에서 찾지 말 것.
 
 ## Operating Invariants
 
 운영 중 발견된 *시간 layer* 마찰 — 이를 어기면 같은 실패가 반복된다 (출처: `INTENT.md` Learnings).
+**피벗과 무관한 메타 패턴이라 보존**한다 (substrate 참조는 stale여도 invariant는 유효).
 
-- **Agent definition staleness** (Learnings #2, 2026-05-10): `.claude/agents/*.md` · `.claude/skills/*` · `.claude/settings.json` 변경 *직후 같은 세션*에서는 변경된 정의가 활성화되지 않는다. 신규 agent type은 호출 시 `Agent type 'X' not found` 오류. **세션 재시작 후 재호출이 default**. 4 위임 agent 갱신 / 새 hook 추가 / skill 신규 시 모두 적용. dogfooding은 세션 재시작 다음 turn부터.
-- **추측 vs grep 검증** (Learnings #3, 2026-05-10): 정합 작업(wiki backlink, citation 정합, link 검증) 전 *반드시 grep으로 사실 확인*. 추측을 advisory에 기록 금지. 본 invariant는 H3 가설(reasoning trace 복원 가능성)의 작은 실패 사례를 차단.
-- **INTENT 권한 vs spec 권한 분리** (Learnings #1, 2026-05-10): INTENT.md / 신규 plan은 overview spec §5.4 의 정량 임계값을 *복사 인용*만, *재정의 금지*. 본 invariant 위반 시 plan은 즉시 reject.
-- **AI 도구 grounding 검증** (Learnings #5, 2026-05-25): `*research*` 모델(Perplexity Sonar Deep Research 등)이 web search empty 시 학습 distribution에서 confabulate. **응답 수신 직후 first check = citation 개수**. citation 0 → 응답 *전체 거부* + `*search*` 도구로 재조회. `*search*` 도구(URL/title/snippet 반환)는 grounded가 기본 — fact 확인 default. 본 invariant는 Learnings #3(추측 vs grep)의 *AI 도구 환경* 확장이며, Operator의 검증 대상이 *agent 출력*에서 *agent가 사용하는 도구*까지 확장됨을 명시.
+- **Agent definition staleness**: `.claude/agents/*.md` · `.claude/skills/*` · `.claude/settings.json` 변경
+  *직후 같은 세션*에서는 변경된 정의가 활성화되지 않는다. 신규 agent type 호출 시 `Agent type 'X' not found`.
+  **세션 재시작 후 재호출이 default**. (피벗 agent rework 시에도 적용 — dogfooding은 재시작 다음 turn부터.)
+- **추측 vs grep 검증**: 정합 작업(link 검증·citation 정합) 전 *반드시 grep으로 사실 확인*. 추측을 advisory에 기록 금지.
+- **INTENT 권한 vs spec 권한 분리**: `INTENT.md` / 신규 plan 은 설계 spec 의 정량 임계값을 *복사 인용*만,
+  *재정의 금지*. 위반 시 plan 즉시 reject. (현재 surrogate 지표 임계값은 데이터셋 확정 후 spec에 nail down 예정.)
+- **AI 도구 grounding 검증**: `*research*` 모델(Perplexity Sonar Deep Research 등)이 web search empty 시
+  학습 distribution에서 confabulate. **응답 수신 직후 first check = citation 개수**.
+  citation 0 → 응답 *전체 거부* + `*search*` 도구로 재조회. `*search*` 도구는 grounded가 기본.
 
 ## Before Non-Trivial Work
 
-1. **위키 우선 조회** — `wiki/index.md`에서 관련 페이지 진입 후 `[[wiki-link]]` 2-hop 확장으로 컨텍스트 확보. 답변 작성 시 `[[페이지]]` 인용. Phase-0 학습 상태는 `docs/learning/phase-0-curriculum.md` 와 `wiki/raw/sessions/` 원본 참조.
-2. **보조 그래프 쿼리** — wiki에 답이 부족하거나 cross-component 경로(spec ↔ source 의존성)가 필요하면 `uv run graphify query "..."` / `make graph-serve` MCP. Community·God Node 카탈로그는 `graphify-out/GRAPH_REPORT.md`.
-3. Read the relevant plan in `docs/superpowers/plans/` for implementation phases, or the spec §3 / §9 for architecture questions.
-4. Search `issues/` for any open decision that blocks the area you're about to touch.
-5. For anything affecting RTL/EDA flow design — remember the project is **vibe-coding + AutoResearch**, not a parameter-sweep DSE.
+1. **`INTENT.md` 정합 점검** — 착수 전 `Not` 섹션 위반 여부 확인. 이게 모든 작업의 1차 gate.
+2. **`PRD.md` + 설계 spec 조회** — ERD/구조 질문은 `PRD.md`, 결정 근거/positioning 은 설계 spec §1·§8.
+3. 구 3-layer 자산이 필요하면 `archive/integrated-program-3layer` 브랜치에서 참조(복원 아님).
+4. **Operator authority 유지** — 자율 무인 머지 금지. 에이전트 산출물은 Operator 검토 후 머지.
+5. 본 프로젝트는 **AutoResearch surrogate 모델 학습의 자동 연구**이지, parameter sweep 단독(ORFS-agent 영역)이 아니다.
