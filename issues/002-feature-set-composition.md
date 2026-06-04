@@ -1,7 +1,7 @@
 ---
 id: 002
 title: feature_set 구성 (합성 리포트 어느 필드까지)
-status: open
+status: resolved
 type: decision
 blocks: [FR-1]
 related_prd: OD-2
@@ -34,3 +34,10 @@ depends_on: [001]
 - [ ] 001 확정 후 feature 후보 목록 작성.
 - [ ] 누수 위험 필드(라벨에서 역산 가능한 것) 배제 규칙 정의.
 - [ ] `prepare.py` feature 추출 스펙 freeze.
+
+## Resolution (2026-06-04, prepare.py 구현)
+
+feature_set v1 (default `report_checks` 포맷에서 파싱 가능한 필드만):
+`num_stages, synth_slack_ns, synth_arrival_ns, max_stage_delay_ns, mean_stage_delay_ns, startpoint_is_ff, endpoint_is_ff, path_group`.
+
+누수 배제: label(post-route slack)에서 역산 가능한 필드 없음. **Slew/Load/fanout은 default 포맷에 없어 제외** — `report_checks -fields {slew cap}` 필요, v2 feature_set으로 연기. (초안의 fanout_sum/fanout_max는 실제 report 컬럼 부재로 철회 — 추측 vs grep 검증 invariant.)

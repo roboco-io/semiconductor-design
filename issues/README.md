@@ -8,8 +8,8 @@
 | ID | 제목 | 상태 | PRD 출처 | blocks |
 |---|---|---|---|---|
 | [001](001-surrogate-metric-definition.md) | surrogate 지표 정의 → **per-path timing slack 회귀** | ✅ resolved (2026-06-04) | OD-1 | FR-1·FR-3·§9 임계값 |
-| [002](002-feature-set-composition.md) | feature_set 구성 (합성 리포트 어느 필드까지) | open | OD-2 | FR-1 |
-| [003](003-dataset-scale-label-count.md) | 데이터 규모 (flow 1회로 라벨 수 충분한가) | open | OD-3 | FR-1 |
+| [002](002-feature-set-composition.md) | feature_set 구성 (합성 리포트 어느 필드까지) | ✅ resolved (2026-06-04) | OD-2 | FR-1 |
+| [003](003-dataset-scale-label-count.md) | 데이터 규모 (flow 1회로 라벨 수 충분한가) | ✅ resolved (2026-06-04) | OD-3 | FR-1 |
 | [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 (tabular vs GNN, CPU 학습 가능성) | open | OD-4 | NFR-1·train.py |
 | [005](005-comparison-baseline-thresholds.md) | 비교 baseline·정량 임계값 | open | OD-5 | §9 가설 지지 조건 |
 
