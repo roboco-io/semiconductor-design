@@ -40,7 +40,9 @@ def build_dataset(
 def write_dataset(rows: list[dict], manifest: dict, out_dir: str | Path) -> None:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    with (out / "dataset.jsonl").open("w") as fh:
+    with (out / "dataset.jsonl").open("w", encoding="utf-8") as fh:
         for r in rows:
             fh.write(json.dumps(r, sort_keys=True) + "\n")
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True))
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8"
+    )

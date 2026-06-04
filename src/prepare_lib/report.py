@@ -34,6 +34,7 @@ class PathRecord:
 
 
 def _field(block: str, label: str) -> str:
+    # 헤더 줄(Startpoint:/Endpoint:/Path Group: 등)은 컬럼 0에서 시작한다고 가정한다 — 선행 공백 불허.
     m = re.search(rf"^{label}:\s+(\S+)", block, re.MULTILINE)
     if m is None:
         raise ValueError(f"missing '{label}' in path block")
@@ -41,6 +42,7 @@ def _field(block: str, label: str) -> str:
 
 
 def _is_ff(block: str, label: str) -> bool:
+    # _field와 동일 가정: 헤더 줄은 선행 공백 없이 컬럼 0에서 시작한다.
     m = re.search(rf"^{label}:.*$", block, re.MULTILINE)
     return m is not None and "flip-flop" in m.group(0)
 

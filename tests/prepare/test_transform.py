@@ -55,6 +55,25 @@ def test_join_row_has_features_and_label():
     assert row["num_stages"] == 4
     assert row["synth_slack_ns"] == 1.28
     assert row["post_route_slack_ns"] == 0.85
+    assert row["path_group"] == "clk"  # extract_features가 채운 path_group 키 존재
+
+
+def test_join_drops_path_type_mismatch():
+    # 같은 (startpoint, endpoint, path_group)라도 path_type(max/min)이 다르면 매칭되지 않고 drop.
+    synth_max = (
+        "Startpoint: a (rising edge-triggered flip-flop clocked by clk)\n"
+        "Endpoint: b (rising edge-triggered flip-flop clocked by clk)\n"
+        "Path Group: clk\nPath Type: max\n"
+        "   0.50   data arrival time\n           0.10   slack (MET)"
+    )
+    route_min = (
+        "Startpoint: a (rising edge-triggered flip-flop clocked by clk)\n"
+        "Endpoint: b (rising edge-triggered flip-flop clocked by clk)\n"
+        "Path Group: clk\nPath Type: min\n"
+        "   0.50   data arrival time\n           0.20   slack (MET)"
+    )
+    rows = join_paths(parse_report(synth_max), parse_report(route_min))
+    assert rows == []
 
 
 def test_group_key_prefixes_design_id():

@@ -42,10 +42,13 @@ def group_key(path_group: str, design_id: str) -> str:
 
 
 def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
-    route_by_key = {(p.startpoint, p.endpoint, p.path_group): p for p in route}
+    # path_type을 키에 포함해 max(setup)/min(hold) corner 혼동을 차단한다.
+    route_by_key = {
+        (p.startpoint, p.endpoint, p.path_group, p.path_type): p for p in route
+    }
     rows: list[dict] = []
     for sp in synth:
-        key = (sp.startpoint, sp.endpoint, sp.path_group)
+        key = (sp.startpoint, sp.endpoint, sp.path_group, sp.path_type)
         rp = route_by_key.get(key)
         if rp is None:
             continue  # unmatched synth path dropped (no post-route label)
@@ -53,7 +56,7 @@ def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
             {
                 "startpoint": sp.startpoint,
                 "endpoint": sp.endpoint,
-                "path_group": sp.path_group,
+                # path_group은 extract_features가 채운다 (** 언팩과 중복 제거).
                 **extract_features(sp),
                 LABEL_NAME: extract_label(rp),
             }
