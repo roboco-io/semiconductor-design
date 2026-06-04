@@ -11,9 +11,11 @@ depends_on: [001, 002]
 
 # 004 — 모델 클래스
 
+> **OD-1 확정 (001 resolved, 2026-06-04)**: per-path slack **스칼라 회귀** → **tabular(XGBoost/MLP)**로 강하게 기울어짐. GNN 불요 → NFR-1(신규 의존성·고정 예산) 충돌 해소. 본 issue는 사실상 tabular 내 세부(XGBoost vs MLP, 허용 의존성 경계) 확정으로 축소.
+
 ## 배경
 
-`train.py`(에이전트 변형 단일 파일, NFR-1)가 학습하는 모델 클래스가 미정. 이 결정은 NFR-1의 "고정 학습 예산"·"신규 의존성 금지"와 직접 충돌 가능 — GNN은 학습 비용↑, 의존성(torch-geometric 등)↑. 002 feature 형태(스칼라 vs 그래프)와 짝을 이룬다.
+`train.py`(에이전트 변형 단일 파일, NFR-1)가 학습하는 모델 클래스가 미정이었으나, 001 확정으로 label이 path별 slack 스칼라라 tabular 회귀가 자연선택. 남은 결정은 tabular 내 baseline 선택과 허용 의존성 목록(NFR-1 경계)이다.
 
 ## 옵션
 

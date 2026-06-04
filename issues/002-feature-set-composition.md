@@ -11,9 +11,11 @@ depends_on: [001]
 
 # 002 — feature_set 구성
 
+> **OD-1 확정 (001 resolved, 2026-06-04)**: 지표 = per-path timing slack 회귀. feature는 **path 단위 합성 feature**로 한정된다. 아래 옵션 A(스칼라)가 기본선, critical-path 쏠림 대응(informative sampling)이 신규 과제.
+
 ## 배경
 
-`prepare.py`(frozen, NFR-2)는 합성 직후 feature를 추출해 `DATASET.feature_set`에 고정한다 (FR-1). 어느 필드까지 feature로 쓸지 미정 — 너무 적으면 예측력 부족, 너무 많으면 누수/과적합 위험(INTENT 엣지케이스 "val 지표만 좋은 경우"). 001(지표)이 정해져야 어떤 feature가 유효한지 판단 가능.
+`prepare.py`(frozen, NFR-2)는 합성 직후 feature를 추출해 `DATASET.feature_set`에 고정한다 (FR-1). 어느 필드까지 feature로 쓸지 미정 — 너무 적으면 예측력 부족, 너무 많으면 누수/과적합 위험(INTENT 엣지케이스 "val 지표만 좋은 경우"). 001 확정으로 feature 단위는 **timing path**, label은 post-route slack으로 고정됐다.
 
 ## 옵션
 

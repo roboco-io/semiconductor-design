@@ -126,7 +126,7 @@ erDiagram
 > 사용자 결정: 아래 기술 결정은 **열린 채로 유지**. 데이터셋 확정 후 설계 spec에서 nail down. 본 PRD는 인용만.
 > 의존 순서: **OD-1이 선행** — 지표가 정해져야 OD-2~5 확정 가능 (issues/README 참조).
 
-- **OD-1** surrogate 지표 정의 — slack vs area vs routability, 단일 vs 복합 (FR-1·FR-3·§9 임계값). → [`issues/001`](issues/001-surrogate-metric-definition.md)
+- **OD-1** ✅ **resolved (2026-06-04)** — **per-path timing slack 회귀** (post-synth path feature → post-route slack(ns), val=MAE). OD-2~5에 제약 전파(002 path feature·003 누수 grouping·004 tabular·005 naive baseline). → [`issues/001`](issues/001-surrogate-metric-definition.md)
 - **OD-2** feature_set 구성 — 합성 리포트 어느 필드까지 (FR-1). → [`issues/002`](issues/002-feature-set-composition.md)
 - **OD-3** 데이터 규모 — flow 1회 실행으로 충분한 라벨 수 확보 가능 여부 (FR-1). → [`issues/003`](issues/003-dataset-scale-label-count.md)
 - **OD-4** 모델 클래스 — tabular regression vs GNN, CPU 학습 가능성 (NFR-1·`train.py`). → [`issues/004`](issues/004-model-class-tabular-vs-gnn.md)

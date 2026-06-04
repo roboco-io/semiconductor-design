@@ -7,7 +7,7 @@
 
 | ID | 제목 | 상태 | PRD 출처 | blocks |
 |---|---|---|---|---|
-| [001](001-surrogate-metric-definition.md) | surrogate 지표 정의 (slack/area/routability, 단일 vs 복합) | open | OD-1 | FR-1·FR-3·§9 임계값 |
+| [001](001-surrogate-metric-definition.md) | surrogate 지표 정의 → **per-path timing slack 회귀** | ✅ resolved (2026-06-04) | OD-1 | FR-1·FR-3·§9 임계값 |
 | [002](002-feature-set-composition.md) | feature_set 구성 (합성 리포트 어느 필드까지) | open | OD-2 | FR-1 |
 | [003](003-dataset-scale-label-count.md) | 데이터 규모 (flow 1회로 라벨 수 충분한가) | open | OD-3 | FR-1 |
 | [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 (tabular vs GNN, CPU 학습 가능성) | open | OD-4 | NFR-1·train.py |
@@ -16,6 +16,8 @@
 ## 의존 순서
 
 `001` (지표 정의)이 다른 4개의 선행 — 지표가 정해져야 feature(002)·라벨 규모(003)·모델(004)·임계값(005)이 확정 가능. 데이터셋 1회 생성(FR-1)이 002·003을 경험적으로 닫는다.
+
+**001 resolved (per-path timing slack)** → 002~005에 OD-1 제약이 전파됨: 002는 path feature로, 003은 누수 차단 grouping으로, 004는 tabular로, 005는 naive(feature slack=label) baseline으로 좁혀졌다. 다음 선행은 데이터셋 생성(FR-1, `prepare.py`)이 002·003을 경험적으로 닫는 것.
 
 ## 이슈 작성 규칙
 

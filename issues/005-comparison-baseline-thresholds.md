@@ -11,9 +11,11 @@ depends_on: [001, 003]
 
 # 005 — 비교 baseline · 정량 임계값
 
+> **OD-1 확정 (001 resolved, 2026-06-04)**: val 지표 = **path slack 예측 MAE(ns)**. baseline 후보가 구체화됨 — 합성 단계 slack을 그대로 최종 slack으로 쓰는 **naive predictor**(가장 자연스러운 대조군) 또는 선형회귀. 정량 임계값은 여전히 데이터 확정 후 **spec**.
+
 ## 배경
 
-가설 H-A는 "surrogate winner val 지표 < 사람-수작업 baseline"이다 (PRD §9). 그러나 (1) *사람-수작업 baseline*을 무엇으로 둘지, (2) "더 낮다"의 정량 임계값(절대 차이? 통계 유의?)이 미정. INTENT `Why §확인방법`은 이를 "데이터셋 확정 후"로 명시 연기했다.
+가설 H-A는 "surrogate winner val 지표(MAE) < 사람-수작업 baseline"이다 (PRD §9). 그러나 (1) *사람-수작업 baseline*을 무엇으로 둘지, (2) "더 낮다"의 정량 임계값(절대 차이? 통계 유의?)이 미정. INTENT `Why §확인방법`은 이를 "데이터셋 확정 후"로 명시 연기했다. 001 확정으로 baseline 후보(naive: feature slack=label)가 분명해졌다.
 
 > **권한 주의 (INTENT-vs-spec invariant)**: 정량 임계값은 본 issue나 PRD가 *재정의하지 않는다*. 데이터셋 확정 후 **설계 spec에서 nail down**하고, PRD §9·INTENT는 인용만 한다.
 

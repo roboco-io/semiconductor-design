@@ -11,9 +11,11 @@ depends_on: [001]
 
 # 003 — 데이터 규모 / 라벨 수
 
+> **OD-1 확정 (001 resolved, 2026-06-04)**: per-path slack → **1 설계로 수천 path 샘플** 확보 가능, "flow 1회"(FR-1) 유지. 남은 핵심 과제는 **train/val 분할 누수 차단** (path가 아니라 설계/클럭그룹 단위 grouping).
+
 ## 배경
 
-FR-1은 "EDA flow **1회** 실행으로 데이터셋 자가생성"을 전제한다. 그러나 surrogate 학습에 필요한 label 수를 flow 1회로 확보 가능한지 미확인 — CircuitNet 2.0은 20K+ 샘플이다. 1회 실행이 1개 설계의 N개 cell/net을 샘플로 쪼개 충분한 라벨을 줄지(예: per-net routability)는 001 지표에 의존.
+FR-1은 "EDA flow **1회** 실행으로 데이터셋 자가생성"을 전제한다. 001 확정으로 per-path 단위라 1 설계 1회 실행으로 수천 path 샘플이 나온다 — 규모 문제는 대부분 해소. 남은 위험은 같은 설계의 path가 train/val 양쪽에 들어가는 **누수**다.
 
 ## 옵션
 
