@@ -1,0 +1,19 @@
+OpenROAD: 26Q2-1846-g49bd051a10
+Yosys: 0.64+post (git sha1 UNKNOWN-dirty, g++ 11.4.0-1ubuntu1~22.04.3 -fPIC -O3)
+Image: openroad/orfs:latest
+Image digest: sha256:b19fe0a514a87aee0f97073797395c0ca489c45406b526bc75fd2038c82fdf69
+Emulation: linux/amd64 on macOS arm64 (Apple Silicon) via Docker QEMU emulation
+Sky130 library: sky130_fd_sc_hd__tt_025C_1v80 (tt corner, 25C, 1.8V)
+
+--- Stage mapping ---
+synth.rpt : generated from 1_synth.odb (post-Yosys synthesis, before floorplan)
+            SDC: 1_synth.sdc (core_clock period=1.1ns)
+            Tcl: report_checks -path_delay max/min -fields {slew cap input net fanout}
+                 -format full_clock_expanded -group_path_count 20/5
+
+route.rpt : generated from 3_place.odb (post-detailed-placement, before CTS/route)
+            SDC: 3_place.sdc (same constraints)
+            Note: full route (CTS stage) failed under QEMU emulation due to illegal instruction
+            in cts.tcl (emulation artifact). 3_place.odb is the latest available post-synthesis
+            with DEF/placement. Wire RC estimated via sky130hd/setRC.tcl (Elmore model).
+            This is post-placement STA, not true post-route STA.
