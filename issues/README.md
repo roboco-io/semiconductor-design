@@ -12,6 +12,7 @@
 | [003](003-dataset-scale-label-count.md) | 데이터 규모 (flow 1회로 라벨 수 충분한가) | ✅ resolved (2026-06-04) | OD-3 | FR-1 |
 | [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 (tabular vs GNN, CPU 학습 가능성) | open | OD-4 | NFR-1·train.py |
 | [005](005-comparison-baseline-thresholds.md) | 비교 baseline·정량 임계값 | open | OD-5 | §9 가설 지지 조건 |
+| [006](006-eda-flow-execution-infra.md) | EDA flow 실행 인프라 (ECS Fargate 유력) | open | §8 plane / F4 | FR-1 실 데이터셋 |
 
 ## 의존 순서
 
