@@ -32,6 +32,14 @@ depends_on: [001, 002]
 
 ## 액션 아이템
 
-- [ ] 001·002 확정 후 모델 클래스 1개를 baseline `train.py`로 고정.
-- [ ] 허용 의존성 목록을 `program.md`/`config.yaml`에 명시 (NFR-1 경계).
-- [ ] CPU 1-job 학습 시간이 고정 예산 내인지 smoke 측정.
+- [x] 모델 클래스 1개를 baseline `train.py`로 고정 → `HistGradientBoostingRegressor`.
+- [x] 허용 의존성 = scikit-learn (+numpy). NFR-1 경계.
+- [ ] CPU 1-job 학습 시간이 고정 예산 내인지 smoke 측정 (실데이터 단계).
+
+## Resolution (2026-06-06, brainstorming + grounded 조사)
+
+**모델 클래스 = scikit-learn tabular, baseline `HistGradientBoostingRegressor`.** 허용 의존성 = scikit-learn (+numpy).
+
+근거(`docs/knowledge-base/2026-06-06-od4-model-class-research.md`): MasterRTL이 path-level timing에 RandomForest/XGBoost를 쓰고 GCN/Transformer 압도; tabular ML 문헌(Grinsztajn/Shwartz-Ziv/McElfresh)도 GBDT가 heavy-tailed(critical-path 쏠림)·소중 데이터서 NN 우월. sklearn-only를 XGBoost 대신 택해 한 import로 HistGBDT/RandomForest/ExtraTrees/GBR/MLP 모델-교체 변형 공간 확보(H1b), SOTA 실질 동급.
+
+eval 경계: Operator 결정 = **train.py가 split·eval 전체 소유**(karpathy 스타일). val 게이밍은 루프 held-out test 재채점 + Operator 검토로 방어(연기). 설계: `docs/superpowers/specs/2026-06-06-od4-train-baseline-design.md`. train.py 구현은 별도 writing-plans.

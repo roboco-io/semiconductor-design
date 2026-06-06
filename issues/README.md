@@ -10,7 +10,7 @@
 | [001](001-surrogate-metric-definition.md) | surrogate 지표 정의 → **per-path timing slack 회귀** | ✅ resolved (2026-06-04) | OD-1 | FR-1·FR-3·§9 임계값 |
 | [002](002-feature-set-composition.md) | feature_set 구성 (합성 리포트 어느 필드까지) | ✅ resolved (2026-06-04) | OD-2 | FR-1 |
 | [003](003-dataset-scale-label-count.md) | 데이터 규모 → **endpoint 단위 다설계** (F3 재설계) | ✅ resolved (revised 2026-06-06) | OD-3 | FR-1 |
-| [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 (tabular vs GNN, CPU 학습 가능성) | open | OD-4 | NFR-1·train.py |
+| [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 → **sklearn HistGradientBoostingRegressor** | ✅ resolved (2026-06-06) | OD-4 | NFR-1·train.py |
 | [005](005-comparison-baseline-thresholds.md) | 비교 baseline·정량 임계값 | open | OD-5 | §9 가설 지지 조건 |
 | [006](006-eda-flow-execution-infra.md) | EDA flow 실행 인프라 (ECS Fargate 유력) | open | §8 plane / F4 | FR-1 실 데이터셋 |
 
