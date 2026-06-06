@@ -1,0 +1,33 @@
+# tests/pipeline/test_operator_gate.py
+from pathlib import Path
+
+from pipeline.candidate_gen import Candidate
+from pipeline.operator_gate import promote, summarize
+
+
+def _c():
+    return Candidate("cand-001", "moderate", "claude", "/x/train.py", "diff")
+
+
+def test_summarize_lists_winner_and_ranking():
+    text = summarize(_c(), 0.17, [(_c(), 0.17)], holdout_mae=0.19)
+    assert "cand-001" in text and "0.17" in text and "0.19" in text
+
+
+def test_promote_only_when_approved(tmp_path):
+    # baseline + winner src
+    baseline = tmp_path / "train.py"
+    baseline.write_text("# baseline\n")
+    winner_src = tmp_path / "cand" / "train.py"
+    winner_src.parent.mkdir()
+    winner_src.write_text("# winner variant\n")
+
+    # 거절: baseline 불변
+    changed = promote(winner_src, baseline, gen_no=1, approved=False, do_git=False)
+    assert changed is False
+    assert baseline.read_text() == "# baseline\n"
+
+    # 승인: baseline이 winner로 승격
+    changed = promote(winner_src, baseline, gen_no=1, approved=True, do_git=False)
+    assert changed is True
+    assert baseline.read_text() == "# winner variant\n"
