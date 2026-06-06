@@ -6,8 +6,8 @@ set lib [lindex $argv 1]
 set sdc [lindex $argv 2]
 set out [lindex $argv 3]
 
-read_liberty $lib
 read_db $odb
+read_liberty $lib
 read_sdc $sdc
 
 set fh [open $out w]

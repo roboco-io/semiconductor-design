@@ -31,10 +31,13 @@ ROUTE_SDC="$(ls -1 ${RES}/6_final.sdc ${RES}/5_*.sdc 2>/dev/null | head -1)"
 echo "LIB=$LIB SYNTH_SDC=$SYNTH_SDC ROUTE_SDC=$ROUTE_SDC ROUTE_ODB=$ROUTE_ODB"
 
 # 2) 두 stage report_checks (minimal 포맷, -fields 없음 → prepare.py 파서 계약)
+#    openroad 출력은 CloudWatch로 직접 흘린다 (실패 시 진단 가능하도록).
+echo "=== openroad synth report_checks ==="
 openroad -no_init -exit /opt/eda/dump_report_checks.tcl \
-  "$SYNTH_ODB" "$LIB" "$SYNTH_SDC" "$WORK/synth.rpt" > "$WORK/synth.log" 2>&1
+  "$SYNTH_ODB" "$LIB" "$SYNTH_SDC" "$WORK/synth.rpt"
+echo "=== openroad route report_checks ==="
 openroad -no_init -exit /opt/eda/dump_report_checks.tcl \
-  "$ROUTE_ODB" "$LIB" "$ROUTE_SDC" "$WORK/route.rpt" > "$WORK/route.log" 2>&1
+  "$ROUTE_ODB" "$LIB" "$ROUTE_SDC" "$WORK/route.rpt"
 echo "synth.rpt lines: $(wc -l < "$WORK/synth.rpt")  route.rpt lines: $(wc -l < "$WORK/route.rpt")"
 
 # 3) versions + lockfile
@@ -43,11 +46,9 @@ echo "synth.rpt lines: $(wc -l < "$WORK/synth.rpt")  route.rpt lines: $(wc -l < 
   openroad -version 2>/dev/null | head -1 | sed 's/^/openroad: /' || true;
   yosys -V 2>/dev/null | head -1 | sed 's/^/yosys: /' || true; } > "$WORK/versions.txt"
 
-# 4) S3 적재 (로그도 함께 — 디버깅용)
+# 4) S3 적재
 DEST="s3://${ARTIFACT_BUCKET}/runs/${DESIGN}/${RUN_ID}"
 aws s3 cp "$WORK/synth.rpt"    "$DEST/synth.rpt"
 aws s3 cp "$WORK/route.rpt"    "$DEST/route.rpt"
 aws s3 cp "$WORK/versions.txt" "$DEST/versions.txt"
-aws s3 cp "$WORK/synth.log"    "$DEST/synth.log"
-aws s3 cp "$WORK/route.log"    "$DEST/route.log"
 echo "uploaded → $DEST"
