@@ -12,7 +12,7 @@
 | [003](003-dataset-scale-label-count.md) | 데이터 규모 → **endpoint 단위 다설계** (F3 재설계) | ✅ resolved (revised 2026-06-06) | OD-3 | FR-1 |
 | [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 → **sklearn HistGradientBoostingRegressor** | ✅ resolved (2026-06-06) | OD-4 | NFR-1·train.py |
 | [005](005-comparison-baseline-thresholds.md) | 비교 baseline → **naive(합성 slack=label)** | ✅ resolved (2026-06-06, 임계값 다설계 후) | OD-5 | §9 |
-| [006](006-eda-flow-execution-infra.md) | EDA flow 실행 인프라 (ECS Fargate 유력) | open | §8 plane / F4 | FR-1 실 데이터셋 |
+| [006](006-eda-flow-execution-infra.md) | EDA flow 인프라 → **ECS Fargate 배포·검증** (n_samples=53) | ✅ resolved (2026-06-06) | §8 plane / F4 | FR-1 실 데이터셋 |
 
 ## 의존 순서
 
