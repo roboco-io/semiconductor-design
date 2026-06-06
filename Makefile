@@ -7,16 +7,19 @@ test:
 	uv run pytest -v
 
 lint:
-	uv run ruff check src tests
+	uv run ruff check src tests prepare.py train.py
 
 fmt:
-	uv run ruff format src tests
+	uv run ruff format src tests prepare.py train.py
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .coverage dist build **/__pycache__
 
 prepare:
 	uv run python prepare.py --synth $(SYNTH) --route $(ROUTE) --lockfile $(LOCKFILE) --design-id $(DESIGN) --out-dir $(OUT)
+
+DATA ?= dataset.jsonl
+SEED ?= 0
 
 train:
 	uv run python train.py --data $(DATA) --out $(OUT) --seed $(SEED)

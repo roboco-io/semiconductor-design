@@ -37,12 +37,20 @@ GROUP = "group_key"
 
 
 def load_rows(data_path: str | Path) -> list[dict]:
-    text = Path(data_path).read_text(encoding="utf-8")
-    return [json.loads(line) for line in text.splitlines() if line.strip()]
+    path = Path(data_path)
+    rows = []
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if line.strip():
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError as e:
+                raise json.JSONDecodeError(f"{path}:{lineno}: {e.msg}", e.doc, e.pos) from e
+    return rows
 
 
 def build_xy(rows: list[dict]) -> tuple[np.ndarray, np.ndarray, list[str]]:
     # path_group(문자열)을 정렬-안정 ordinal 코드로 인코딩.
+    # pg_code는 전체 rows로 만든다; 호출자는 inference 시점 path_group을 제외한 subset으로 build_xy를 부르지 말 것.
     groups_seen = sorted({r["path_group"] for r in rows})
     pg_code = {g: i for i, g in enumerate(groups_seen)}
     feats = []

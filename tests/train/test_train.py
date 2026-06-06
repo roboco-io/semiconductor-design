@@ -4,6 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 import train
 
 REPO = Path(__file__).resolve().parents[2]
@@ -73,6 +75,9 @@ def test_train_and_eval_returns_model_and_mae(tmp_path):
     model, mae = train.train_and_eval(X, y, groups, seed=0)
     assert hasattr(model, "predict")
     assert isinstance(mae, float) and mae >= 0.0
+    # 재현성 핀: 고정 fixture(n=40, seed=0)의 MAE.
+    # sklearn 버전/기본 파라미터 변경 시 갱신.
+    assert mae == pytest.approx(0.166, abs=1e-6)
 
 
 def test_cli_outputs_val_mae_and_saves_model(tmp_path):
