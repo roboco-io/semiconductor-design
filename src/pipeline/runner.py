@@ -9,8 +9,9 @@ import sys
 from pathlib import Path
 
 
-def run_candidate(train_py: Path, dataset: Path, out_dir: Path, seed: int = 0,
-                  timeout: int = 300) -> float:
+def run_candidate(
+    train_py: Path, dataset: Path, out_dir: Path, seed: int = 0, timeout: int = 300
+) -> float:
     """후보 train.py를 격리된 subprocess로 실행하고 stdout의 마지막 JSON 줄에서 val_mae를 파싱.
 
     timeout: 에이전트 생성 코드가 무한 루프에 빠지는 것을 방지 (기본 5분).
@@ -19,9 +20,19 @@ def run_candidate(train_py: Path, dataset: Path, out_dir: Path, seed: int = 0,
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     try:
         proc = subprocess.run(
-            [sys.executable, str(train_py), "--data", str(dataset),
-             "--out", str(out_dir), "--seed", str(seed)],
-            capture_output=True, text=True, timeout=timeout,
+            [
+                sys.executable,
+                str(train_py),
+                "--data",
+                str(dataset),
+                "--out",
+                str(out_dir),
+                "--seed",
+                str(seed),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
         )
     except subprocess.TimeoutExpired:
         return float("inf")
@@ -37,8 +48,9 @@ def run_candidate(train_py: Path, dataset: Path, out_dir: Path, seed: int = 0,
     return float("inf")
 
 
-def run_candidate_multiseed(train_py: Path, dataset: Path, out_dir: Path,
-                            seeds=(0, 1, 2, 3, 4), timeout: int = 300):
+def run_candidate_multiseed(
+    train_py: Path, dataset: Path, out_dir: Path, seeds=(0, 1, 2, 3, 4), timeout: int = 300
+):
     """후보를 여러 고정 seed로 평가하고 (median, per_seed_vals)를 반환.
 
     어느 seed든 inf(subprocess 실패/timeout)면 즉시 단락하여 (inf, 평가된 값들+inf)을 반환한다
@@ -46,8 +58,7 @@ def run_candidate_multiseed(train_py: Path, dataset: Path, out_dir: Path,
     """
     vals: list[float] = []
     for s in seeds:
-        v = run_candidate(train_py, dataset, Path(out_dir) / f"seed-{s}",
-                          seed=s, timeout=timeout)
+        v = run_candidate(train_py, dataset, Path(out_dir) / f"seed-{s}", seed=s, timeout=timeout)
         if v == float("inf"):
             return float("inf"), vals + [float("inf")]
         vals.append(v)
@@ -58,7 +69,6 @@ def run_all(candidates, dataset: Path, out_root: Path, seeds=(0, 1, 2, 3, 4)):
     results = []
     for c in candidates:
         art = Path(out_root) / c.id / "art"
-        median_val, per_seed = run_candidate_multiseed(
-            Path(c.src_path), dataset, art, seeds=seeds)
+        median_val, per_seed = run_candidate_multiseed(Path(c.src_path), dataset, art, seeds=seeds)
         results.append((c, median_val, per_seed))
     return results

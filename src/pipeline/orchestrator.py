@@ -13,8 +13,9 @@ from pipeline.runner import run_all
 from pipeline.selection import select_winner
 
 
-def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn,
-                   out_root, seeds=(0, 1, 2, 3, 4)):
+def run_generation(
+    gen_no, dataset, baseline_train_py, program_md, n, gen_fn, out_root, seeds=(0, 1, 2, 3, 4)
+):
     gdir = Path(out_root) / f"gen-{gen_no:03d}"
     cdir = gdir / "candidates"
     cdir.mkdir(parents=True, exist_ok=True)
@@ -26,12 +27,21 @@ def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn,
 
     with (gdir / "results.tsv").open("w", newline="") as fh:
         w = csv.writer(fh, delimiter="\t")
-        w.writerow(["id", "sdk", "strategy", "median_val_mae", "per_seed_vals",
-                    "is_winner", "patch_ref"])
+        w.writerow(
+            ["id", "sdk", "strategy", "median_val_mae", "per_seed_vals", "is_winner", "patch_ref"]
+        )
         for c, v, per_seed in ranking:
-            w.writerow([c.id, c.sdk, c.strategy, v, json.dumps(per_seed),
-                        c is winner,
-                        c.patch_ref.splitlines()[0] if c.patch_ref else ""])
+            w.writerow(
+                [
+                    c.id,
+                    c.sdk,
+                    c.strategy,
+                    v,
+                    json.dumps(per_seed),
+                    c is winner,
+                    c.patch_ref.splitlines()[0] if c.patch_ref else "",
+                ]
+            )
 
     generation = {
         "gen_no": gen_no,
@@ -45,8 +55,7 @@ def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn,
         "status": "awaiting_operator",
     }
     (gdir / "generation.json").write_text(json.dumps(generation, indent=2))
-    return {"winner_id": winner.id if winner else None, "val_mae": val,
-            "gen_dir": str(gdir)}
+    return {"winner_id": winner.id if winner else None, "val_mae": val, "gen_dir": str(gdir)}
 
 
 @click.command()
@@ -57,12 +66,14 @@ def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn,
 @click.option("--program", "program_md", default="program.md", type=click.Path(exists=True))
 def main(gen_no, dataset, n, out_root, program_md):
     import sys
+
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
     from pipeline.sdk import claude_codex_gen_fn  # 실제 SDK (비용) — Operator 실행 시에만
 
     baseline = Path(__file__).resolve().parents[2] / "train.py"
-    res = run_generation(gen_no, dataset, baseline, Path(program_md).read_text(),
-                         n, claude_codex_gen_fn, out_root)
+    res = run_generation(
+        gen_no, dataset, baseline, Path(program_md).read_text(), n, claude_codex_gen_fn, out_root
+    )
     click.echo(json.dumps(res, indent=2))
     click.echo("→ operator_gate로 검토·승인 후 promote (자율 머지 없음, H-B).")
 

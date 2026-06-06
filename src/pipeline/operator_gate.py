@@ -17,15 +17,18 @@ def summarize(winner, val_mae, ranking, holdout_mae=None) -> str:
     return "\n".join(lines)
 
 
-def promote(winner_src: Path, baseline: Path, gen_no: int,
-            approved: bool, do_git: bool = True) -> bool:
+def promote(
+    winner_src: Path, baseline: Path, gen_no: int, approved: bool, do_git: bool = True
+) -> bool:
     # 승인 전까지 baseline 불변 (자율 무인 머지 금지 — INTENT Not).
     if not approved:
         return False
     shutil.copyfile(winner_src, baseline)
     if do_git:
         subprocess.run(["git", "add", str(baseline)], check=True)
-        subprocess.run(["git", "commit", "-m", f"feat(loop): gen-{gen_no:03d} winner 승격"], check=True)
+        subprocess.run(
+            ["git", "commit", "-m", f"feat(loop): gen-{gen_no:03d} winner 승격"], check=True
+        )
         # -f: 동일 gen 재실행 시 태그 충돌 방지 (기존 태그를 덮어씀).
         subprocess.run(["git", "tag", "-f", f"gen-{gen_no:03d}-best"], check=True)
     return True

@@ -12,14 +12,23 @@ def _mock_gen(strategy, sdk, baseline_src, program_md):
 
 
 def _dataset(tmp_path):
-    rows = [{
-        "endpoint": f"e{i}", "startpoint": f"s{i}", "num_stages": 2 + i % 5,
-        "synth_slack_ns": 0.4 - (i % 6) * 0.1, "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
-        "max_stage_delay_ns": 0.1 + (i % 3) * 0.15, "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
-        "startpoint_is_ff": i % 2, "endpoint_is_ff": 1,
-        "path_group": "clk" if i % 2 else "clk2",
-        "post_route_slack_ns": 0.5 - (i % 7) * 0.1, "group_key": "gcd" if i % 2 else "ibex",
-    } for i in range(50)]
+    rows = [
+        {
+            "endpoint": f"e{i}",
+            "startpoint": f"s{i}",
+            "num_stages": 2 + i % 5,
+            "synth_slack_ns": 0.4 - (i % 6) * 0.1,
+            "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+            "max_stage_delay_ns": 0.1 + (i % 3) * 0.15,
+            "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+            "startpoint_is_ff": i % 2,
+            "endpoint_is_ff": 1,
+            "path_group": "clk" if i % 2 else "clk2",
+            "post_route_slack_ns": 0.5 - (i % 7) * 0.1,
+            "group_key": "gcd" if i % 2 else "ibex",
+        }
+        for i in range(50)
+    ]
     p = tmp_path / "ds.jsonl"
     p.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
     return p
