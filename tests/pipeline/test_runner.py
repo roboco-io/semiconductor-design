@@ -59,6 +59,22 @@ def test_multiseed_any_inf_disqualifies(tmp_path):
     assert per_seed[-1] == float("inf")
 
 
+from pipeline.candidate_gen import Candidate
+from pipeline.runner import run_all
+
+
+def test_run_all_returns_median_triples(tmp_path):
+    ds = _dataset(tmp_path)
+    src = REPO / "train.py"
+    cands = [Candidate("cand-0", "moderate", "claude", str(src), "diff")]
+    results = run_all(cands, ds, tmp_path / "root", seeds=(0, 1, 2))
+    assert len(results) == 1
+    c, median_val, per_seed = results[0]
+    assert c.id == "cand-0"
+    assert isinstance(median_val, float) and median_val >= 0.0
+    assert len(per_seed) == 3
+
+
 def test_multiseed_short_circuits_on_first_inf(tmp_path, monkeypatch):
     import pipeline.runner as R
     calls = []

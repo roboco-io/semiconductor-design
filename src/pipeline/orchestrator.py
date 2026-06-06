@@ -26,7 +26,7 @@ def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn, ou
     with (gdir / "results.tsv").open("w", newline="") as fh:
         w = csv.writer(fh, delimiter="\t")
         w.writerow(["id", "sdk", "strategy", "val_mae", "is_winner", "patch_ref"])
-        for c, v in ranking:
+        for c, v, *_ in ranking:
             w.writerow([c.id, c.sdk, c.strategy, v, c is winner,
                         c.patch_ref.splitlines()[0] if c.patch_ref else ""])
 

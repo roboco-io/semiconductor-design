@@ -54,10 +54,11 @@ def run_candidate_multiseed(train_py: Path, dataset: Path, out_dir: Path,
     return statistics.median(vals), vals
 
 
-def run_all(candidates, dataset: Path, out_root: Path, seed: int = 0):
+def run_all(candidates, dataset: Path, out_root: Path, seeds=(0, 1, 2, 3, 4)):
     results = []
     for c in candidates:
         art = Path(out_root) / c.id / "art"
-        val = run_candidate(Path(c.src_path), dataset, art, seed=seed)
-        results.append((c, val))
+        median_val, per_seed = run_candidate_multiseed(
+            Path(c.src_path), dataset, art, seeds=seeds)
+        results.append((c, median_val, per_seed))
     return results
