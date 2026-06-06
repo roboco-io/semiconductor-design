@@ -1,12 +1,35 @@
-# program.md — 에이전트 baseline 지시문 (placeholder)
+# program.md — 에이전트 baseline 지시문
 
-serverless-autoresearch의 `program.md` 아날로그. AutoResearch 루프의 에이전트가
-`train.py`를 변형할 때 따르는 baseline 지시·맥락·제약을 담는다.
+AutoResearch 루프의 에이전트가 `train.py`를 변형할 때 따르는 baseline 지시·맥락·제약.
 
-구현 plan 승인 후 작성. 최소 포함 후보:
-- 목표: surrogate val 지표(예: 예측 MAE) 최소화
-- 변형 허용 범위: `train.py` 단일 파일, 신규 의존성 금지, 고정 학습 예산
-- 변형 전략: conservative / moderate / aggressive / crossover
-- Operator 감독: winner 선택·머지는 항상 사람
+## 목표
+surrogate val 지표 **`val_mae`(ns) 최소화**. train.py는 per-endpoint timing slack 회귀
+모델을 학습하고 stdout에 `{"val_mae": <float>}` 한 줄을 출력한다 (낮을수록 좋음).
 
-> PRD.md §2-§3 및 설계 spec 참조.
+## 입력 데이터 (frozen 계약 — 변경 금지)
+`--data <dataset.jsonl>`: prepare.py 출력. 각 행은 8 feature
+(`num_stages, synth_slack_ns, synth_arrival_ns, max_stage_delay_ns, mean_stage_delay_ns,
+startpoint_is_ff, endpoint_is_ff, path_group`) + 라벨 `post_route_slack_ns` + `group_key`.
+
+## 변형 허용 범위 (이 안에서 자유롭게)
+- 모델 종류: sklearn 내 교체 (HistGradientBoostingRegressor / RandomForest / ExtraTrees /
+  GradientBoosting / MLPRegressor 등).
+- 하이퍼파라미터, feature 엔지니어링/선택/인코딩, train/val split 전략.
+
+## 절대 제약 (위반 시 후보 무효)
+- `train.py` **단일 파일**만. 신규 의존성 금지 — `sklearn`, `numpy`, `joblib`, `click`,
+  stdlib만 import.
+- stdout 출력 계약: `{"val_mae": <float>}` 한 줄. `--out <dir>/model.joblib` 저장.
+- CLI `--data`/`--out`/`--seed` 시그니처 불변. 8 FEATURE_NAMES 불변.
+- 고정 CPU 학습 예산 (분 단위). GPU·딥러닝 프레임워크 금지.
+
+## 전략 힌트
+- conservative: baseline에 가까운 소폭 튜닝.
+- moderate: 모델 교체 또는 feature 엔지니어링.
+- aggressive: 둘 다 + 비표준 조합 시도.
+
+## 출력 형식
+마크다운/설명/펜스 없이 **변형된 train.py 전체 소스만** 출력.
+
+## Operator 감독
+winner 선택·머지는 항상 사람 (자율 무인 머지 없음). 본 지시는 후보 *생성*에만 적용.
