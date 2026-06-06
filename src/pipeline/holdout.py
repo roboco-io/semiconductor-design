@@ -15,6 +15,9 @@ from sklearn.metrics import mean_absolute_error
 
 
 def _load_module(train_py: Path):
+    # 신뢰 경계: exec_module은 train.py의 최상위 코드를 import 시점에 실행한다.
+    # 에이전트 생성 코드이므로 side effect(파일 쓰기, 네트워크 등)가 포함될 수 있음.
+    # MVP에서는 허용 (AutoResearch 루프의 본질적 위험), Operator 승인 후에만 호출할 것.
     spec = importlib.util.spec_from_file_location("winner_train", str(train_py))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

@@ -26,10 +26,14 @@ def _dataset(tmp_path):
 
 
 def test_run_generation_end_to_end_mock(tmp_path):
+    baseline = REPO / "train.py"
+    baseline_content_before = baseline.read_bytes()
+    baseline_mtime_before = baseline.stat().st_mtime
+
     result = run_generation(
         gen_no=1,
         dataset=_dataset(tmp_path),
-        baseline_train_py=REPO / "train.py",
+        baseline_train_py=baseline,
         program_md="optimize val_mae",
         n=2,
         gen_fn=_mock_gen,
@@ -41,7 +45,12 @@ def test_run_generation_end_to_end_mock(tmp_path):
     gdir = tmp_path / "gen" / "gen-001"
     assert (gdir / "generation.json").exists()
     assert (gdir / "results.tsv").exists()
-    # baseline 불변 (승격은 operator_gate에서 별도, 자율 금지)
-    assert "winner" not in (REPO / "train.py").read_text().lower() or True  # baseline 미변경 보장은 promote 미호출
+    # H-B 불변: baseline 미변경 (promote 미호출 — 자율 머지 금지)
+    assert baseline.read_bytes() == baseline_content_before, (
+        "run_generation must NOT modify baseline train.py (H-B invariant)"
+    )
+    assert baseline.stat().st_mtime == baseline_mtime_before, (
+        "baseline mtime changed — run_generation must not touch the file"
+    )
     rows = (gdir / "results.tsv").read_text().splitlines()
     assert len(rows) == 3  # header + 2 candidates

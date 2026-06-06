@@ -26,5 +26,6 @@ def promote(winner_src: Path, baseline: Path, gen_no: int,
     if do_git:
         subprocess.run(["git", "add", str(baseline)], check=True)
         subprocess.run(["git", "commit", "-m", f"feat(loop): gen-{gen_no:03d} winner 승격"], check=True)
-        subprocess.run(["git", "tag", f"gen-{gen_no:03d}-best"], check=True)
+        # -f: 동일 gen 재실행 시 태그 충돌 방지 (기존 태그를 덮어씀).
+        subprocess.run(["git", "tag", "-f", f"gen-{gen_no:03d}-best"], check=True)
     return True

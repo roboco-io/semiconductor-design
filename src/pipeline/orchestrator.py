@@ -35,7 +35,8 @@ def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn, ou
         "baseline_ref": str(baseline_train_py),
         "dataset": str(dataset),
         "winner_candidate_id": winner.id if winner else None,
-        "winner_val_mae": val,
+        # float("inf") is not valid RFC 8259 — store null when no valid winner.
+        "winner_val_mae": val if val != float("inf") else None,
         "status": "awaiting_operator",
     }
     (gdir / "generation.json").write_text(json.dumps(generation, indent=2))
