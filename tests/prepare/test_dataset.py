@@ -35,7 +35,7 @@ def test_build_dataset_rows_and_manifest():
         design_id="gcd",
     )
     assert len(rows) == 2  # _0_ and _3_ matched
-    assert all(r["group_key"] == "gcd:clk" for r in rows)
+    assert all(r["group_key"] == "gcd" for r in rows)
     assert manifest["source_design"] == "gcd"
     assert manifest["feature_set"] == FEATURE_NAMES
     assert manifest["label_metric"] == "post_route_slack_ns"

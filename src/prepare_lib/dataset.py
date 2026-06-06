@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from prepare_lib.report import parse_report
-from prepare_lib.transform import FEATURE_NAMES, LABEL_NAME, group_key, join_paths
+from prepare_lib.transform import FEATURE_NAMES, LABEL_NAME, join_paths
 
 
 def flow_lockfile_sha(lockfile_path: str | Path) -> str:
@@ -24,7 +24,7 @@ def build_dataset(
     route = parse_report(Path(route_report).read_text())
     rows = join_paths(synth, route)
     for r in rows:
-        r["group_key"] = group_key(r["path_group"], design_id)
+        r["group_key"] = design_id  # OD-3 재설계: design 단위 group-disjoint
     sha = flow_lockfile_sha(lockfile)
     manifest = {
         "id": f"{design_id}-{sha[:12]}",

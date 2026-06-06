@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from prepare_lib.report import parse_report
-from prepare_lib.transform import FEATURE_NAMES, extract_features, extract_label, group_key, join_paths
+from prepare_lib.transform import FEATURE_NAMES, extract_features, extract_label, join_paths
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -129,5 +129,3 @@ def test_join_keeps_worst_slack_per_endpoint():
     assert rows[0]["synth_slack_ns"] == 0.10
 
 
-def test_group_key_prefixes_design_id():
-    assert group_key("clk", "gcd") == "gcd:clk"
