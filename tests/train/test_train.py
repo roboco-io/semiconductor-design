@@ -1,8 +1,12 @@
 # tests/train/test_train.py
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import train
+
+REPO = Path(__file__).resolve().parents[2]
 
 
 def _write_dataset(path: Path, n: int = 40, groups=("gcd", "ibex")) -> Path:
@@ -46,9 +50,6 @@ def test_build_xy_shapes_and_label(tmp_path):
     assert X.dtype.kind in "fi"
 
 
-import numpy as np
-
-
 def test_group_split_is_disjoint(tmp_path):
     rows = train.load_rows(_write_dataset(tmp_path / "ds.jsonl", n=40))
     X, y, groups = train.build_xy(rows)
@@ -72,3 +73,17 @@ def test_train_and_eval_returns_model_and_mae(tmp_path):
     model, mae = train.train_and_eval(X, y, groups, seed=0)
     assert hasattr(model, "predict")
     assert isinstance(mae, float) and mae >= 0.0
+
+
+def test_cli_outputs_val_mae_and_saves_model(tmp_path):
+    data = _write_dataset(tmp_path / "ds.jsonl", n=40)
+    out = tmp_path / "art"
+    r = subprocess.run(
+        [sys.executable, str(REPO / "train.py"), "--data", str(data),
+         "--out", str(out), "--seed", "0"],
+        capture_output=True, text=True,
+    )
+    assert r.returncode == 0, r.stderr
+    payload = json.loads(r.stdout.strip().splitlines()[-1])
+    assert "val_mae" in payload and isinstance(payload["val_mae"], float)
+    assert (out / "model.joblib").exists()
