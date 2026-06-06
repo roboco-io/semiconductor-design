@@ -32,12 +32,13 @@ echo "LIB=$LIB SYNTH_SDC=$SYNTH_SDC ROUTE_SDC=$ROUTE_SDC ROUTE_ODB=$ROUTE_ODB"
 
 # 2) 두 stage report_checks (minimal 포맷, -fields 없음 → prepare.py 파서 계약)
 #    openroad 출력은 CloudWatch로 직접 흘린다 (실패 시 진단 가능하도록).
+# report_checks는 stdout에 출력 → openroad stdout을 .rpt로 리다이렉트(stderr는 CloudWatch).
 echo "=== openroad synth report_checks ==="
-ODB="$SYNTH_ODB" LIB="$LIB" SDC="$SYNTH_SDC" OUT="$WORK/synth.rpt" \
-  openroad -no_init -exit /opt/eda/dump_report_checks.tcl
+ODB="$SYNTH_ODB" LIB="$LIB" SDC="$SYNTH_SDC" \
+  openroad -no_init -no_splash -exit /opt/eda/dump_report_checks.tcl > "$WORK/synth.rpt"
 echo "=== openroad route report_checks ==="
-ODB="$ROUTE_ODB" LIB="$LIB" SDC="$ROUTE_SDC" OUT="$WORK/route.rpt" \
-  openroad -no_init -exit /opt/eda/dump_report_checks.tcl
+ODB="$ROUTE_ODB" LIB="$LIB" SDC="$ROUTE_SDC" \
+  openroad -no_init -no_splash -exit /opt/eda/dump_report_checks.tcl > "$WORK/route.rpt"
 echo "synth.rpt lines: $(wc -l < "$WORK/synth.rpt")  route.rpt lines: $(wc -l < "$WORK/route.rpt")"
 
 # 3) versions + lockfile
