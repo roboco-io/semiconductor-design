@@ -11,7 +11,7 @@
 ## 2. Deploy 스택
     CDK_DEFAULT_ACCOUNT=779411790546 CDK_DEFAULT_REGION=us-east-1 \
       npx cdk deploy --profile roboco --require-approval any-change
-    # 출력: RunnerRepo URI, Artifacts 버킷명, Cluster/TaskDef ARN
+    # 출력(CfnOutput): RepoUri, BucketName, ClusterArn, TaskDefArn, PublicSubnet
 
 ## 3. Runner 이미지 build+push (ECR)
     AWS_PROFILE=roboco aws ecr get-login-password --region us-east-1 \
@@ -33,4 +33,5 @@
     # n_samples > 0 이면 F4 종결 + 실데이터 파이프 검증 성공.
 
 ## 6. 정리
-    npx cdk destroy --profile roboco
+    CDK_DEFAULT_ACCOUNT=779411790546 CDK_DEFAULT_REGION=us-east-1 \
+      npx cdk destroy --profile roboco

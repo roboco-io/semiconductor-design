@@ -1,4 +1,4 @@
-import { Stack, StackProps, RemovalPolicy, Duration } from "aws-cdk-lib";
+import { Stack, StackProps, RemovalPolicy, CfnOutput } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
@@ -48,12 +48,18 @@ export class EdaFlowStack extends Stack {
       },
     });
 
-    artifacts.grantWrite(taskDef.taskRole);
+    artifacts.grantPut(taskDef.taskRole);
 
     taskDef.addContainer("runner", {
       image: ecs.ContainerImage.fromEcrRepository(repo, "latest"),
       logging: ecs.LogDrivers.awsLogs({ streamPrefix: "eda-flow", logGroup }),
       environment: { ARTIFACT_BUCKET: artifacts.bucketName, DESIGN: "gcd" },
     });
+
+    new CfnOutput(this, "RepoUri", { value: repo.repositoryUri });
+    new CfnOutput(this, "BucketName", { value: artifacts.bucketName });
+    new CfnOutput(this, "ClusterArn", { value: cluster.clusterArn });
+    new CfnOutput(this, "TaskDefArn", { value: taskDef.taskDefinitionArn });
+    new CfnOutput(this, "PublicSubnet", { value: vpc.publicSubnets[0].subnetId });
   }
 }
