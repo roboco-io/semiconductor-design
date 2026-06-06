@@ -1,10 +1,11 @@
 # minimal report_checks 덤프 (-fields 없음 → Delay/Time 2-col, prepare.py 파서 계약).
 # 다수 max-path를 덤프하고 endpoint별 worst는 prepare.py가 dedup한다 (F3).
-# 사용: openroad ... dump_report_checks.tcl <odb> <lib> <sdc> <out.rpt>
-set odb [lindex $argv 0]
-set lib [lindex $argv 1]
-set sdc [lindex $argv 2]
-set out [lindex $argv 3]
+# 인자는 env로 전달 (OpenROAD는 cmd_file 뒤 트레일링 argv 미지원).
+# 사용: ODB=.. LIB=.. SDC=.. OUT=.. openroad -no_init -exit dump_report_checks.tcl
+set odb $env(ODB)
+set lib $env(LIB)
+set sdc $env(SDC)
+set out $env(OUT)
 
 read_db $odb
 read_liberty $lib
