@@ -76,8 +76,8 @@ def test_train_and_eval_returns_model_and_mae(tmp_path):
     assert hasattr(model, "predict")
     assert isinstance(mae, float) and mae >= 0.0
     # 재현성 핀: 고정 fixture(n=40, seed=0)의 MAE.
-    # sklearn 버전/기본 파라미터 변경 시 갱신.
-    assert mae == pytest.approx(0.166, abs=1e-6)
+    # sklearn 버전/기본 파라미터 변경 시 갱신. gen-001 winner 승격으로 0.166→0.162985.
+    assert mae == pytest.approx(0.16298451, abs=1e-6)
 
 
 def test_cli_outputs_val_mae_and_saves_model(tmp_path):

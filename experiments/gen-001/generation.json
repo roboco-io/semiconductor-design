@@ -1,0 +1,8 @@
+{
+  "gen_no": 1,
+  "baseline_ref": "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/train.py",
+  "dataset": "experiments/real-gcd-fargate/dataset/dataset.jsonl",
+  "winner_candidate_id": "cand-001",
+  "winner_val_mae": 0.10417383399993116,
+  "status": "promoted"
+}

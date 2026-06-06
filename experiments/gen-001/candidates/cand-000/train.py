@@ -7,6 +7,10 @@ slack 회귀 모델을 학습하고 단일 val 지표를 출력한다.
 계약(고정): --data dataset.jsonl → stdout {"val_mae": <float>} + --out/model.joblib.
 제약: 단일 파일 · 고정 예산 · 신규 의존성 금지(sklearn+numpy만) · 단일 지표 최소화.
 설계: docs/superpowers/specs/2026-06-06-od4-train-baseline-design.md
+
+변형(conservative): baseline HistGradientBoostingRegressor 유지하되 (1) 평가지표
+MAE와 학습 손실을 정렬하기 위해 loss="absolute_error" 채택, (2) early stopping을
+켜서 고정 예산 내 과적합을 억제하는 소폭 튜닝. 모델 종류·계약·CLI·feature 불변.
 """
 
 from __future__ import annotations
@@ -17,11 +21,9 @@ from pathlib import Path
 import click
 import joblib
 import numpy as np
-from sklearn.ensemble import ExtraTreesRegressor, HistGradientBoostingRegressor, VotingRegressor
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import GroupShuffleSplit, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import FunctionTransformer
 
 # prepare.py frozen dataset.jsonl 스키마와 일치 (self-contained 재선언).
 FEATURE_NAMES = [
@@ -73,47 +75,6 @@ def build_xy(rows: list[dict]) -> tuple[np.ndarray, np.ndarray, list[str]]:
     return X, y, groups
 
 
-def add_timing_features(X: np.ndarray) -> np.ndarray:
-    X = np.asarray(X, dtype=float)
-    stages = X[:, 0]
-    synth_slack = X[:, 1]
-    arrival = X[:, 2]
-    max_delay = X[:, 3]
-    mean_delay = X[:, 4]
-    start_ff = X[:, 5]
-    end_ff = X[:, 6]
-    path_group = X[:, 7]
-
-    eps = 1e-9
-    total_mean_delay = stages * mean_delay
-    delay_spread = max_delay - mean_delay
-    delay_ratio = max_delay / (np.abs(mean_delay) + eps)
-    slack_per_stage = synth_slack / (stages + eps)
-    arrival_per_stage = arrival / (stages + eps)
-    criticality = arrival - synth_slack
-    ff_pair = start_ff * end_ff
-    boundary_ff_count = start_ff + end_ff
-    pg_sin = np.sin(path_group)
-    pg_cos = np.cos(path_group)
-
-    extra = np.column_stack([
-        total_mean_delay,
-        delay_spread,
-        delay_ratio,
-        slack_per_stage,
-        arrival_per_stage,
-        criticality,
-        ff_pair,
-        boundary_ff_count,
-        synth_slack * mean_delay,
-        arrival * mean_delay,
-        stages * max_delay,
-        pg_sin,
-        pg_cos,
-    ])
-    return np.hstack([X, extra])
-
-
 def split(X, y, groups, seed: int = 0):
     # group(=design_id) ≥2면 group-disjoint, 단일 group이면 fixed-seed random.
     if len(set(groups)) >= 2:
@@ -125,40 +86,17 @@ def split(X, y, groups, seed: int = 0):
     return tr, va
 
 
-def make_model(seed: int = 0) -> Pipeline:
-    hgb = HistGradientBoostingRegressor(
-        learning_rate=0.055,
-        max_iter=420,
-        max_leaf_nodes=31,
-        l2_regularization=0.02,
-        min_samples_leaf=12,
-        random_state=seed,
-    )
-    et = ExtraTreesRegressor(
-        n_estimators=360,
-        max_features=0.85,
-        min_samples_leaf=2,
-        bootstrap=False,
-        random_state=seed + 17,
-        n_jobs=-1,
-    )
-    ensemble = VotingRegressor(
-        estimators=[
-            ("hgb", hgb),
-            ("et", et),
-        ],
-        weights=[0.58, 0.42],
-        n_jobs=-1,
-    )
-    return Pipeline([
-        ("features", FunctionTransformer(add_timing_features, validate=False)),
-        ("model", ensemble),
-    ])
-
-
 def train_and_eval(X, y, groups, seed: int = 0) -> tuple[object, float]:
     tr, va = split(X, y, groups, seed=seed)
-    model = make_model(seed)
+    # conservative 튜닝: MAE 평가와 손실 정렬(absolute_error) + early stopping으로
+    # 고정 예산 내 과적합 억제. 나머지 하이퍼파라미터는 sklearn 기본값 유지.
+    model = HistGradientBoostingRegressor(
+        loss="absolute_error",
+        early_stopping=True,
+        validation_fraction=0.15,
+        n_iter_no_change=20,
+        random_state=seed,
+    )
     model.fit(X[tr], y[tr])
     pred = model.predict(X[va])
     mae = float(mean_absolute_error(y[va], pred))
