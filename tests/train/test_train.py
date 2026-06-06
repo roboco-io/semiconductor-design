@@ -1,0 +1,46 @@
+# tests/train/test_train.py
+import json
+from pathlib import Path
+
+import train
+
+
+def _write_dataset(path: Path, n: int = 40, groups=("gcd", "ibex")) -> Path:
+    """결정론적 합성 dataset.jsonl (학습 가능한 규모, group 2개)."""
+    rows = []
+    for i in range(n):
+        g = groups[i % len(groups)]
+        slack = 0.5 - (i % 7) * 0.1  # 일부 음수(violation) 포함
+        rows.append({
+            "endpoint": f"ep_{i}",
+            "startpoint": f"sp_{i}",
+            "num_stages": 2 + (i % 5),
+            "synth_slack_ns": 0.4 - (i % 6) * 0.1,
+            "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+            "max_stage_delay_ns": 0.1 + (i % 3) * 0.15,
+            "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+            "startpoint_is_ff": i % 2,
+            "endpoint_is_ff": 1,
+            "path_group": "clk" if i % 2 == 0 else "clk2",
+            "post_route_slack_ns": slack,
+            "group_key": g,
+        })
+    path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    return path
+
+
+def test_load_rows_reads_jsonl(tmp_path):
+    p = _write_dataset(tmp_path / "ds.jsonl", n=10)
+    rows = train.load_rows(p)
+    assert len(rows) == 10
+    assert rows[0]["post_route_slack_ns"] == 0.5
+
+
+def test_build_xy_shapes_and_label(tmp_path):
+    rows = train.load_rows(_write_dataset(tmp_path / "ds.jsonl", n=12))
+    X, y, groups = train.build_xy(rows)
+    assert X.shape == (12, len(train.FEATURE_NAMES))
+    assert y.shape == (12,)
+    assert len(groups) == 12
+    # path_group은 숫자 인코딩되어야 한다 (모델 입력은 float 행렬)
+    assert X.dtype.kind in "fi"
