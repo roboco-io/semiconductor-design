@@ -1,7 +1,7 @@
 # tests/pipeline/test_candidate_gen.py
 from pathlib import Path
 
-from pipeline.candidate_gen import Candidate, generate_candidates
+from pipeline.candidate_gen import generate_candidates
 
 
 def _mock_gen(strategy, sdk, baseline_src, program_md):

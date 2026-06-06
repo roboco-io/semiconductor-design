@@ -1,4 +1,4 @@
-.PHONY: install test lint fmt clean prepare train
+.PHONY: install test lint fmt clean prepare train loop
 
 install:
 	uv sync --all-extras
@@ -26,3 +26,11 @@ train:
 
 # NOTE: 피벗 직후 skeleton. AutoResearch 루프 타깃(prepare/train/generate/launch/collect/select)은
 # 구현 plan 승인 후 serverless-autoresearch 구조에 맞춰 추가한다.
+
+GEN ?= 1
+DATASET ?= dataset.jsonl
+N ?= 4
+PROGRAM ?= program.md
+
+loop:
+	uv run python src/pipeline/orchestrator.py --gen $(GEN) --dataset $(DATASET) --n $(N) --program $(PROGRAM)

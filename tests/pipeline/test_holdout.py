@@ -4,8 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import joblib
-
 from pipeline.holdout import score_holdout
 
 REPO = Path(__file__).resolve().parents[2]

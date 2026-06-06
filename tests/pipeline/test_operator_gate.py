@@ -1,6 +1,4 @@
 # tests/pipeline/test_operator_gate.py
-from pathlib import Path
-
 from pipeline.candidate_gen import Candidate
 from pipeline.operator_gate import promote, summarize
 
