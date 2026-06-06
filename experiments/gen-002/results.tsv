@@ -1,0 +1,3 @@
+id	sdk	strategy	val_mae	is_winner	patch_ref
+cand-001	codex	moderate	0.09920365458334864	True	--- baseline/train.py
+cand-000	claude	conservative	0.10216061819404347	False	--- baseline/train.py

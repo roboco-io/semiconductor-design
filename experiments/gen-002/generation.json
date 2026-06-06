@@ -1,0 +1,17 @@
+{
+  "gen_no": 2,
+  "baseline_ref": "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/train.py",
+  "dataset": "experiments/real-gcd-fargate/dataset/dataset.jsonl",
+  "winner_candidate_id": "cand-001",
+  "winner_val_mae": 0.09920365458334864,
+  "status": "rejected",
+  "rejudge": {
+    "metric": "median_val_mae",
+    "eval_seeds": [0, 1, 2, 3, 4],
+    "baseline_median": 0.0865,
+    "cand_000_median": 0.0891,
+    "cand_001_median": 0.0992,
+    "verdict": "baseline(gen-001) 우세 — 단일 seed=0 winner는 위양성. Operator reject 2026-06-07.",
+    "ref": "experiments/gen-002/rejudge.md"
+  }
+}
