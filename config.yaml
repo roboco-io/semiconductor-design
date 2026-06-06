@@ -2,14 +2,15 @@
 # serverless-autoresearch config.yaml 아날로그. 구현 plan 승인 후 채운다.
 
 aws:
-  profile: TODO
-  region: TODO            # Spot placement score에 따라 선택 (PRD 설계 spec 참조)
+  profile: roboco         # account 779411790546
+  region: ap-northeast-2  # EdaFlowStack 실제 배포 region (roboco 기본값)
   role_arn: TODO
 
-sagemaker:
-  instance_type: TODO     # 예: ml.g7e.2xlarge (L40S) / ml.p5.4xlarge (H100)
+training:
+  # OD-4 = sklearn HistGradientBoostingRegressor (CPU). GPU 불필요 — GNN/TabPFN 기각.
+  instance_type: TODO     # CPU 인스턴스 (예: ml.m6i / ml.c6i 계열 또는 Fargate CPU). 진화 루프 설계서 확정.
   use_spot: true
-  max_run_seconds: TODO   # 고정 학습 예산
+  max_run_seconds: TODO   # 고정 학습 예산 (CPU tabular은 분 단위)
 
 pipeline:
   generations: TODO       # 진화 세대 수
