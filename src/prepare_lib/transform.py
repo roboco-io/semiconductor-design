@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 from prepare_lib.report import PathRecord
 
 FEATURE_NAMES = [
@@ -37,7 +39,7 @@ def extract_label(p: PathRecord) -> float:
     return p.slack_ns
 
 
-def _worst_max_by_endpoint(paths: list[PathRecord]) -> dict[str, PathRecord]:
+def _worst_setup_path_by_endpoint(paths: list[PathRecord]) -> dict[str, PathRecord]:
     # endpoint는 stage 간 안정적 (F3). max(setup) path만, endpoint당 worst(min slack)를 남긴다.
     best: dict[str, PathRecord] = {}
     for p in paths:
@@ -51,8 +53,8 @@ def _worst_max_by_endpoint(paths: list[PathRecord]) -> dict[str, PathRecord]:
 
 def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
     # endpoint 단위 join (F3): path 정체성은 stage 간 불안정하므로 안정점인 endpoint로 묶는다.
-    synth_by_ep = _worst_max_by_endpoint(synth)
-    route_by_ep = _worst_max_by_endpoint(route)
+    synth_by_ep = _worst_setup_path_by_endpoint(synth)
+    route_by_ep = _worst_setup_path_by_endpoint(route)
     rows: list[dict] = []
     for ep, sp in synth_by_ep.items():
         rp = route_by_ep.get(ep)
@@ -60,6 +62,7 @@ def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
             continue  # route 시점에 없는 endpoint (retiming 등) drop
         rows.append(
             {
+                # endpoint/startpoint는 FEATURE_NAMES 밖 메타데이터 키.
                 "endpoint": ep,
                 "startpoint": sp.startpoint,
                 # path_group은 extract_features가 채운다 (** 언팩).
@@ -67,4 +70,7 @@ def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
                 LABEL_NAME: extract_label(rp),
             }
         )
+    dropped = len(synth_by_ep) - len(rows)
+    if dropped:
+        print(f"join_paths: {dropped} endpoints unmatched (dropped)", file=sys.stderr)
     return rows

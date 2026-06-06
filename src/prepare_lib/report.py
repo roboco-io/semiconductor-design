@@ -44,6 +44,8 @@ def _field(block: str, label: str) -> str:
 def _is_ff(block: str, label: str) -> bool:
     # clock 주석은 긴 instance 이름에서 둘째 줄로 wrap된다 (실제 OpenSTA 포맷, F1).
     # label 줄부터 다음 헤더 직전까지의 clause를 떠서 "flip-flop"을 본다 — 단/두-줄 모두 처리.
+    # 가정: OpenSTA 헤더 순서 Startpoint → Endpoint → Path Group (→ Path Type).
+    # 이 순서가 바뀌면 위 lookahead terminator를 갱신해야 한다.
     m = re.search(
         rf"^{label}:(.*?)(?=^Startpoint:|^Endpoint:|^Path Group:)",
         block,

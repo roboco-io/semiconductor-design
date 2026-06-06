@@ -129,3 +129,29 @@ def test_join_keeps_worst_slack_per_endpoint():
     assert rows[0]["synth_slack_ns"] == 0.10
 
 
+def test_join_logs_unmatched_endpoints(capsys):
+    # synth에 endpoint b,z 둘 다 max. route엔 b만 → z 1개 drop, 로그.
+    synth = (
+        "Startpoint: a (rising edge-triggered flip-flop clocked by clk)\n"
+        "Endpoint: b (rising edge-triggered flip-flop clocked by clk)\n"
+        "Path Group: clk\nPath Type: max\n"
+        "   0.30    0.30 ^ b/D (sky130_fd_sc_hd__dfxtp_1)\n"
+        "           0.30   data arrival time\n           0.50   slack (MET)\n\n"
+        "Startpoint: c (rising edge-triggered flip-flop clocked by clk)\n"
+        "Endpoint: z (rising edge-triggered flip-flop clocked by clk)\n"
+        "Path Group: clk\nPath Type: max\n"
+        "   0.40    0.40 ^ z/D (sky130_fd_sc_hd__dfxtp_1)\n"
+        "           0.40   data arrival time\n           0.60   slack (MET)"
+    )
+    route = (
+        "Startpoint: a (rising edge-triggered flip-flop clocked by clk)\n"
+        "Endpoint: b (rising edge-triggered flip-flop clocked by clk)\n"
+        "Path Group: clk\nPath Type: max\n"
+        "   0.30    0.30 ^ b/D (sky130_fd_sc_hd__dfxtp_1)\n"
+        "           0.30   data arrival time\n           0.20   slack (MET)"
+    )
+    rows = join_paths(parse_report(synth), parse_report(route))
+    assert {r["endpoint"] for r in rows} == {"b"}
+    assert "1 endpoints unmatched" in capsys.readouterr().err
+
+
