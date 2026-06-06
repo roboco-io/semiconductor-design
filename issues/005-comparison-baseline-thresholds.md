@@ -1,7 +1,7 @@
 ---
 id: 005
 title: 비교 baseline·정량 임계값
-status: open
+status: resolved
 type: decision
 blocks: ["PRD §9 가설 지지 조건"]
 related_prd: OD-5
@@ -37,6 +37,15 @@ depends_on: [001, 003]
 
 ## 액션 아이템
 
-- [ ] 001·003 확정 후 baseline 종류 선택.
-- [ ] 정량 임계값을 **설계 spec**에 기록 (PRD/issue 아님).
-- [ ] seed 반복 횟수·유의성 기준 정의.
+- [x] baseline 종류 선택 → **naive(합성 slack=label)**.
+- [ ] 정밀 정량 임계값을 **설계 spec**에 기록 (다설계 데이터 후).
+- [ ] seed 반복 횟수·유의성 기준 정의 (다설계 후).
+
+## Resolution (2026-06-06, 실데이터 ground)
+
+✅ **baseline 확정 + H-A 지지 조건 방향 확정.** 진짜 Fargate 53-샘플(`experiments/real-gcd-fargate`) 측정:
+- **naive baseline**(합성 slack=최종 slack 예측) MAE = **1.4117 ns**.
+- 현 train.py HistGBDT(untuned) val MAE = **0.1771 ns** → naive 대비 **8× 우월**(H-A 축소판 지지).
+- **H-A 지지 조건 = winner val MAE < naive(1.41)**. selection은 val_mae 최소화.
+
+⚠️ **정밀 임계값·통계 유의는 다설계 데이터 후 spec에서 nail down**(INTENT-vs-spec invariant). 현재 53샘플·단설계·random split이라 낙관 가능 — group-disjoint 다설계 필요. 설계: `docs/superpowers/specs/2026-06-06-mvp-local-loop-design.md` §5.
