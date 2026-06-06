@@ -41,3 +41,7 @@ feature_set v1 (default `report_checks` 포맷에서 파싱 가능한 필드만)
 `num_stages, synth_slack_ns, synth_arrival_ns, max_stage_delay_ns, mean_stage_delay_ns, startpoint_is_ff, endpoint_is_ff, path_group`.
 
 누수 배제: label(post-route slack)에서 역산 가능한 필드 없음. **Slew/Load/fanout은 default 포맷에 없어 제외** — `report_checks -fields {slew cap}` 필요, v2 feature_set으로 연기. (초안의 fanout_sum/fanout_max는 실제 report 컬럼 부재로 철회 — 추측 vs grep 검증 invariant.)
+
+## F3 갱신 (2026-06-06, 실제 gcd 검증 후)
+
+feature_set v1 8개는 **불변**. 계산 대상만 명시 변경: "critical path" → **endpoint별 worst-to-EP path**(F3 endpoint 단위 pairing). minimal `report_checks` 포맷 유지(rich `-fields`는 여전히 v2 연기). 출처: `docs/superpowers/specs/2026-06-06-f3-endpoint-pairing-design.md`.
