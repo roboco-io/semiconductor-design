@@ -42,9 +42,15 @@ def _field(block: str, label: str) -> str:
 
 
 def _is_ff(block: str, label: str) -> bool:
-    # _field와 동일 가정: 헤더 줄은 선행 공백 없이 컬럼 0에서 시작한다.
-    m = re.search(rf"^{label}:.*$", block, re.MULTILINE)
-    return m is not None and "flip-flop" in m.group(0)
+    # clock 주석은 긴 instance 이름에서 둘째 줄로 wrap된다 (실제 OpenSTA 포맷, F1).
+    # label 줄부터 다음 헤더 직전까지의 clause를 떠서 "flip-flop"을 본다 — 단/두-줄 모두 처리.
+    m = re.search(
+        rf"^{label}:(.*?)(?=^Startpoint:|^Endpoint:|^Path Group:)",
+        block,
+        re.MULTILINE | re.DOTALL,
+    )
+    clause = m.group(1) if m else ""
+    return "flip-flop" in clause
 
 
 def _stages(block: str) -> tuple[Stage, ...]:
