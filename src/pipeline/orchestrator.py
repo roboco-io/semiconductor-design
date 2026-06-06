@@ -37,7 +37,7 @@ def run_generation(
                     c.sdk,
                     c.strategy,
                     v,
-                    json.dumps(per_seed),
+                    json.dumps([v if v != float("inf") else None for v in per_seed]),
                     c is winner,
                     c.patch_ref.splitlines()[0] if c.patch_ref else "",
                 ]

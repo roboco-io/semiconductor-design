@@ -50,7 +50,7 @@ def run_candidate(
 
 def run_candidate_multiseed(
     train_py: Path, dataset: Path, out_dir: Path, seeds=(0, 1, 2, 3, 4), timeout: int = 300
-):
+) -> tuple[float, list[float]]:
     """후보를 여러 고정 seed로 평가하고 (median, per_seed_vals)를 반환.
 
     어느 seed든 inf(subprocess 실패/timeout)면 즉시 단락하여 (inf, 평가된 값들+inf)을 반환한다

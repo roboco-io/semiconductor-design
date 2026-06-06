@@ -69,3 +69,51 @@ def test_run_generation_end_to_end_mock(tmp_path):
     header = rows[0].split("\t")
     assert "median_val_mae" in header
     assert "per_seed_vals" in header
+
+
+def test_per_seed_vals_inf_serialized_as_null(tmp_path):
+    """단락된(inf) 후보의 per_seed_vals 셀이 RFC 8259 위반 Infinity가 아닌 null로 직렬화되는지."""
+
+    def _gen(strategy, sdk, baseline_src, program_md):
+        # codex 후보 하나만 깨진 train.py → per_seed가 inf로 단락
+        if sdk == "codex":
+            return "import sys; sys.exit(3)\n"
+        return baseline_src
+
+    run_generation(
+        gen_no=1,
+        dataset=_dataset(tmp_path),
+        baseline_train_py=REPO / "train.py",
+        program_md="optimize val_mae",
+        n=2,
+        gen_fn=_gen,
+        out_root=tmp_path / "gen",
+        seeds=(0, 1),
+    )
+    gdir = tmp_path / "gen" / "gen-001"
+    rows = (gdir / "results.tsv").read_text().splitlines()
+    header = rows[0].split("\t")
+    id_idx = header.index("id")
+    per_seed_idx = header.index("per_seed_vals")
+    winner_idx = header.index("is_winner")
+    sdk_idx = header.index("sdk")
+
+    broken_cell = None
+    winner_id = None
+    for line in rows[1:]:
+        cols = line.split("\t")
+        # 단락된 후보 = codex sdk
+        if cols[sdk_idx] == "codex":
+            broken_cell = cols[per_seed_idx]
+        if cols[winner_idx] == "True":
+            winner_id = cols[id_idx]
+
+    # inf가 json.loads로 에러 없이 파싱되고 null(None)을 포함
+    assert broken_cell is not None
+    parsed = json.loads(broken_cell)  # "Infinity"였다면 그대로 통과하나 None 검증으로 차단
+    assert None in parsed
+    assert "Infinity" not in broken_cell
+    # 유효한(claude) 후보가 winner
+    gen_meta = json.loads((gdir / "generation.json").read_text())
+    valid_winner = gen_meta["winner_candidate_id"]
+    assert winner_id == valid_winner
