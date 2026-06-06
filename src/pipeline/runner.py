@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import statistics
 import subprocess
 import sys
 from pathlib import Path
@@ -34,6 +35,23 @@ def run_candidate(train_py: Path, dataset: Path, out_dir: Path, seed: int = 0,
             except (ValueError, KeyError):
                 continue
     return float("inf")
+
+
+def run_candidate_multiseed(train_py: Path, dataset: Path, out_dir: Path,
+                            seeds=(0, 1, 2, 3, 4), timeout: int = 300):
+    """후보를 여러 고정 seed로 평가하고 (median, per_seed_vals)를 반환.
+
+    어느 seed든 inf(subprocess 실패/timeout)면 즉시 단락하여 (inf, 평가된 값들+inf)을 반환한다
+    — "재현·안정 코드만 승격" 기준 (spec D3).
+    """
+    vals: list[float] = []
+    for s in seeds:
+        v = run_candidate(train_py, dataset, Path(out_dir) / f"seed-{s}",
+                          seed=s, timeout=timeout)
+        if v == float("inf"):
+            return float("inf"), vals + [float("inf")]
+        vals.append(v)
+    return statistics.median(vals), vals
 
 
 def run_all(candidates, dataset: Path, out_root: Path, seed: int = 0):

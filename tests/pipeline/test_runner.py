@@ -35,3 +35,41 @@ def test_run_candidate_broken_returns_inf(tmp_path):
     broken.write_text("import sys; sys.exit(3)\n")
     val = run_candidate(broken, _dataset(tmp_path), tmp_path / "art2", seed=0)
     assert val == float("inf")
+
+
+from pipeline.runner import run_candidate_multiseed
+
+
+def test_multiseed_returns_median_and_per_seed(tmp_path):
+    agg, per_seed = run_candidate_multiseed(
+        REPO / "train.py", _dataset(tmp_path), tmp_path / "ms", seeds=(0, 1, 2)
+    )
+    assert isinstance(agg, float) and agg >= 0.0
+    assert len(per_seed) == 3 and all(v >= 0.0 for v in per_seed)
+    assert agg == sorted(per_seed)[1]  # median of 3 == middle value
+
+
+def test_multiseed_any_inf_disqualifies(tmp_path):
+    broken = tmp_path / "broken.py"
+    broken.write_text("import sys; sys.exit(3)\n")
+    agg, per_seed = run_candidate_multiseed(
+        broken, _dataset(tmp_path), tmp_path / "ms2", seeds=(0, 1, 2, 3, 4)
+    )
+    assert agg == float("inf")
+    assert per_seed[-1] == float("inf")
+
+
+def test_multiseed_short_circuits_on_first_inf(tmp_path, monkeypatch):
+    import pipeline.runner as R
+    calls = []
+
+    def fake_run_candidate(train_py, dataset, out_dir, seed=0, timeout=300):
+        calls.append(seed)
+        return float("inf") if seed == 1 else 0.2
+
+    monkeypatch.setattr(R, "run_candidate", fake_run_candidate)
+    agg, per_seed = R.run_candidate_multiseed(
+        Path("/x/train.py"), Path("/x/ds.jsonl"), tmp_path / "ms3", seeds=(0, 1, 2, 3, 4)
+    )
+    assert agg == float("inf")
+    assert calls == [0, 1]
