@@ -37,26 +37,32 @@ def extract_label(p: PathRecord) -> float:
     return p.slack_ns
 
 
-def group_key(path_group: str, design_id: str) -> str:
-    return f"{design_id}:{path_group}"
+def _worst_max_by_endpoint(paths: list[PathRecord]) -> dict[str, PathRecord]:
+    # endpoint는 stage 간 안정적 (F3). max(setup) path만, endpoint당 worst(min slack)를 남긴다.
+    best: dict[str, PathRecord] = {}
+    for p in paths:
+        if p.path_type != "max":
+            continue
+        cur = best.get(p.endpoint)
+        if cur is None or p.slack_ns < cur.slack_ns:
+            best[p.endpoint] = p
+    return best
 
 
 def join_paths(synth: list[PathRecord], route: list[PathRecord]) -> list[dict]:
-    # path_type을 키에 포함해 max(setup)/min(hold) corner 혼동을 차단한다.
-    route_by_key = {
-        (p.startpoint, p.endpoint, p.path_group, p.path_type): p for p in route
-    }
+    # endpoint 단위 join (F3): path 정체성은 stage 간 불안정하므로 안정점인 endpoint로 묶는다.
+    synth_by_ep = _worst_max_by_endpoint(synth)
+    route_by_ep = _worst_max_by_endpoint(route)
     rows: list[dict] = []
-    for sp in synth:
-        key = (sp.startpoint, sp.endpoint, sp.path_group, sp.path_type)
-        rp = route_by_key.get(key)
+    for ep, sp in synth_by_ep.items():
+        rp = route_by_ep.get(ep)
         if rp is None:
-            continue  # unmatched synth path dropped (no post-route label)
+            continue  # route 시점에 없는 endpoint (retiming 등) drop
         rows.append(
             {
+                "endpoint": ep,
                 "startpoint": sp.startpoint,
-                "endpoint": sp.endpoint,
-                # path_group은 extract_features가 채운다 (** 언팩과 중복 제거).
+                # path_group은 extract_features가 채운다 (** 언팩).
                 **extract_features(sp),
                 LABEL_NAME: extract_label(rp),
             }
