@@ -1,5 +1,7 @@
-Startpoint: _0_ (rising edge-triggered flip-flop clocked by clk)
-Endpoint: _1_ (rising edge-triggered flip-flop clocked by clk)
+Startpoint: _0_
+            (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _1_
+          (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
 Path Type: max
 
@@ -17,8 +19,10 @@ Path Type: max
            1.28   slack (MET)
 
 
-Startpoint: _3_ (rising edge-triggered flip-flop clocked by clk)
-Endpoint: _4_ (rising edge-triggered flip-flop clocked by clk)
+Startpoint: _3_
+            (rising edge-triggered flip-flop clocked by clk)
+Endpoint: _4_
+          (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
 Path Type: max
 
@@ -36,8 +40,10 @@ Path Type: max
            0.91   slack (MET)
 
 
-Startpoint: inp_a (input port clocked by clk)
-Endpoint: _5_ (rising edge-triggered flip-flop clocked by clk)
+Startpoint: inp_a
+            (input port clocked by clk)
+Endpoint: _5_
+          (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
 Path Type: max
 
