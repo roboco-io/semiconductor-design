@@ -1,7 +1,7 @@
 ---
 id: 006
 title: EDA flow 실행 인프라 (실 데이터셋 생성 위치)
-status: open
+status: resolved
 type: decision
 blocks: ["FR-1 실 데이터셋", F4]
 related_prd: "§8 (EDA flow plane), FR-1"
@@ -48,3 +48,9 @@ prepare.py의 입력(진짜 `report_checks` 2시점)을 만드는 **EDA flow를 
 - digest-pin으로 재현성(NFR-2). 실제 `cdk deploy`/`run-task`는 **Operator 확인 후**(비용).
 
 status는 **실제 배포 + 진짜 post-route 리포트 S3 적재 후** resolved.
+
+## Resolution (2026-06-06, 실제 배포 + 검증)
+
+✅ **배포·실행·검증 완료.** native x86 ECS Fargate(`semi-design-eda-dev`, ap-northeast-2)에서 ORFS gcd 완주(CTS/route 성공, **F4 해결**) → 진짜 두-시점 report_checks → S3 → **prepare.py 파싱 n_samples=53**. F1(두-줄 헤더)·F3(endpoint join) 실데이터 검증. 5회 deploy iteration(env.sh/argv/awscli v2/stdout redirect)으로 EDA-flow 문제 수렴. 상세: `experiments/real-gcd-fargate/VALIDATION.md`. region은 roboco 프로필 기본값 ap-northeast-2로 정정.
+
+인프라는 idle 비용 ~0(Fargate는 run당 과금)이라 다설계 batch(OD-3)용으로 유지 가능. teardown은 `cdk/DEPLOY.md` step 6.
