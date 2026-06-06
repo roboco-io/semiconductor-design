@@ -54,3 +54,9 @@ def test_run_generation_end_to_end_mock(tmp_path):
     )
     rows = (gdir / "results.tsv").read_text().splitlines()
     assert len(rows) == 3  # header + 2 candidates
+    gen_meta = json.loads((gdir / "generation.json").read_text())
+    assert gen_meta["metric"] == "median_val_mae"
+    assert gen_meta["eval_seeds"] == [0, 1, 2, 3, 4]
+    header = rows[0].split("\t")
+    assert "median_val_mae" in header
+    assert "per_seed_vals" in header

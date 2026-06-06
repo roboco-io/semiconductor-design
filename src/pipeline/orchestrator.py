@@ -13,34 +13,40 @@ from pipeline.runner import run_all
 from pipeline.selection import select_winner
 
 
-def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn, out_root):
+def run_generation(gen_no, dataset, baseline_train_py, program_md, n, gen_fn,
+                   out_root, seeds=(0, 1, 2, 3, 4)):
     gdir = Path(out_root) / f"gen-{gen_no:03d}"
     cdir = gdir / "candidates"
     cdir.mkdir(parents=True, exist_ok=True)
     baseline_src = Path(baseline_train_py).read_text(encoding="utf-8")
 
     cands = generate_candidates(baseline_src, program_md, cdir, n, gen_fn)
-    results = run_all(cands, Path(dataset), cdir)
+    results = run_all(cands, Path(dataset), cdir, seeds=seeds)
     winner, val, ranking = select_winner(results)
 
     with (gdir / "results.tsv").open("w", newline="") as fh:
         w = csv.writer(fh, delimiter="\t")
-        w.writerow(["id", "sdk", "strategy", "val_mae", "is_winner", "patch_ref"])
-        for c, v, *_ in ranking:
-            w.writerow([c.id, c.sdk, c.strategy, v, c is winner,
+        w.writerow(["id", "sdk", "strategy", "median_val_mae", "per_seed_vals",
+                    "is_winner", "patch_ref"])
+        for c, v, per_seed in ranking:
+            w.writerow([c.id, c.sdk, c.strategy, v, json.dumps(per_seed),
+                        c is winner,
                         c.patch_ref.splitlines()[0] if c.patch_ref else ""])
 
     generation = {
         "gen_no": gen_no,
         "baseline_ref": str(baseline_train_py),
         "dataset": str(dataset),
+        "metric": "median_val_mae",
+        "eval_seeds": list(seeds),
         "winner_candidate_id": winner.id if winner else None,
         # float("inf") is not valid RFC 8259 — store null when no valid winner.
         "winner_val_mae": val if val != float("inf") else None,
         "status": "awaiting_operator",
     }
     (gdir / "generation.json").write_text(json.dumps(generation, indent=2))
-    return {"winner_id": winner.id if winner else None, "val_mae": val, "gen_dir": str(gdir)}
+    return {"winner_id": winner.id if winner else None, "val_mae": val,
+            "gen_dir": str(gdir)}
 
 
 @click.command()
