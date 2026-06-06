@@ -44,3 +44,31 @@ def test_build_xy_shapes_and_label(tmp_path):
     assert len(groups) == 12
     # path_group은 숫자 인코딩되어야 한다 (모델 입력은 float 행렬)
     assert X.dtype.kind in "fi"
+
+
+import numpy as np
+
+
+def test_group_split_is_disjoint(tmp_path):
+    rows = train.load_rows(_write_dataset(tmp_path / "ds.jsonl", n=40))
+    X, y, groups = train.build_xy(rows)
+    tr, va = train.split(X, y, groups, seed=0)
+    tr_groups = {groups[i] for i in tr}
+    va_groups = {groups[i] for i in va}
+    assert tr_groups.isdisjoint(va_groups)  # group-disjoint (>=2 groups)
+    assert len(tr) > 0 and len(va) > 0
+
+
+def test_single_group_falls_back_to_random(tmp_path):
+    rows = train.load_rows(_write_dataset(tmp_path / "ds.jsonl", n=20, groups=("gcd",)))
+    X, y, groups = train.build_xy(rows)
+    tr, va = train.split(X, y, groups, seed=0)
+    assert len(tr) > 0 and len(va) > 0  # 단일 group → random split, 비어있지 않음
+
+
+def test_train_and_eval_returns_model_and_mae(tmp_path):
+    rows = train.load_rows(_write_dataset(tmp_path / "ds.jsonl", n=40))
+    X, y, groups = train.build_xy(rows)
+    model, mae = train.train_and_eval(X, y, groups, seed=0)
+    assert hasattr(model, "predict")
+    assert isinstance(mae, float) and mae >= 0.0
