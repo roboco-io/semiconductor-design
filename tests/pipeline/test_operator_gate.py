@@ -29,3 +29,15 @@ def test_promote_only_when_approved(tmp_path):
     changed = promote(winner_src, baseline, gen_no=1, approved=True, do_git=False)
     assert changed is True
     assert baseline.read_text() == "# winner variant\n"
+
+
+def test_summarize_includes_validation_report():
+    from pipeline.candidate_gen import Candidate
+    from pipeline.operator_gate import summarize
+
+    winner = Candidate("cand-1", "moderate", "codex", "/tmp/1/train.py", "diff")
+    ranking = [(winner, 0.10)]
+    report = "# 승격 검증 리포트 (advisory)\nverdict: distinguishable"
+    out = summarize(winner, 0.10, ranking, validation_report=report)
+    assert "승격 검증 리포트" in out
+    assert "distinguishable" in out

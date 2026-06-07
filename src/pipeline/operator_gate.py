@@ -7,13 +7,16 @@ import subprocess
 from pathlib import Path
 
 
-def summarize(winner, val_mae, ranking, holdout_mae=None) -> str:
+def summarize(winner, val_mae, ranking, holdout_mae=None, validation_report=None) -> str:
     lines = [f"WINNER: {winner.id} ({winner.sdk}/{winner.strategy})  val_mae={val_mae:.4f}"]
     if holdout_mae is not None:
         lines.append(f"  holdout_mae={holdout_mae:.4f}  (val↔holdout 격차로 과적합 점검)")
     lines.append("RANKING:")
     for c, v in ranking:
         lines.append(f"  {c.id:>10}  {c.sdk}/{c.strategy:<12}  {v:.4f}")
+    if validation_report is not None:
+        lines.append("")
+        lines.append(validation_report)
     return "\n".join(lines)
 
 
