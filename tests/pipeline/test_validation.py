@@ -80,14 +80,23 @@ def test_candidate_fold_maes_broken_trainpy_inf(tmp_path):
 
 def test_paired_comparison_a_better_than_b():
     # a(winner)가 b(baseline)보다 일관되게 낮음 → mean_diff<0, CI가 0 미만
+    # diff가 상수가 아니어야 dz가 실제 음수(상수면 std≈0 → dz=0이 정상, 별도 테스트가 검증).
     a = [0.10, 0.11, 0.09, 0.12, 0.10]
-    b = [0.15, 0.16, 0.14, 0.17, 0.15]
+    b = [0.15, 0.17, 0.13, 0.18, 0.15]
     c = paired_comparison(a, b, n_boot=2000, seed=0)
     assert c["mean_diff"] < 0
     assert c["ci_high"] < 0  # CI 전체가 0 미만 → 유의
     assert 0.0 <= c["wilcoxon_p"] <= 1.0
     assert c["effect_size"] < 0  # Cohen's dz 부호 = mean_diff 부호
+    assert abs(c["effect_size"]) < 1000  # 부동소수점 잔차로 폭주하지 않음
     assert c["n_valid"] == 5
+
+
+def test_paired_comparison_constant_diff_dz_zero():
+    a = [0.10, 0.10, 0.10]
+    b = [0.15, 0.15, 0.15]  # diffs all exactly -0.05 → std≈0
+    c = paired_comparison(a, b, n_boot=500, seed=0)
+    assert c["effect_size"] == 0.0  # std≈0 → dz=0 per spec
 
 
 def test_paired_comparison_indistinguishable():
@@ -170,3 +179,21 @@ def test_render_report_contains_warning_and_models():
     assert "단일 설계" in md  # 정직성 경고 블록
     assert "naive" in md and "baseline" in md and "winner" in md
     assert "T4" in md  # held-out 설계는 T4 필요 명시
+
+
+def test_render_report_unstable_marks_validation_failure():
+    res = {
+        "winner_folds": [0.10, float("inf"), 0.11, float("inf"), 0.12],
+        "baseline_folds": [0.12, 0.13, 0.14, 0.15, 0.16],
+        "naive_folds": [1.40, 1.42, 1.41, 1.43, 1.44],
+        "n_failed_winner": 5,
+        "n_failed_baseline": 0,
+        "n_folds": 5,
+        "single_design": True,
+        "winner_vs_baseline": None,
+        "winner_vs_naive": None,
+        "verdict_vs_baseline": "worse",
+    }
+    md = render_validation_report(res)
+    assert "worse" in md
+    assert "검증 불가" in md or "불안정" in md  # 통계적 열등이 아님을 명시

@@ -16,6 +16,8 @@ from pipeline.runner import run_candidate
 from scipy.stats import wilcoxon
 from sklearn.model_selection import KFold
 
+_DENOM_EPS = 1e-9  # Cohen's dz std 가드: 부동소수점 잔차(≈1e-17)를 0으로 취급
+
 
 def fold_splits(n: int, k: int = 5, repeats: int = 10, base_seed: int = 0):
     """repeated K-fold split 인덱스 리스트. 각 원소 = (train_idx, val_idx)."""
@@ -44,7 +46,7 @@ def paired_comparison(a: list[float], b: list[float], n_boot: int = 10000, seed:
     diffs = np.array([x - y for x, y in zip(a, b)], dtype=float)
     mean_diff = float(diffs.mean())
     std = float(diffs.std(ddof=1)) if len(diffs) > 1 else 0.0
-    effect_size = mean_diff / std if std > 0 else 0.0  # Cohen's dz
+    effect_size = mean_diff / std if std > _DENOM_EPS else 0.0  # Cohen's dz
 
     rng = np.random.default_rng(seed)
     idx = rng.integers(0, len(diffs), size=(n_boot, len(diffs)))
@@ -192,6 +194,13 @@ def render_validation_report(res: dict) -> str:
         )
     L.append("")
     L.append(f"## verdict (winner vs baseline): **{res['verdict_vs_baseline']}**")
+    if res.get("n_failed_winner", 0) > 0 or res.get("n_failed_baseline", 0) > 0:
+        L.append("")
+        L.append(
+            f"> ⚠️ 실패 fold 존재 — 통계 검정 미실시(불안정). "
+            f"winner 실패={res['n_failed_winner']}, baseline 실패={res['n_failed_baseline']}. "
+            f"verdict 'worse'는 통계적 열등이 아니라 검증 불가를 뜻함."
+        )
     L.append("")
     L.append("> ⚠️ **단일 설계(n=53) 한계**: 본 검증은 한 설계 내 repeated K-fold일 뿐,")
     L.append("> 일반화(다른 설계 예측)를 주장하지 않는다. held-out *설계* 교차검증은 **T4**의 몫.")
