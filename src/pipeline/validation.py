@@ -10,8 +10,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 from pipeline.holdout import score_holdout
 from pipeline.runner import run_candidate
+from scipy.stats import wilcoxon
 from sklearn.model_selection import KFold
 
 
@@ -32,6 +34,48 @@ def naive_fold_maes(rows: list[dict], splits) -> list[float]:
         errs = [abs(rows[j]["synth_slack_ns"] - rows[j]["post_route_slack_ns"]) for j in va]
         maes.append(sum(errs) / len(errs))
     return maes
+
+
+def paired_comparison(a: list[float], b: list[float], n_boot: int = 10000, seed: int = 0) -> dict:
+    """paired fold MAE 두 계열(a-b)의 평균차 bootstrap 95% CI + Wilcoxon p + Cohen's dz.
+
+    a·b는 동일 fold에서 잰 유한 값이어야 한다(inf는 호출 전에 걸러짐 — gate가 처리).
+    """
+    diffs = np.array([x - y for x, y in zip(a, b)], dtype=float)
+    mean_diff = float(diffs.mean())
+    std = float(diffs.std(ddof=1)) if len(diffs) > 1 else 0.0
+    effect_size = mean_diff / std if std > 0 else 0.0  # Cohen's dz
+
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(diffs), size=(n_boot, len(diffs)))
+    boot_means = diffs[idx].mean(axis=1)
+    ci_low = float(np.percentile(boot_means, 2.5))
+    ci_high = float(np.percentile(boot_means, 97.5))
+
+    try:
+        p = float(wilcoxon(a, b).pvalue)
+    except ValueError:
+        p = 1.0  # 전부 동일(차이 0) 등 → 구분 불가
+
+    return {
+        "mean_diff": mean_diff, "ci_low": ci_low, "ci_high": ci_high,
+        "wilcoxon_p": p, "effect_size": effect_size, "n_valid": len(diffs),
+    }
+
+
+def verdict(comp: dict, alpha: float = 0.05) -> str:
+    """winner(a) vs baseline(b) 판정. a-b 기준: 음수=winner가 낮음(좋음).
+
+    distinguishable: 유의하게 낮음(p<alpha 그리고 CI 전체가 0 미만).
+    worse: 유의하게 높음(p<alpha 그리고 CI 전체가 0 초과).
+    그 외: indistinguishable.
+    """
+    sig = comp["wilcoxon_p"] < alpha
+    if sig and comp["ci_high"] < 0:
+        return "distinguishable"
+    if sig and comp["ci_low"] > 0:
+        return "worse"
+    return "indistinguishable"
 
 
 def _write_jsonl(rows: list[dict], path: Path) -> Path:

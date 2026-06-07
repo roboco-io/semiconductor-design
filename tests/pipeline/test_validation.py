@@ -60,3 +60,31 @@ def test_candidate_fold_maes_broken_trainpy_inf(tmp_path):
     splits = fold_splits(len(rows), k=5, repeats=1)
     maes = candidate_fold_maes(broken, rows, splits, tmp_path / "wd2")
     assert all(m == float("inf") for m in maes)  # 모든 fold 실패
+
+
+from pipeline.validation import paired_comparison, verdict
+
+
+def test_paired_comparison_a_better_than_b():
+    # a(winner)가 b(baseline)보다 일관되게 낮음 → mean_diff<0, CI가 0 미만
+    a = [0.10, 0.11, 0.09, 0.12, 0.10]
+    b = [0.15, 0.16, 0.14, 0.17, 0.15]
+    c = paired_comparison(a, b, n_boot=2000, seed=0)
+    assert c["mean_diff"] < 0
+    assert c["ci_high"] < 0  # CI 전체가 0 미만 → 유의
+    assert 0.0 <= c["wilcoxon_p"] <= 1.0
+    assert c["effect_size"] < 0  # Cohen's dz 부호 = mean_diff 부호
+    assert c["n_valid"] == 5
+
+
+def test_paired_comparison_indistinguishable():
+    a = [0.10, 0.11, 0.09, 0.12, 0.10]
+    b = [0.10, 0.12, 0.08, 0.13, 0.09]  # 뒤섞임 → 차이가 0 근처
+    c = paired_comparison(a, b, n_boot=2000, seed=0)
+    assert c["ci_low"] < 0 < c["ci_high"]  # CI가 0을 포함
+
+
+def test_verdict_branches():
+    assert verdict({"wilcoxon_p": 0.01, "ci_low": -0.05, "ci_high": -0.01}) == "distinguishable"
+    assert verdict({"wilcoxon_p": 0.4, "ci_low": -0.03, "ci_high": 0.02}) == "indistinguishable"
+    assert verdict({"wilcoxon_p": 0.01, "ci_low": 0.01, "ci_high": 0.05}) == "worse"
