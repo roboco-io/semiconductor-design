@@ -11,10 +11,11 @@ karpathy [AutoResearch](https://github.com/karpathy/autoresearch)의 population-
 ([roboco-io/serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를
 **EDA surrogate 지표예측 모델**(합성 직후 feature → 최종 PPA/routability 예측) 학습에 적용한다.
 에이전트는 학습 스크립트 한 파일(`train.py`)만 변형하고, 고정 예산으로 학습 후 단일 val 지표로
-keep/discard하며, **Operator가 세대 winner 선택을 감독**한다.
+keep/discard하며, **객관적 자동 게이트(median + T1 검증)가 winner 승격을 판정**한다(2026-06-08 재피벗).
 
-- **목표**: 절대 PPA가 아니라 **(1) 자율 무인(AutoResearch-RL "human asleep") 대비 Operator-in-loop authority**,
-  **(2) (연기) reasoning trace** 라는 거버넌스/프로세스 축의 novelty.
+- **목표**(2026-06-08 재피벗): 절대 PPA가 아니라 **(1) 비전문가 empowerment + 큰 흐름의 이해가능성**
+  — 자율 진행을 기본으로 하되 사람은 *방향타이자 학습자*(per-winner 승인 아님), **(2) (연기) reasoning trace**
+  라는 접근성/프로세스 축의 novelty. (구 "Operator-in-loop authority" 축은 INTENT 재피벗으로 대체됨.)
 - 설계 lineage(brainstorming 전문): [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md)
 - 제품 요구: [`PRD.md`](PRD.md) (4-엔티티 ERD + 리포지토리 구조의 single source).
 - 이전 의도/구현(통합 프로그램 3-layer L1/L2/L3)은 **`archive/integrated-program-3layer` 브랜치에 무손실 보존**.
@@ -33,8 +34,13 @@ keep/discard하며, **Operator가 세대 winner 선택을 감독**한다.
 
 ## Operating Model
 
-**Operator 1명 + 에이전트** single-operator multi-agent 구조. 사용자는 **Operator(감독자)** —
-Researcher/Developer 역할은 에이전트가 수행하고, **머지·winner 선택은 항상 Operator**.
+**Operator 1명 + 에이전트** single-operator multi-agent 구조. 사용자는 **Operator(방향타·학습자)** —
+Researcher/Developer 역할은 에이전트가 수행하고, **winner 승격은 객관적 자동 게이트(median + T1)가 판정**한다.
+
+> **전환 중(2026-06-08 재피벗)**: 목표는 *자동 게이트 통과 시 자동 승격*. 단 **auto-gate 코드는 아직
+> 미구현**(operator_gate→auto-gate 전환은 별도 spec). 그때까지는 **Operator가 게이트 리포트를 확인하고
+> 머지**한다 — 단, 이는 *권한 행사*가 아니라 *자동화 미완에 따른 임시 단계*다. 에이전트는 게이트
+> (median + T1) 없이 main에 자율 머지하지 않는다(새 INTENT Not "맹목적 자율 금지").
 
 > **⚠️ 위임 agent rework 대기**: `.claude/agents/*.md` 의 4 agent
 > (`experiment-designer` · `experiment-runner` · `code-author` · `eda-code-reviewer`)는
@@ -85,7 +91,7 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 `CANDIDATE ─< CANDIDATE`(parent self-ref, crossover). 속성 표는 `PRD.md` §4.
 
 **4-step 루프**: Candidate Generation → Batch Launch(병렬 Spot) → Result Collection → Selection,
-세대 winner는 Operator 승인 후 git tag `gen-NNN-best`.
+세대 winner는 **자동 게이트(median + T1) 통과 시** git tag `gen-NNN-best`(전환 전까지 Operator가 게이트 확인 후 머지).
 
 ## Code Conventions
 
@@ -93,7 +99,8 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 - **Conventional commit prefixes**: `docs: ...`, `chore: ...`, `test: ...`, `feat: ...`. Keep subject imperative.
 - **Tests**: pytest; use `tmp_path` and fixtures. Never touch real data/artifacts in tests.
 - **Ruff 100 char line limit**, `target-version = "py312"`.
-- 에이전트가 작성하는 코드 변경은 `INTENT.md` `Not` 정합 검사를 통과해야 하며, **Operator가 머지**한다.
+- 에이전트가 작성하는 코드 변경은 `INTENT.md` `Not` 정합 검사를 통과해야 하며, **객관적 게이트 통과 후
+  머지**한다(auto-gate 미구현 동안은 Operator가 게이트 확인 후 머지 — 임시).
 
 ## Repository Map (non-obvious parts)
 
@@ -127,5 +134,6 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 1. **`INTENT.md` 정합 점검** — 착수 전 `Not` 섹션 위반 여부 확인. 이게 모든 작업의 1차 gate.
 2. **`PRD.md` + 설계 spec 조회** — ERD/구조 질문은 `PRD.md`, 결정 근거/positioning 은 설계 spec §1·§8.
 3. 구 3-layer 자산이 필요하면 `archive/integrated-program-3layer` 브랜치에서 참조(복원 아님).
-4. **Operator authority 유지** — 자율 무인 머지 금지. 에이전트 산출물은 Operator 검토 후 머지.
+4. **맹목적 자율 금지** — 객관적 게이트(median + T1) 없이 main 자율 머지 금지. 자율 자동 승격이 목표이나
+   auto-gate 미구현 동안은 Operator가 게이트 리포트 확인 후 머지(2026-06-08 재피벗 — 구 "Operator authority" 대체).
 5. 본 프로젝트는 **AutoResearch surrogate 모델 학습의 자동 연구**이지, parameter sweep 단독(ORFS-agent 영역)이 아니다.

@@ -2,6 +2,12 @@
 
 > status: draft (2026-06-04, INTENT 기반 재작성) · 결정 수준: **요구사항 레벨** (기술 결정 3종은 §10 Open Decisions로 격리)
 > 근거: [`INTENT.md`](INTENT.md) (status: exploring) — 본 PRD의 모든 요구는 INTENT `Why·What·Not`에서 파생.
+>
+> ⚠️ **2026-06-08 재피벗 — 아래 H-B/Operator-authority 프레이밍은 갱신됨**: novelty 축이
+> *Operator authority(거버넌스)* → **비전문가 empowerment + 이해가능성**으로 이동. winner 승격은
+> *per-winner 사람 승인*이 아니라 **객관적 자동 게이트(median + T1 검증)** 가 판정(자율 자동 승격이
+> 목표, auto-gate 구현 전까지 Operator가 게이트 확인 후 머지). 본문에 남은 "항상 사람/Operator authority"
+> 표현은 이 배너로 대체된다. 권위 출처는 [`INTENT.md`](INTENT.md) Learnings 2026-06-08.
 > 설계 lineage(brainstorming 전문 + 구조 치환): [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md)
 > 외부 구조 참조: [karpathy/autoresearch](https://github.com/karpathy/autoresearch) · [roboco-io/serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch)
 > 이전 의도/구현(통합 프로그램 3-layer)은 `archive/integrated-program-3layer` 브랜치에 보존.
@@ -22,7 +28,7 @@
 
 **가설**:
 - **H-A** — AutoResearch 진화 루프를 EDA surrogate 학습에 적용하면 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다.
-- **H-B** — 자율 무인 대신 **Operator-in-loop**(winner 선택·머지는 항상 사람)를 유지해도 성능을 잃지 않으며, reasoning trace 누적(2차 연기)으로 재현성·신뢰성에서 차별화된다.
+- **H-B (재정의 2026-06-08)** — 비전문가 Operator가 *per-winner 승인 없이* 방향·큰 흐름만으로 자율 루프를 조종·이해할 수 있고, 그 산출이 의미있는 전문영역 성과다. 신뢰가능한 자율을 가능케 하는 건 **객관적 자동 게이트(median + T1)** 와 **튜토리얼식 이해가능성**(+ 연기된 reasoning trace).
 
 **확인 방법**:
 - 고정 데이터셋 위에서 루프 winner의 val 지표를 사람-수작업 baseline과 비교 (낮으면 H-A 지지).
@@ -43,7 +49,7 @@
 | **FR-2** | **후보 생성** — 세대당 N개의 `train.py` 변형 후보를 전략 다양화(conservative/moderate/aggressive/crossover)로 생성한다. 각 후보는 reversible patch(`CANDIDATE.patch_ref`)다. | What §핵심기능 2 / spec §5.1 | 한 세대에서 N개 후보가 서로 다른 patch로 생성되고, baseline에서 복원 가능하다. |
 | **FR-3** | **병렬 학습 실행** — 후보를 병렬 Spot 학습 job으로 제출하고(HUGI), 고정 예산 내에서 단일 val 지표를 산출한다. | What §핵심기능 2 / spec §5.2 | 후보 N개가 병렬 실행되고 각 JOB이 `val_metric`을 반환한다. |
 | **FR-4** | **Selection** — 최저(또는 최선) val 지표 winner를 식별해 Operator에게 제시한다. | What §핵심기능 2 / spec §5.4 | 세대 종료 시 winner 후보 1개와 전체 순위가 제시된다. |
-| **FR-5** | **Operator 감독 인터페이스** — winner 채택·머지는 항상 사람이 수행하며, 승인 시 `gen-NNN-best` git tag로 commit하고 세대 카운터를 증가시킨다. | What §핵심기능 3 / Not §절대금지 | Operator 승인 없이 winner가 자동 머지되지 않는다. 승인 시에만 tag·다음 세대 baseline이 갱신된다. |
+| **FR-5 (재정의 2026-06-08)** | **자동 게이트 + 방향·이해 인터페이스** — winner 승격은 **객관적 자동 게이트(median selection + T1 검증)** 가 판정한다. Operator는 `program.md`로 *방향*을 잡고 튜토리얼식 리포트로 *큰 흐름*을 이해한다(per-winner 승인 아님). 게이트 통과 시 `gen-NNN-best` git tag·세대 카운터 증가. | What §핵심기능 / Not §절대금지(맹목적 자율 금지) | 게이트(median + T1) 없이는 승격되지 않는다. **전환 중**: auto-gate 구현 전까지 Operator가 게이트 리포트 확인 후 머지. |
 | **FR-6** | **(연기) reasoning trace 증거 평면** — 후보별 hypothesis/observed effect를 누적한다. **2차 세대**. | What §핵심기능 4 | 1차 범위 밖 — §11. |
 
 **사용자 흐름** (INTENT `What`):
@@ -73,7 +79,7 @@
 - 전체 RTL→GDSII 공정 운영 (`archive/integrated-program-3layer`로 분리).
 - Parameter sweep 단독 (ORFS-agent 영역) — 본 프로젝트는 surrogate **모델 학습**의 자동 연구.
 - 모바일·웹 UI, 다중 사용자.
-- 자율 무인 루프로 winner 무검토 머지 (AutoResearch-RL의 *no-human* 전제 불채택 — Operator authority).
+- **맹목적 자율** — 객관적 게이트(median + T1) 또는 이해가능성 없이 진행하는 것 (2026-06-08 재피벗: 자율 자동 머지는 허용하되 *신뢰가능 게이트 + 이해가능성*이 조건. 구 "자율 무인 머지 절대 금지"를 대체).
 
 ## 7. 데이터 모델 (최소 4-엔티티 ERD, spec §6)
 
