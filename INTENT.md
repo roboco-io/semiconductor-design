@@ -1,7 +1,7 @@
 # INTENT — semiconductor-design (AutoResearch for EDA Surrogate Models)
 
-> status: clarified
-> created: 2026-05-10 · pivoted: 2026-05-29 · 시스템 빌드+gen-001 실증: 2026-06-06
+> status: exploring  (2026-06-08 재피벗: Operator authority → 비전문가 empowerment + 이해가능성)
+> created: 2026-05-10 · pivoted: 2026-05-29 · 시스템 빌드+gen-001 실증: 2026-06-06 · 재피벗: 2026-06-08
 > 설계: [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md) · [`PRD.md`](PRD.md)
 > 이전 의도(통합 프로그램 3-layer, clarified)는 `archive/integrated-program-3layer` 브랜치에 보존.
 
@@ -9,43 +9,47 @@
 
 **메타 목적 (피벗 후에도 유지)**: (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution.
 
+**헤드라인 목표 (2026-06-08 재피벗)**: **비전문가가 전문영역(EDA)에서 자율 에이전트를 *방향만 잡아* 의미있는 성과를 내는 것.** 자율 진행이 기본 동력이고, 사람은 *권한자(approver)가 아니라 방향타이자 학습자*다.
+
 **문제**:
 - EDA surrogate 모델(합성 직후 feature → 최종 PPA/routability 예측)은 *성숙한* 분야다 — CircuitNet 2.0(20K+ 샘플, routability·IR-drop·timing), RouteNet(조기 DRV 예측), Net2(post-placement wirelength), MasterRTL/SNS(pre-synthesis PPA), "Circuit as Set of Points"(NeurIPS 2023). 그러나 모델 구조·하이퍼파라미터·feature 설계의 *탐색 루프는 여전히 사람이 수작업*한다. 이 루프 자체는 기계적이다.
 - karpathy [AutoResearch](https://github.com/karpathy/autoresearch)는 "research를 search로 환원"해 이 루프를 에이전트에 위임했으나 대상은 *LLM 학습*이고, **EDA surrogate 학습에 적용된 사례 없음**.
-- AutoResearch와 그 형식화 [AutoResearch-RL](https://arxiv.org/abs/2603.07300)(PPO 메타정책)의 명시적 전제는 *no human in the loop* — "human might be asleep, you are autonomous". 비전문가 Operator가 다중 에이전트를 *감독*하며 EDA surrogate 연구를 수행할 수 있는지, 그 감독이 자율 무인보다 재현성·신뢰성에서 나은지에 대한 사례는 부재.
+- AutoResearch와 그 형식화 [AutoResearch-RL](https://arxiv.org/abs/2603.07300)(PPO 메타정책)의 명시적 전제는 *no human in the loop* — "human might be asleep, you are autonomous". 우리도 **자율 진행을 기본으로 채택**하되, 차별점은 *전문가의 감독*이 아니라 **비전문가가 큰 흐름을 이해·조종(comprehensibility·steerability)** 하면서도 자율 루프가 의미있는 전문영역 성과를 내게 하는 것 — 이 사례는 부재.
 
 **가설**:
-- AutoResearch의 population-based evolution 루프([serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를 EDA surrogate 모델 학습에 적용하면, 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다.
-- 자율 무인(AutoResearch-RL) 대신 **Operator-in-loop**(winner 선택·머지는 항상 사람)를 유지해도 성능을 잃지 않으며, reasoning trace 누적(2차 연기)으로 재현성·신뢰성에서 차별화된다.
+- **H-A** — AutoResearch의 population-based evolution 루프([serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를 EDA surrogate 모델 학습에 적용하면, 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다. (gen-001서 엄밀 paired 통계로 확증 — Learnings 2026-06-08.)
+- **H-B (재정의)** — 비전문가 Operator가 **per-winner 승인 없이** 방향(`program.md`)·큰 흐름만으로 자율 루프를 *조종·이해*할 수 있고, 그 산출이 의미있는 전문영역 성과다. 신뢰가능한 자율을 가능케 하는 것은 **객관적 자동 게이트**(median selection + T1 검증)와 **튜토리얼식 이해가능성**이다. (자율이 기본 동력, 사람은 전략적 방향타이자 학습자.)
 
 **확인 방법**:
-- 기존 EDA flow 1회로 생성한 고정 데이터셋 위에서, 루프가 만든 surrogate winner의 val 지표를 사람-수작업 baseline과 비교 (낮으면 가설 지지).
-- Operator-in-loop 구성이 자율 무인 대비 성능 손실 없이 winner를 선택하는지 세대 로그로 확인.
+- 기존 EDA flow 1회로 생성한 고정 데이터셋 위에서, 루프가 만든 surrogate winner의 val 지표를 사람-수작업 baseline과 **엄밀 통계(T1 게이트)** 로 비교 (유의하게 낮으면 H-A 지지).
+- 자율 자동 승격 구성이 *맹목적*이지 않음을 보장: 비전문가가 큰 흐름을 따라 의미있는 방향 결정을 내릴 수 있었는지(이해가능성)·산출이 전문영역서 유효했는지 세대 로그·리포트로 확인.
 - (?) 정확한 비교 baseline·지표 임계값은 데이터셋 확정 후.
 
 ## What
 
 **핵심 기능**:
 - [ ] **데이터셋 자가생성**(`prepare.py`): EDA flow 1회 → feature(합성 직후) + label(최종 PPA/routability) 쌍. CircuitNet 류 태스크 참조. `DATASET.flow_lockfile_sha`로 재현성 앵커.
-- [ ] **AutoResearch 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → 단일 val 지표 selection → Operator 승인 후 git tag(`gen-NNN-best`).
-- [ ] **Operator 감독 인터페이스**: winner 선택·머지는 항상 사람.
-- [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 2차 세대.
+- [ ] **자율 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → **객관적 자동 게이트(median selection + T1 검증)로 자동 승격** → git tag(`gen-NNN-best`). per-winner 사람 승인 없음.
+- [ ] **자동 품질 게이트(T1)**: 자율 승격을 신뢰가능하게 만드는 통계적 자동 판정(naive·baseline·winner paired). *맹목적 자율* 방지의 핵심 — `distinguishable`만 승격.
+- [ ] **방향·이해 인터페이스**: Operator는 `program.md`로 *방향*을 잡고, **튜토리얼식 리포트로 큰 흐름을 이해**한다. (개입은 방향 수준, per-winner 아님.)
+- [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 이해가능성을 강화하는 2차 세대.
 
 **사용자 흐름**:
-1. Operator가 `program.md`(지시문)·`config.yaml`(예산·세대수) 설정.
+1. Operator가 `program.md`(방향·지시문)·`config.yaml`(예산·세대수) 설정.
 2. 에이전트가 `train.py` 변형 후보 N개 생성·병렬 학습.
-3. 루프가 val 지표로 winner 후보 제시.
-4. Operator가 검토·승인·git tag commit → 다음 세대 baseline.
+3. 루프가 자동 게이트(median + T1)로 winner를 **자동 승격**하고 튜토리얼식 리포트를 남긴다.
+4. Operator는 *큰 흐름*을 이해하고 다음 *방향*을 조정한다(per-winner 승인 아님).
 
 **엣지 케이스**:
 - Spot 회수 시 job 재시도 (CANDIDATE 1:N JOB).
-- 후보가 데이터 누수/과적합으로 val 지표만 좋은 경우 → Operator 거절 (+연기된 trace).
+- 후보가 데이터 누수/과적합으로 val 지표만 좋은 경우 → **T1 자동 게이트가 `indistinguishable`/`worse`로 차단**(사람 거절 대신 통계 게이트).
 - (?) surrogate 지표가 복수일 때(slack vs area vs routability) 단일화 방법.
+- (?) 방향성 개입과 완전 자율의 경계 — 어느 결정이 "방향"이고 어느 게 "per-winner"인지.
 
 ## Not
 
 **절대 금지**:
-- 자율 무인 루프로 winner 무검토 머지 (AutoResearch-RL의 *no-human* 전제를 따르지 않음 — Operator authority 유지).
+- **맹목적 자율** — 사람이 큰 흐름을 이해할 수 없는 불투명 진행. 자율 자동 승격은 허용하되, *객관적 게이트(median + T1) 없이* 또는 *튜토리얼식 이해가능성 없이* 진행하는 것은 금지. (2026-06-08 재피벗: 기존 "자율 무인 머지 절대 금지"를 대체 — 무인 머지는 허용, 단 신뢰가능 게이트 + 이해가능성이 조건.)
 - 상용 EDA 도구. 오픈소스만 (OpenROAD/Yosys 등).
 - functional correctness를 surrogate 예측으로 주장 (surrogate는 근사 예측).
 - `prepare.py`(데이터·평가 프로토콜) 변경을 에이전트에 허용 (frozen environment — 공정 비교 보장).
@@ -62,11 +66,15 @@
 - (1차) process novelty 증거 평면 — 2차 연기.
 
 **품질 기준**:
-- surrogate winner val 지표 < 사람-수작업 baseline (가설 지지 조건, (?) 임계값 데이터 확정 후).
+- surrogate winner val 지표 < 사람-수작업 baseline, **T1 게이트 verdict `distinguishable`** (H-A 지지 조건).
+- 자율 자동 승격은 객관적 게이트(median + T1)를 통과한 winner만 (맹목적 자율 방지).
+- **이해가능성**: 비전문가가 각 세대의 큰 흐름·방향을 튜토리얼식 산출물로 따라갈 수 있어야 함.
 - 세대 간 결과 재현 (동일 데이터셋·lockfile_sha).
 - (연기) reasoning trace 복원 가능.
 
 ## Learnings
+
+- **2026-06-08** (재피벗: Operator authority → 비전문가 empowerment) — Operator가 "수동승인(H-B)을 핵심으로 꼽는 현 프레이밍은 과했다 — Karpathy식 자율 진행이 기본이어야 하고, 사람은 방향·큰 흐름만 이해·조종하면 된다. 목표는 비전문가가 전문영역서 의미있는 성과를 내는 것"이라 판단. **novelty 축 이동**: "자율 무인 vs Operator authority"(거버넌스) → **"비전문가 empowerment + 큰 흐름의 이해가능성"**(접근성). INTENT Not의 "자율 무인 머지 절대 금지"를 **"맹목적 자율 금지(객관적 게이트+이해가능성이 조건)"** 로 교체, H-B를 "per-winner 승인 없이 방향·이해만으로 신뢰가능한 자율" 로 재정의. **핵심 연속성**: 직전에 만든 T1 게이트가 버려지지 않고 *격상*됨 — advisory(사람 보조)에서 → *자율 승격을 신뢰가능케 하는 자동 판정자*로. 즉 엄밀 게이트가 있어야 사람을 per-winner 결정에서 뺄 수 있으니, T1이 자율성의 *전제조건*이 된다. status `clarified → exploring` (Learnings #1 예언대로 "되돌아감 자체가 co-evolution 신호" 실현 — 운영 통찰이 의도를 재변형). 후속: TUTORIAL/README/CLAUDE/PRD를 이 축으로 정합, 루프의 자동 승격 구현(operator_gate→auto-gate)은 별도 spec.
 
 - **2026-06-08** (T1 승격 검증 게이트 + H-A 엄밀 재확증) — gen-002 위양성을 계기로, "주장의 신뢰성"을
   고치는 **승격 검증 게이트**(T1)를 brainstorm→spec→plan→subagent TDD(59 tests)→2단계 리뷰
