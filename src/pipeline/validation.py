@@ -140,3 +140,38 @@ def run_validation_gate(winner_train_py, baseline_train_py, rows: list[dict], wo
     res["winner_vs_naive"] = paired_comparison(winner_folds, naive_folds, n_boot, base_seed)
     res["verdict_vs_baseline"] = verdict(res["winner_vs_baseline"])
     return res
+
+
+def _mean(xs):
+    return sum(xs) / len(xs) if xs else float("inf")
+
+
+def render_validation_report(res: dict) -> str:
+    """승격 검증 게이트 리포트(advisory). Operator가 승격 판단 시 참고."""
+    L = ["# 승격 검증 리포트 (advisory)", ""]
+    L.append(f"- folds: {res['n_folds']} (repeated K-fold, paired)")
+    L.append(f"- winner 실패 fold: {res['n_failed_winner']} / baseline 실패 fold: "
+             f"{res['n_failed_baseline']}")
+    L.append("")
+    L.append("| 모델 | 평균 fold MAE |")
+    L.append("|---|---|")
+    L.append(f"| naive | {_mean(res['naive_folds']):.4f} |")
+    L.append(f"| baseline | {_mean(res['baseline_folds']):.4f} |")
+    L.append(f"| winner | {_mean(res['winner_folds']):.4f} |")
+    L.append("")
+    wb = res["winner_vs_baseline"]
+    if wb:
+        L.append(f"**winner vs baseline**: mean_diff={wb['mean_diff']:+.4f} "
+                 f"(95% CI [{wb['ci_low']:+.4f}, {wb['ci_high']:+.4f}]), "
+                 f"Wilcoxon p={wb['wilcoxon_p']:.3f}, Cohen's dz={wb['effect_size']:+.2f}")
+        wn = res["winner_vs_naive"]
+        L.append(f"**winner vs naive**: mean_diff={wn['mean_diff']:+.4f} "
+                 f"(95% CI [{wn['ci_low']:+.4f}, {wn['ci_high']:+.4f}]), "
+                 f"Wilcoxon p={wn['wilcoxon_p']:.3f}")
+    L.append("")
+    L.append(f"## verdict (winner vs baseline): **{res['verdict_vs_baseline']}**")
+    L.append("")
+    L.append("> ⚠️ **단일 설계(n=53) 한계**: 본 검증은 한 설계 내 repeated K-fold일 뿐,")
+    L.append("> 일반화(다른 설계 예측)를 주장하지 않는다. held-out *설계* 교차검증은 **T4**의 몫.")
+    L.append("> verdict는 advisory — 승격 결정은 Operator(H-B).")
+    return "\n".join(L)

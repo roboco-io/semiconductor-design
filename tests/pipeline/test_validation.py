@@ -115,3 +115,24 @@ def test_run_validation_gate_unstable_winner(tmp_path):
     )
     assert res["verdict_vs_baseline"] == "worse"  # 불안정 후보는 worse 처리
     assert res["n_failed_winner"] == 5
+
+
+from pipeline.validation import render_validation_report
+
+
+def test_render_report_contains_warning_and_models():
+    res = {
+        "winner_folds": [0.10, 0.11], "baseline_folds": [0.12, 0.13],
+        "naive_folds": [1.40, 1.42], "n_failed_winner": 0, "n_failed_baseline": 0,
+        "n_folds": 2, "single_design": True,
+        "winner_vs_baseline": {"mean_diff": -0.02, "ci_low": -0.03, "ci_high": -0.01,
+                               "wilcoxon_p": 0.04, "effect_size": -1.2, "n_valid": 2},
+        "winner_vs_naive": {"mean_diff": -1.30, "ci_low": -1.35, "ci_high": -1.25,
+                            "wilcoxon_p": 0.04, "effect_size": -8.0, "n_valid": 2},
+        "verdict_vs_baseline": "distinguishable",
+    }
+    md = render_validation_report(res)
+    assert "distinguishable" in md
+    assert "단일 설계" in md  # 정직성 경고 블록
+    assert "naive" in md and "baseline" in md and "winner" in md
+    assert "T4" in md  # held-out 설계는 T4 필요 명시
