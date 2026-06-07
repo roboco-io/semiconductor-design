@@ -68,6 +68,22 @@
 
 ## Learnings
 
+- **2026-06-08** (T1 승격 검증 게이트 + H-A 엄밀 재확증) — gen-002 위양성을 계기로, "주장의 신뢰성"을
+  고치는 **승격 검증 게이트**(T1)를 brainstorm→spec→plan→subagent TDD(59 tests)→2단계 리뷰
+  (approve-with-fixes: Cohen's dz 부동소수 잔차 가드 `1e-9`, 불안정 verdict 리포트 명시)로 구축.
+  repeated 5-fold×10(50 fold) paired로 naive·baseline·winner를 비교, Wilcoxon+bootstrap CI+dz를
+  Operator에 advisory 제시(자동 거부 없음 — H-B). 기존 `run_candidate`+`score_holdout` 재조합이라
+  새 위험 없음. train.py/prepare.py/dataset frozen 무변경. **이는 더 큰 프로그램
+  "Trustworthy Automated Research"(로드맵 T1→T3→T4→T2)의 1단계.** (1) **H-A는 약화가 아니라 강화됐다**:
+  gen-001 소급 재심 결과 winner(0.148) vs 사람 baseline(0.194) mean_diff −0.0466, 95% CI [−0.057, −0.037]
+  (0 미포함), p<0.001, **dz=−1.27(큰 효과)** → verdict `distinguishable`. 단일 seed 점추정이 아닌
+  엄밀 paired 통계로도 에이전트 우위가 유지됨 — gen-001 승격은 정당. (2) **게이트가 "도약"과 "노이즈"를
+  구분한다**: gen-001(사람→에이전트, 큰 도약)은 robust, gen-002(미세 개선)는 노이즈에 묻힘 — 둘은
+  모순이 아니라 *서로 다른 효과크기*. 엄밀 게이트가 이 둘을 분리하는 게 핵심 기여. (3) **co-evolution
+  지속**: 위양성(2026-06-07) → 엄밀성 게이트(2026-06-08) → 그 게이트가 H-A를 재확증하며 *이전 caveat을
+  뒤집음*. negative result가 방법론을 진화시키고, 진화한 방법론이 첫 주장을 더 단단히 만든 순환.
+  (4) **남은 한계**: 단일 설계 n=53 — 일반화는 미검증, held-out *설계*(T4)가 다음 필연.
+
 - **2026-06-07** (gen-002 위양성 → median harness co-evolution) — gen-002 실행에서 Codex 후보가 단일 seed=0 val_mae 0.0992로 winner 선택됐으나, **다중 seed 검증에서 일반화 실패**가 드러남. 53샘플·random split이라 seed별 val_mae가 0.05~0.16으로 출렁여, seed=0이 우연히 그 후보에 유리한 split이었을 뿐. (1) **단일 seed selection이 위양성을 만든다**: 새 5-seed median harness로 재평가하니 단일-seed winner(codex)가 셋 중 **꼴찌**(median 0.0992), baseline(gen-001 winner) 0.0865가 최저 → gen-002 **reject**. "에이전트가 baseline 능가"(H-A)가 *측정 아티팩트*일 수 있음을 실증 — gen-001의 0.11도 같은 의심 하에 재검토 필요. (2) **H-B가 broken winner 승격을 막았다**: 자율 무인이었다면 0.0992를 보고 그냥 승격해 일반화 안 되는 모델이 baseline이 됐을 것. Operator 게이트 + 재검증이 차단 — H-B의 운영 가치가 두 번째로 실증됨. (3) **co-evolution**: 위양성이라는 운영 마찰이 **평가 프로토콜의 진화**(single seed → median harness, [spec](docs/superpowers/specs/2026-06-06-multiseed-median-selection-design.md))를 낳음. brainstorm→spec→plan→subagent TDD(45 tests)→2단계 리뷰(approve-with-fixes: per_seed_vals inf→null RFC8259 가드)로 harness를 Operator-소유 채로 확장(train.py frozen 계약 무변경). 진화한 프로토콜이 다시 gen-002 결론을 뒤집음 = Operator 학습 ↔ 프로젝트 진화의 양방향. (4) **negative result도 산출물**: gen-002는 reject지만, "단일 seed 선택은 노이즈 데이터에서 신뢰 불가"라는 프로세스 발견이 본 프로젝트의 거버넌스 novelty 축에 직접 기여. OD-5(데이터 한계)가 selection 프로토콜로 전파된 사례 — 정밀 임계값은 다설계 확보 후 여전히 미결.
 
 - **2026-06-06** (시스템 빌드 + gen-001 H-A/H-B 실증) — 한 세션에서 피벗 골격 → **작동하는 AutoResearch 시스템 + 실제 1세대 promotion**까지. (1) **검증-우선이 설계를 바꿨다**: 합성 fixture로 "resolved"였던 OD-2/OD-3가 진짜 gcd flow로 *falsify*됨 — 두-시점 critical path가 disjoint(F3)·두-줄 헤더(F1)·QEMU가 CTS 불가(F4). per-path → **endpoint 단위 다설계 pairing**으로 재설계하고 파서를 고침. native x86 Fargate(5회 deploy iter: env.sh·argv·awscli v2·report_checks stdout)로 진짜 post-route 확보 → prepare.py가 **n_samples=53** 생성. 합성으로는 절대 안 나올 마찰들. (2) **H-A 첫 확증**: Claude+Codex headless가 train.py를 자율 변형 → 둘 다 baseline(val_mae 0.177) 능가, Codex winner(VotingRegressor + 도메인 feature engineering) **~0.11**(naive 1.41 대비 13.5×). 단순 sweep 아닌 *구조적 아이디어*(H1b). (3) **H-B 확증**: 루프가 winner를 `awaiting_operator`로 멈추고 **승격은 Operator 승인 후에만** — baseline 불변이 코드 구조로 강제됨. AutoResearch-RL의 "human asleep auto-merge"와 정반대. (4) **AutoResearch가 진짜 마찰을 표면화**: winner 모델이 `FunctionTransformer`를 `__main__` 참조로 pickle해 held-out 재채점이 깨짐 — 합성 테스트로는 안 나오고 *진짜 에이전트가 진짜 코드를 생성*해야 드러나는 종류. holdout 견고화로 수정. (5) **검증 게이트는 사람에게도 적용**: Operator(Claude)가 promote 커밋 시 `&&` 체인이 pytest를 게이트 안 해 broken main을 2커밋 동안 방치 → 즉시 복구. H-B의 "검증" invariant가 *Operator 자신의 워크플로*까지 확장됨(Learnings #3/#5 계열). (6) **co-evolution**: status exploring → **clarified** — 의도가 *빌드+실증*으로 수렴. Operator가 배운 운영 invariant(region 기본값 ap-northeast-2·awscli v2·OpenROAD argv 미지원·report_checks stdout)가 곧 커밋된 substrate가 됨 = Operator 학습 ↔ 프로젝트 진화의 양방향이 구체화. OD-1~6 전부 resolved(OD-5 정밀 임계값만 다설계 후).
