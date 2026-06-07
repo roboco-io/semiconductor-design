@@ -7,6 +7,11 @@ train.py·prepare.py·dataset 무변경 (읽기 + 임시 fold 분할만).
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
+from pipeline.holdout import score_holdout
+from pipeline.runner import run_candidate
 from sklearn.model_selection import KFold
 
 
@@ -26,4 +31,34 @@ def naive_fold_maes(rows: list[dict], splits) -> list[float]:
     for _tr, va in splits:
         errs = [abs(rows[j]["synth_slack_ns"] - rows[j]["post_route_slack_ns"]) for j in va]
         maes.append(sum(errs) / len(errs))
+    return maes
+
+
+def _write_jsonl(rows: list[dict], path: Path) -> Path:
+    path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    return path
+
+
+def candidate_fold_maes(train_py, rows: list[dict], splits, workdir: Path) -> list[float]:
+    """후보 train.py를 각 fold의 train으로 학습하고, 같은 fold의 val에서 paired MAE를 잰다.
+
+    train.py가 어떤 fold에서 실패하면 그 fold MAE = inf (검증 불가 신호).
+    validation이 split을 통제하므로 train.py 내부 split과 무관하게 paired가 성립한다.
+    """
+    workdir = Path(workdir)
+    workdir.mkdir(parents=True, exist_ok=True)
+    maes = []
+    for i, (tr, va) in enumerate(splits):
+        train_path = _write_jsonl([rows[j] for j in tr], workdir / f"f{i}_train.jsonl")
+        val_path = _write_jsonl([rows[j] for j in va], workdir / f"f{i}_val.jsonl")
+        out_dir = workdir / f"f{i}_out"
+        train_val = run_candidate(Path(train_py), train_path, out_dir, seed=0)
+        model = out_dir / "model.joblib"
+        if train_val == float("inf") or not model.exists():
+            maes.append(float("inf"))
+            continue
+        try:
+            maes.append(score_holdout(Path(train_py), model, val_path))
+        except Exception:
+            maes.append(float("inf"))
     return maes
