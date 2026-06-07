@@ -58,8 +58,12 @@ def paired_comparison(a: list[float], b: list[float], n_boot: int = 10000, seed:
         p = 1.0  # 전부 동일(차이 0) 등 → 구분 불가
 
     return {
-        "mean_diff": mean_diff, "ci_low": ci_low, "ci_high": ci_high,
-        "wilcoxon_p": p, "effect_size": effect_size, "n_valid": len(diffs),
+        "mean_diff": mean_diff,
+        "ci_low": ci_low,
+        "ci_high": ci_high,
+        "wilcoxon_p": p,
+        "effect_size": effect_size,
+        "n_valid": len(diffs),
     }
 
 
@@ -108,9 +112,16 @@ def candidate_fold_maes(train_py, rows: list[dict], splits, workdir: Path) -> li
     return maes
 
 
-def run_validation_gate(winner_train_py, baseline_train_py, rows: list[dict], workdir: Path,
-                        k: int = 5, repeats: int = 10, base_seed: int = 0,
-                        n_boot: int = 10000) -> dict:
+def run_validation_gate(
+    winner_train_py,
+    baseline_train_py,
+    rows: list[dict],
+    workdir: Path,
+    k: int = 5,
+    repeats: int = 10,
+    base_seed: int = 0,
+    n_boot: int = 10000,
+) -> dict:
     """naive·baseline·winner를 동일 fold에서 평가하고 winner 기준 paired 판정을 산출.
 
     winner가 한 fold라도 실패(inf)하면 불안정으로 보고 verdict='worse'(검증 불가)로 처리한다.
@@ -126,11 +137,16 @@ def run_validation_gate(winner_train_py, baseline_train_py, rows: list[dict], wo
     n_failed_baseline = sum(1 for m in baseline_folds if m == float("inf"))
 
     res = {
-        "winner_folds": winner_folds, "baseline_folds": baseline_folds,
-        "naive_folds": naive_folds, "n_failed_winner": n_failed_winner,
-        "n_failed_baseline": n_failed_baseline, "n_folds": len(splits),
-        "winner_vs_baseline": None, "winner_vs_naive": None,
-        "verdict_vs_baseline": None, "single_design": True,
+        "winner_folds": winner_folds,
+        "baseline_folds": baseline_folds,
+        "naive_folds": naive_folds,
+        "n_failed_winner": n_failed_winner,
+        "n_failed_baseline": n_failed_baseline,
+        "n_folds": len(splits),
+        "winner_vs_baseline": None,
+        "winner_vs_naive": None,
+        "verdict_vs_baseline": None,
+        "single_design": True,
     }
     if n_failed_winner > 0 or n_failed_baseline > 0:
         res["verdict_vs_baseline"] = "worse"  # 검증 불가(불안정) → 보수적
@@ -150,8 +166,10 @@ def render_validation_report(res: dict) -> str:
     """승격 검증 게이트 리포트(advisory). Operator가 승격 판단 시 참고."""
     L = ["# 승격 검증 리포트 (advisory)", ""]
     L.append(f"- folds: {res['n_folds']} (repeated K-fold, paired)")
-    L.append(f"- winner 실패 fold: {res['n_failed_winner']} / baseline 실패 fold: "
-             f"{res['n_failed_baseline']}")
+    L.append(
+        f"- winner 실패 fold: {res['n_failed_winner']} / baseline 실패 fold: "
+        f"{res['n_failed_baseline']}"
+    )
     L.append("")
     L.append("| 모델 | 평균 fold MAE |")
     L.append("|---|---|")
@@ -161,13 +179,17 @@ def render_validation_report(res: dict) -> str:
     L.append("")
     wb = res["winner_vs_baseline"]
     if wb:
-        L.append(f"**winner vs baseline**: mean_diff={wb['mean_diff']:+.4f} "
-                 f"(95% CI [{wb['ci_low']:+.4f}, {wb['ci_high']:+.4f}]), "
-                 f"Wilcoxon p={wb['wilcoxon_p']:.3f}, Cohen's dz={wb['effect_size']:+.2f}")
+        L.append(
+            f"**winner vs baseline**: mean_diff={wb['mean_diff']:+.4f} "
+            f"(95% CI [{wb['ci_low']:+.4f}, {wb['ci_high']:+.4f}]), "
+            f"Wilcoxon p={wb['wilcoxon_p']:.3f}, Cohen's dz={wb['effect_size']:+.2f}"
+        )
         wn = res["winner_vs_naive"]
-        L.append(f"**winner vs naive**: mean_diff={wn['mean_diff']:+.4f} "
-                 f"(95% CI [{wn['ci_low']:+.4f}, {wn['ci_high']:+.4f}]), "
-                 f"Wilcoxon p={wn['wilcoxon_p']:.3f}")
+        L.append(
+            f"**winner vs naive**: mean_diff={wn['mean_diff']:+.4f} "
+            f"(95% CI [{wn['ci_low']:+.4f}, {wn['ci_high']:+.4f}]), "
+            f"Wilcoxon p={wn['wilcoxon_p']:.3f}"
+        )
     L.append("")
     L.append(f"## verdict (winner vs baseline): **{res['verdict_vs_baseline']}**")
     L.append("")

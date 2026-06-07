@@ -1,8 +1,15 @@
 # tests/pipeline/test_validation.py
-import json
 from pathlib import Path
 
-from pipeline.validation import candidate_fold_maes, fold_splits, naive_fold_maes
+from pipeline.validation import (
+    candidate_fold_maes,
+    fold_splits,
+    naive_fold_maes,
+    paired_comparison,
+    render_validation_report,
+    run_validation_gate,
+    verdict,
+)
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -35,14 +42,23 @@ def test_naive_fold_maes_handcomputed():
 
 
 def _rows(n=40):
-    return [{
-        "endpoint": f"e{i}", "startpoint": f"s{i}", "num_stages": 2 + i % 5,
-        "synth_slack_ns": 0.4 - (i % 6) * 0.1, "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
-        "max_stage_delay_ns": 0.1 + (i % 3) * 0.15, "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
-        "startpoint_is_ff": i % 2, "endpoint_is_ff": 1,
-        "path_group": "core_clock",
-        "post_route_slack_ns": 0.5 - (i % 7) * 0.1, "group_key": "gcd",
-    } for i in range(n)]
+    return [
+        {
+            "endpoint": f"e{i}",
+            "startpoint": f"s{i}",
+            "num_stages": 2 + i % 5,
+            "synth_slack_ns": 0.4 - (i % 6) * 0.1,
+            "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+            "max_stage_delay_ns": 0.1 + (i % 3) * 0.15,
+            "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+            "startpoint_is_ff": i % 2,
+            "endpoint_is_ff": 1,
+            "path_group": "core_clock",
+            "post_route_slack_ns": 0.5 - (i % 7) * 0.1,
+            "group_key": "gcd",
+        }
+        for i in range(n)
+    ]
 
 
 def test_candidate_fold_maes_real_trainpy(tmp_path):
@@ -60,9 +76,6 @@ def test_candidate_fold_maes_broken_trainpy_inf(tmp_path):
     splits = fold_splits(len(rows), k=5, repeats=1)
     maes = candidate_fold_maes(broken, rows, splits, tmp_path / "wd2")
     assert all(m == float("inf") for m in maes)  # 모든 fold 실패
-
-
-from pipeline.validation import paired_comparison, verdict
 
 
 def test_paired_comparison_a_better_than_b():
@@ -90,15 +103,17 @@ def test_verdict_branches():
     assert verdict({"wilcoxon_p": 0.01, "ci_low": 0.01, "ci_high": 0.05}) == "worse"
 
 
-from pipeline.validation import run_validation_gate
-
-
 def test_run_validation_gate_baseline_vs_itself(tmp_path):
     # winner == baseline (같은 train.py) → 구분 불가가 정상
     rows = _rows(40)
     res = run_validation_gate(
-        REPO / "train.py", REPO / "train.py", rows, tmp_path / "gate",
-        k=5, repeats=1, n_boot=1000,
+        REPO / "train.py",
+        REPO / "train.py",
+        rows,
+        tmp_path / "gate",
+        k=5,
+        repeats=1,
+        n_boot=1000,
     )
     assert res["verdict_vs_baseline"] == "indistinguishable"
     assert abs(res["winner_vs_baseline"]["mean_diff"]) < 0.05
@@ -111,24 +126,43 @@ def test_run_validation_gate_unstable_winner(tmp_path):
     broken.write_text("import sys; sys.exit(3)\n")
     rows = _rows(40)
     res = run_validation_gate(
-        broken, REPO / "train.py", rows, tmp_path / "gate2", k=5, repeats=1, n_boot=1000,
+        broken,
+        REPO / "train.py",
+        rows,
+        tmp_path / "gate2",
+        k=5,
+        repeats=1,
+        n_boot=1000,
     )
     assert res["verdict_vs_baseline"] == "worse"  # 불안정 후보는 worse 처리
     assert res["n_failed_winner"] == 5
 
 
-from pipeline.validation import render_validation_report
-
-
 def test_render_report_contains_warning_and_models():
     res = {
-        "winner_folds": [0.10, 0.11], "baseline_folds": [0.12, 0.13],
-        "naive_folds": [1.40, 1.42], "n_failed_winner": 0, "n_failed_baseline": 0,
-        "n_folds": 2, "single_design": True,
-        "winner_vs_baseline": {"mean_diff": -0.02, "ci_low": -0.03, "ci_high": -0.01,
-                               "wilcoxon_p": 0.04, "effect_size": -1.2, "n_valid": 2},
-        "winner_vs_naive": {"mean_diff": -1.30, "ci_low": -1.35, "ci_high": -1.25,
-                            "wilcoxon_p": 0.04, "effect_size": -8.0, "n_valid": 2},
+        "winner_folds": [0.10, 0.11],
+        "baseline_folds": [0.12, 0.13],
+        "naive_folds": [1.40, 1.42],
+        "n_failed_winner": 0,
+        "n_failed_baseline": 0,
+        "n_folds": 2,
+        "single_design": True,
+        "winner_vs_baseline": {
+            "mean_diff": -0.02,
+            "ci_low": -0.03,
+            "ci_high": -0.01,
+            "wilcoxon_p": 0.04,
+            "effect_size": -1.2,
+            "n_valid": 2,
+        },
+        "winner_vs_naive": {
+            "mean_diff": -1.30,
+            "ci_low": -1.35,
+            "ci_high": -1.25,
+            "wilcoxon_p": 0.04,
+            "effect_size": -8.0,
+            "n_valid": 2,
+        },
         "verdict_vs_baseline": "distinguishable",
     }
     md = render_validation_report(res)
