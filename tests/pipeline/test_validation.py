@@ -88,3 +88,30 @@ def test_verdict_branches():
     assert verdict({"wilcoxon_p": 0.01, "ci_low": -0.05, "ci_high": -0.01}) == "distinguishable"
     assert verdict({"wilcoxon_p": 0.4, "ci_low": -0.03, "ci_high": 0.02}) == "indistinguishable"
     assert verdict({"wilcoxon_p": 0.01, "ci_low": 0.01, "ci_high": 0.05}) == "worse"
+
+
+from pipeline.validation import run_validation_gate
+
+
+def test_run_validation_gate_baseline_vs_itself(tmp_path):
+    # winner == baseline (같은 train.py) → 구분 불가가 정상
+    rows = _rows(40)
+    res = run_validation_gate(
+        REPO / "train.py", REPO / "train.py", rows, tmp_path / "gate",
+        k=5, repeats=1, n_boot=1000,
+    )
+    assert res["verdict_vs_baseline"] == "indistinguishable"
+    assert abs(res["winner_vs_baseline"]["mean_diff"]) < 0.05
+    assert res["n_failed_winner"] == 0
+    assert len(res["winner_folds"]) == 5
+
+
+def test_run_validation_gate_unstable_winner(tmp_path):
+    broken = tmp_path / "broken.py"
+    broken.write_text("import sys; sys.exit(3)\n")
+    rows = _rows(40)
+    res = run_validation_gate(
+        broken, REPO / "train.py", rows, tmp_path / "gate2", k=5, repeats=1, n_boot=1000,
+    )
+    assert res["verdict_vs_baseline"] == "worse"  # 불안정 후보는 worse 처리
+    assert res["n_failed_winner"] == 5

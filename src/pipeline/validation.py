@@ -106,3 +106,37 @@ def candidate_fold_maes(train_py, rows: list[dict], splits, workdir: Path) -> li
         except Exception:
             maes.append(float("inf"))
     return maes
+
+
+def run_validation_gate(winner_train_py, baseline_train_py, rows: list[dict], workdir: Path,
+                        k: int = 5, repeats: int = 10, base_seed: int = 0,
+                        n_boot: int = 10000) -> dict:
+    """naive·baseline·winner를 동일 fold에서 평가하고 winner 기준 paired 판정을 산출.
+
+    winner가 한 fold라도 실패(inf)하면 불안정으로 보고 verdict='worse'(검증 불가)로 처리한다.
+    advisory — 승격 결정은 Operator(H-B).
+    """
+    workdir = Path(workdir)
+    splits = fold_splits(len(rows), k=k, repeats=repeats, base_seed=base_seed)
+    winner_folds = candidate_fold_maes(winner_train_py, rows, splits, workdir / "winner")
+    baseline_folds = candidate_fold_maes(baseline_train_py, rows, splits, workdir / "baseline")
+    naive_folds = naive_fold_maes(rows, splits)
+
+    n_failed_winner = sum(1 for m in winner_folds if m == float("inf"))
+    n_failed_baseline = sum(1 for m in baseline_folds if m == float("inf"))
+
+    res = {
+        "winner_folds": winner_folds, "baseline_folds": baseline_folds,
+        "naive_folds": naive_folds, "n_failed_winner": n_failed_winner,
+        "n_failed_baseline": n_failed_baseline, "n_folds": len(splits),
+        "winner_vs_baseline": None, "winner_vs_naive": None,
+        "verdict_vs_baseline": None, "single_design": True,
+    }
+    if n_failed_winner > 0 or n_failed_baseline > 0:
+        res["verdict_vs_baseline"] = "worse"  # 검증 불가(불안정) → 보수적
+        return res
+
+    res["winner_vs_baseline"] = paired_comparison(winner_folds, baseline_folds, n_boot, base_seed)
+    res["winner_vs_naive"] = paired_comparison(winner_folds, naive_folds, n_boot, base_seed)
+    res["verdict_vs_baseline"] = verdict(res["winner_vs_baseline"])
+    return res
