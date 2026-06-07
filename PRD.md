@@ -39,7 +39,7 @@
 
 ## 3. 운영 모델 · 페르소나
 
-**single-operator multi-agent**. 사용자는 **Operator(감독자)** — Researcher/Developer 역할은 에이전트가 수행하고, **머지·winner 선택은 항상 Operator**. 에이전트의 자율성은 후보 *생성·학습*까지이며, *채택*은 사람의 권한이다 (H-B의 핵심 차별 축).
+**single-operator multi-agent**. 사용자는 **Operator(방향타·학습자)** — Researcher/Developer 역할은 에이전트가 수행하고, **winner 승격은 객관적 자동 게이트(median + T1 검증)** 가 판정한다. 에이전트의 자율성은 후보 *생성·학습*에 더해 *게이트 통과 시 자동 승격*까지(2026-06-08 재피벗); 사람은 *방향·이해* 담당이다. **전환 중**: auto-gate 미구현 동안은 Operator가 게이트 리포트 확인 후 머지(권한이 아니라 임시 단계).
 
 ## 4. 기능 요구사항 (INTENT `What` → FR)
 
