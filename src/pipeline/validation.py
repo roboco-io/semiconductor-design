@@ -43,6 +43,8 @@ def paired_comparison(a: list[float], b: list[float], n_boot: int = 10000, seed:
 
     a·b는 동일 fold에서 잰 유한 값이어야 한다(inf는 호출 전에 걸러짐 — gate가 처리).
     """
+    if len(a) != len(b):
+        raise ValueError(f"paired_comparison: 길이 불일치 a={len(a)} b={len(b)}")
     diffs = np.array([x - y for x, y in zip(a, b)], dtype=float)
     mean_diff = float(diffs.mean())
     std = float(diffs.std(ddof=1)) if len(diffs) > 1 else 0.0
@@ -92,8 +94,10 @@ def _write_jsonl(rows: list[dict], path: Path) -> Path:
 def candidate_fold_maes(train_py, rows: list[dict], splits, workdir: Path) -> list[float]:
     """후보 train.py를 각 fold의 train으로 학습하고, 같은 fold의 val에서 paired MAE를 잰다.
 
-    train.py가 어떤 fold에서 실패하면 그 fold MAE = inf (검증 불가 신호).
-    validation이 split을 통제하므로 train.py 내부 split과 무관하게 paired가 성립한다.
+    주의(정직한 서술): train.py(frozen)는 받은 fold-train을 *다시* 내부 0.75 분할하므로 모델은
+    fold-train 100%가 아닌 ~75%로 학습된다. 즉 clean K-fold가 아니라 train.py 내부분할을 포함한
+    nested resampling이다. fold-val은 train.py가 전혀 보지 않은 완전 held-out이라 paired 비교는 유효.
+    train.py가 어떤 fold에서 실패하면 그 fold MAE = inf.
     """
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
@@ -201,6 +205,9 @@ def render_validation_report(res: dict) -> str:
             f"winner 실패={res['n_failed_winner']}, baseline 실패={res['n_failed_baseline']}. "
             f"verdict 'worse'는 통계적 열등이 아니라 검증 불가를 뜻함."
         )
+    L.append("")
+    L.append("> ⚠️ 반복 K-fold는 train/val 중첩으로 fold 점수들이 **상관**된다 — bootstrap CI·Wilcoxon p는")
+    L.append("> 독립 표본 가정보다 **낙관적**(불확실성 과소평가)일 수 있다. verdict는 보수적으로 해석.")
     L.append("")
     L.append("> ⚠️ **단일 설계(n=53) 한계**: 본 검증은 한 설계 내 repeated K-fold일 뿐,")
     L.append("> 일반화(다른 설계 예측)를 주장하지 않는다. held-out *설계* 교차검증은 **T4**의 몫.")
