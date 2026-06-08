@@ -71,6 +71,76 @@ def test_run_generation_end_to_end_mock(tmp_path):
     assert "per_seed_vals" in header
 
 
+import shutil
+
+
+def _stub_gate(verdict):
+    def gate(winner_train_py, baseline_train_py, rows, workdir, **kw):
+        return {"verdict_vs_baseline": verdict, "winner_folds": [0.1], "baseline_folds": [0.1],
+                "naive_folds": [1.4], "n_failed_winner": 0, "n_failed_baseline": 0, "n_folds": 1,
+                "single_design": True, "winner_vs_baseline": None, "winner_vs_naive": None}
+    return gate
+
+
+def _tmp_baseline(tmp_path):
+    # 실제 train.py를 건드리지 않도록 tmp 복사본을 baseline으로 사용 (promote가 이걸 덮어씀).
+    b = tmp_path / "baseline_train.py"
+    shutil.copyfile(REPO / "train.py", b)
+    return b
+
+
+def test_auto_gate_promoted(tmp_path):
+    baseline = _tmp_baseline(tmp_path)
+    run_generation(
+        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=baseline,
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g",
+        auto=True, gate_fn=_stub_gate("distinguishable"),
+        reviewer_fn=lambda prompt: '{"approve": true, "reasons": "ok"}',
+        do_git=False,
+    )
+    gen = json.loads((tmp_path / "g" / "gen-003" / "generation.json").read_text())
+    assert gen["status"] == "promoted"
+    assert (tmp_path / "g" / "gen-003" / "report.md").exists()
+
+
+def test_auto_gate_rejected_codex(tmp_path):
+    baseline = _tmp_baseline(tmp_path)
+    before = baseline.read_bytes()
+    run_generation(
+        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=baseline,
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g2",
+        auto=True, gate_fn=_stub_gate("distinguishable"),
+        reviewer_fn=lambda prompt: '{"approve": false, "reasons": "누수 의심"}',
+        do_git=False,
+    )
+    gen = json.loads((tmp_path / "g2" / "gen-003" / "generation.json").read_text())
+    assert gen["status"] == "rejected_codex"
+    assert baseline.read_bytes() == before  # 승격 안 됨 → baseline 불변
+
+
+def test_auto_gate_rejected_t1(tmp_path):
+    calls = []
+    run_generation(
+        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g3",
+        auto=True, gate_fn=_stub_gate("indistinguishable"),
+        reviewer_fn=lambda prompt: calls.append(1) or '{"approve": true, "reasons": "x"}',
+        do_git=False,
+    )
+    gen = json.loads((tmp_path / "g3" / "gen-003" / "generation.json").read_text())
+    assert gen["status"] == "rejected_t1"
+    assert calls == []  # T1 미달 → Codex 미호출
+
+
+def test_auto_false_keeps_awaiting_operator(tmp_path):
+    run_generation(
+        gen_no=1, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g4", auto=False,
+    )
+    gen = json.loads((tmp_path / "g4" / "gen-001" / "generation.json").read_text())
+    assert gen["status"] == "awaiting_operator"
+
+
 def test_per_seed_vals_inf_serialized_as_null(tmp_path):
     """단락된(inf) 후보의 per_seed_vals 셀이 RFC 8259 위반 Infinity가 아닌 null로 직렬화되는지."""
 
