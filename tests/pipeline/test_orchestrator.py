@@ -1,5 +1,6 @@
 # tests/pipeline/test_orchestrator.py
 import json
+import shutil
 from pathlib import Path
 
 from pipeline.orchestrator import run_generation
@@ -71,14 +72,21 @@ def test_run_generation_end_to_end_mock(tmp_path):
     assert "per_seed_vals" in header
 
 
-import shutil
-
-
 def _stub_gate(verdict):
     def gate(winner_train_py, baseline_train_py, rows, workdir, **kw):
-        return {"verdict_vs_baseline": verdict, "winner_folds": [0.1], "baseline_folds": [0.1],
-                "naive_folds": [1.4], "n_failed_winner": 0, "n_failed_baseline": 0, "n_folds": 1,
-                "single_design": True, "winner_vs_baseline": None, "winner_vs_naive": None}
+        return {
+            "verdict_vs_baseline": verdict,
+            "winner_folds": [0.1],
+            "baseline_folds": [0.1],
+            "naive_folds": [1.4],
+            "n_failed_winner": 0,
+            "n_failed_baseline": 0,
+            "n_folds": 1,
+            "single_design": True,
+            "winner_vs_baseline": None,
+            "winner_vs_naive": None,
+        }
+
     return gate
 
 
@@ -92,9 +100,15 @@ def _tmp_baseline(tmp_path):
 def test_auto_gate_promoted(tmp_path):
     baseline = _tmp_baseline(tmp_path)
     run_generation(
-        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=baseline,
-        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g",
-        auto=True, gate_fn=_stub_gate("distinguishable"),
+        gen_no=3,
+        dataset=_dataset(tmp_path),
+        baseline_train_py=baseline,
+        program_md="opt",
+        n=2,
+        gen_fn=_mock_gen,
+        out_root=tmp_path / "g",
+        auto=True,
+        gate_fn=_stub_gate("distinguishable"),
         reviewer_fn=lambda prompt: '{"approve": true, "reasons": "ok"}',
         do_git=False,
     )
@@ -107,9 +121,15 @@ def test_auto_gate_rejected_codex(tmp_path):
     baseline = _tmp_baseline(tmp_path)
     before = baseline.read_bytes()
     run_generation(
-        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=baseline,
-        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g2",
-        auto=True, gate_fn=_stub_gate("distinguishable"),
+        gen_no=3,
+        dataset=_dataset(tmp_path),
+        baseline_train_py=baseline,
+        program_md="opt",
+        n=2,
+        gen_fn=_mock_gen,
+        out_root=tmp_path / "g2",
+        auto=True,
+        gate_fn=_stub_gate("distinguishable"),
         reviewer_fn=lambda prompt: '{"approve": false, "reasons": "누수 의심"}',
         do_git=False,
     )
@@ -121,9 +141,15 @@ def test_auto_gate_rejected_codex(tmp_path):
 def test_auto_gate_rejected_t1(tmp_path):
     calls = []
     run_generation(
-        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
-        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g3",
-        auto=True, gate_fn=_stub_gate("indistinguishable"),
+        gen_no=3,
+        dataset=_dataset(tmp_path),
+        baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt",
+        n=2,
+        gen_fn=_mock_gen,
+        out_root=tmp_path / "g3",
+        auto=True,
+        gate_fn=_stub_gate("indistinguishable"),
         reviewer_fn=lambda prompt: calls.append(1) or '{"approve": true, "reasons": "x"}',
         do_git=False,
     )
@@ -134,8 +160,14 @@ def test_auto_gate_rejected_t1(tmp_path):
 
 def test_auto_false_keeps_awaiting_operator(tmp_path):
     run_generation(
-        gen_no=1, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
-        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "g4", auto=False,
+        gen_no=1,
+        dataset=_dataset(tmp_path),
+        baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt",
+        n=2,
+        gen_fn=_mock_gen,
+        out_root=tmp_path / "g4",
+        auto=False,
     )
     gen = json.loads((tmp_path / "g4" / "gen-001" / "generation.json").read_text())
     assert gen["status"] == "awaiting_operator"

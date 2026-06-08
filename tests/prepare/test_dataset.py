@@ -18,8 +18,8 @@ def test_flow_lockfile_sha_matches_sha256():
 def test_flow_lockfile_sha_changes_with_content(tmp_path):
     a = tmp_path / "a.yaml"
     b = tmp_path / "b.yaml"
-    a.write_text("tools:\n  openroad: \"2.0\"\n", encoding="utf-8")
-    b.write_text("tools:\n  openroad: \"2.1\"\n", encoding="utf-8")
+    a.write_text('tools:\n  openroad: "2.0"\n', encoding="utf-8")
+    b.write_text('tools:\n  openroad: "2.1"\n', encoding="utf-8")
     sha_a = flow_lockfile_sha(a)
     sha_b = flow_lockfile_sha(b)
     assert sha_a != sha_b

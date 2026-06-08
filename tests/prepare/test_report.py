@@ -46,10 +46,12 @@ def test_input_port_startpoint_not_ff():
 
 
 def test_negative_slack_parses():
-    block = ("Startpoint: a (rising edge-triggered flip-flop clocked by clk)\n"
-             "Endpoint: b (rising edge-triggered flip-flop clocked by clk)\n"
-             "Path Group: clk\nPath Type: max\n"
-             "   0.50   data arrival time\n           -0.05   slack (VIOLATED)")
+    block = (
+        "Startpoint: a (rising edge-triggered flip-flop clocked by clk)\n"
+        "Endpoint: b (rising edge-triggered flip-flop clocked by clk)\n"
+        "Path Group: clk\nPath Type: max\n"
+        "   0.50   data arrival time\n           -0.05   slack (VIOLATED)"
+    )
     recs = parse_report(block)
     assert recs[0].slack_ns == pytest.approx(-0.05)
 

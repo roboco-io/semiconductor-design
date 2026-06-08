@@ -22,7 +22,9 @@ def codex_review_fn(prompt: str) -> str:
     try:
         proc = subprocess.run(
             ["codex", "exec", "--skip-git-repo-check", prompt],
-            capture_output=True, text=True, timeout=900,
+            capture_output=True,
+            text=True,
+            timeout=900,
         )
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return ""

@@ -207,13 +207,29 @@ def test_paired_comparison_length_mismatch_raises():
 
 def test_report_has_statistical_dependence_caveat():
     res = {
-        "winner_folds": [0.10, 0.11], "baseline_folds": [0.12, 0.13],
-        "naive_folds": [1.40, 1.42], "n_failed_winner": 0, "n_failed_baseline": 0,
-        "n_folds": 2, "single_design": True,
-        "winner_vs_baseline": {"mean_diff": -0.02, "ci_low": -0.03, "ci_high": -0.01,
-                               "wilcoxon_p": 0.04, "effect_size": -1.2, "n_valid": 2},
-        "winner_vs_naive": {"mean_diff": -1.30, "ci_low": -1.35, "ci_high": -1.25,
-                            "wilcoxon_p": 0.04, "effect_size": -8.0, "n_valid": 2},
+        "winner_folds": [0.10, 0.11],
+        "baseline_folds": [0.12, 0.13],
+        "naive_folds": [1.40, 1.42],
+        "n_failed_winner": 0,
+        "n_failed_baseline": 0,
+        "n_folds": 2,
+        "single_design": True,
+        "winner_vs_baseline": {
+            "mean_diff": -0.02,
+            "ci_low": -0.03,
+            "ci_high": -0.01,
+            "wilcoxon_p": 0.04,
+            "effect_size": -1.2,
+            "n_valid": 2,
+        },
+        "winner_vs_naive": {
+            "mean_diff": -1.30,
+            "ci_low": -1.35,
+            "ci_high": -1.25,
+            "wilcoxon_p": 0.04,
+            "effect_size": -8.0,
+            "n_valid": 2,
+        },
         "verdict_vs_baseline": "distinguishable",
     }
     md = render_validation_report(res)

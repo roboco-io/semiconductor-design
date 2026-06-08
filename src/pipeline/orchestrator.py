@@ -18,8 +18,18 @@ from pipeline.validation import render_validation_report, run_validation_gate
 
 
 def run_generation(
-    gen_no, dataset, baseline_train_py, program_md, n, gen_fn, out_root,
-    seeds=(0, 1, 2, 3, 4), *, auto=False, gate_fn=None, reviewer_fn=None,
+    gen_no,
+    dataset,
+    baseline_train_py,
+    program_md,
+    n,
+    gen_fn,
+    out_root,
+    seeds=(0, 1, 2, 3, 4),
+    *,
+    auto=False,
+    gate_fn=None,
+    reviewer_fn=None,
     do_git=True,
 ):
     gdir = Path(out_root) / f"gen-{gen_no:03d}"
@@ -52,7 +62,10 @@ def run_generation(
     status = "awaiting_operator"
     if auto and winner is not None:
         import json as _json
-        rows = [_json.loads(line) for line in Path(dataset).read_text().splitlines() if line.strip()]
+
+        rows = [
+            _json.loads(line) for line in Path(dataset).read_text().splitlines() if line.strip()
+        ]
         gate = gate_fn or run_validation_gate
         t1 = gate(Path(winner.src_path), Path(baseline_train_py), rows, gdir / "t1")
         t1_report = render_validation_report(t1)
@@ -64,10 +77,17 @@ def run_generation(
             rfn = reviewer_fn
             if rfn is None:
                 from pipeline.sdk import codex_review_fn as rfn  # 실제 Codex (비용)
-            codex_verdict = review_promotion(winner_src, baseline_src_now, t1_report, reviewer_fn=rfn)
+            codex_verdict = review_promotion(
+                winner_src, baseline_src_now, t1_report, reviewer_fn=rfn
+            )
             if codex_verdict["approve"]:
-                operator_gate.promote(Path(winner.src_path), Path(baseline_train_py), gen_no,
-                                      approved=True, do_git=do_git)
+                operator_gate.promote(
+                    Path(winner.src_path),
+                    Path(baseline_train_py),
+                    gen_no,
+                    approved=True,
+                    do_git=do_git,
+                )
                 status = "promoted"
             else:
                 status = "rejected_codex"
@@ -76,7 +96,10 @@ def run_generation(
         report_md = render_generation_report(
             gen_no,
             [(c.id, c.sdk, c.strategy, v) for c, v, _ps in ranking],
-            winner.id, t1_report, codex_verdict, status,
+            winner.id,
+            t1_report,
+            codex_verdict,
+            status,
         )
         (gdir / "report.md").write_text(report_md, encoding="utf-8")
 
@@ -110,7 +133,13 @@ def main(gen_no, dataset, n, out_root, program_md, auto):
 
     baseline = Path(__file__).resolve().parents[2] / "train.py"
     res = run_generation(
-        gen_no, dataset, baseline, Path(program_md).read_text(), n, claude_codex_gen_fn, out_root,
+        gen_no,
+        dataset,
+        baseline,
+        Path(program_md).read_text(),
+        n,
+        claude_codex_gen_fn,
+        out_root,
         auto=auto,
     )
     click.echo(json.dumps(res, indent=2))

@@ -17,20 +17,22 @@ def _write_dataset(path: Path, n: int = 40, groups=("gcd", "ibex")) -> Path:
     for i in range(n):
         g = groups[i % len(groups)]
         slack = 0.5 - (i % 7) * 0.1  # 일부 음수(violation) 포함
-        rows.append({
-            "endpoint": f"ep_{i}",
-            "startpoint": f"sp_{i}",
-            "num_stages": 2 + (i % 5),
-            "synth_slack_ns": 0.4 - (i % 6) * 0.1,
-            "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
-            "max_stage_delay_ns": 0.1 + (i % 3) * 0.15,
-            "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
-            "startpoint_is_ff": i % 2,
-            "endpoint_is_ff": 1,
-            "path_group": "clk" if i % 2 == 0 else "clk2",
-            "post_route_slack_ns": slack,
-            "group_key": g,
-        })
+        rows.append(
+            {
+                "endpoint": f"ep_{i}",
+                "startpoint": f"sp_{i}",
+                "num_stages": 2 + (i % 5),
+                "synth_slack_ns": 0.4 - (i % 6) * 0.1,
+                "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+                "max_stage_delay_ns": 0.1 + (i % 3) * 0.15,
+                "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+                "startpoint_is_ff": i % 2,
+                "endpoint_is_ff": 1,
+                "path_group": "clk" if i % 2 == 0 else "clk2",
+                "post_route_slack_ns": slack,
+                "group_key": g,
+            }
+        )
     path.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
     return path
 
@@ -84,9 +86,18 @@ def test_cli_outputs_val_mae_and_saves_model(tmp_path):
     data = _write_dataset(tmp_path / "ds.jsonl", n=40)
     out = tmp_path / "art"
     r = subprocess.run(
-        [sys.executable, str(REPO / "train.py"), "--data", str(data),
-         "--out", str(out), "--seed", "0"],
-        capture_output=True, text=True,
+        [
+            sys.executable,
+            str(REPO / "train.py"),
+            "--data",
+            str(data),
+            "--out",
+            str(out),
+            "--seed",
+            "0",
+        ],
+        capture_output=True,
+        text=True,
     )
     assert r.returncode == 0, r.stderr
     payload = json.loads(r.stdout.strip().splitlines()[-1])

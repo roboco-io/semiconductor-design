@@ -26,6 +26,8 @@ def render_generation_report(gen_no, ranking, winner_id, t1_report, codex_verdic
     L.append(f"- 사유: {codex_verdict.get('reasons', '')}")
     L.append("")
     L.append("## 4) 승격 규칙")
-    L.append("median 선택 → T1 `distinguishable` **AND** Codex `approve` → 자동 승격(train.py·tag).")
+    L.append(
+        "median 선택 → T1 `distinguishable` **AND** Codex `approve` → 자동 승격(train.py·tag)."
+    )
     L.append("사람은 `program.md` 방향만 — per-winner 승인 없음(2026-06-08 재피벗).")
     return "\n".join(L)

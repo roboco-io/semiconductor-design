@@ -16,9 +16,14 @@ def _route():
 
 def test_feature_names_frozen_order():
     assert FEATURE_NAMES == [
-        "num_stages", "synth_slack_ns", "synth_arrival_ns",
-        "max_stage_delay_ns", "mean_stage_delay_ns",
-        "startpoint_is_ff", "endpoint_is_ff", "path_group",
+        "num_stages",
+        "synth_slack_ns",
+        "synth_arrival_ns",
+        "max_stage_delay_ns",
+        "mean_stage_delay_ns",
+        "startpoint_is_ff",
+        "endpoint_is_ff",
+        "path_group",
     ]
 
 
@@ -153,5 +158,3 @@ def test_join_logs_unmatched_endpoints(capsys):
     rows = join_paths(parse_report(synth), parse_report(route))
     assert {r["endpoint"] for r in rows} == {"b"}
     assert "1 endpoints unmatched" in capsys.readouterr().err
-
-

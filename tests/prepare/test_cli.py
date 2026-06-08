@@ -16,11 +16,16 @@ def test_cli_writes_dataset(tmp_path):
     result = runner.invoke(
         prepare.main,
         [
-            "--synth", str(FIX / "synth.rpt"),
-            "--route", str(FIX / "route.rpt"),
-            "--lockfile", str(FIX / "lockfile.yaml"),
-            "--design-id", "gcd",
-            "--out-dir", str(tmp_path),
+            "--synth",
+            str(FIX / "synth.rpt"),
+            "--route",
+            str(FIX / "route.rpt"),
+            "--lockfile",
+            str(FIX / "lockfile.yaml"),
+            "--design-id",
+            "gcd",
+            "--out-dir",
+            str(tmp_path),
         ],
     )
     assert result.exit_code == 0, result.output
@@ -31,11 +36,23 @@ def test_cli_writes_dataset(tmp_path):
 def test_prepare_runs_as_script(tmp_path):
     out = tmp_path / "ds"
     r = subprocess.run(
-        [sys.executable, str(REPO / "prepare.py"),
-         "--synth", str(FIX / "synth.rpt"), "--route", str(FIX / "route.rpt"),
-         "--lockfile", str(FIX / "lockfile.yaml"), "--design-id", "gcd",
-         "--out-dir", str(out)],
-        capture_output=True, text=True)
+        [
+            sys.executable,
+            str(REPO / "prepare.py"),
+            "--synth",
+            str(FIX / "synth.rpt"),
+            "--route",
+            str(FIX / "route.rpt"),
+            "--lockfile",
+            str(FIX / "lockfile.yaml"),
+            "--design-id",
+            "gcd",
+            "--out-dir",
+            str(out),
+        ],
+        capture_output=True,
+        text=True,
+    )
     assert r.returncode == 0, r.stderr
     manifest = json.loads((out / "manifest.json").read_text())
     assert manifest["n_samples"] == 2
