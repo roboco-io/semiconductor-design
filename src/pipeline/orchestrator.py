@@ -128,7 +128,7 @@ def main(gen_no, dataset, n, out_root, program_md, auto):
     import sys
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-    from pipeline.sdk import claude_codex_gen_fn  # 실제 SDK (비용) — Operator 실행 시에만
+    from pipeline.sdk import claude_codex_gen_fn  # 실제 CLI 호출(구독 사용량) — Operator 실행 시에만
 
     baseline = Path(__file__).resolve().parents[2] / "train.py"
     res = run_generation(
