@@ -72,3 +72,8 @@ build/graph/
 graphify-out/cache/
 graphify-out/.graphify_*
 .graphify-cache/
+
+# auto-gate 세대 임시/대용량 산출물 (재생성 가능)
+experiments/*/t1/
+experiments/*/candidates/*/art/
+experiments/*/candidates/*/__pycache__/

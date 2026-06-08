@@ -74,6 +74,21 @@
 
 ## Learnings
 
+- **2026-06-08** (auto-gate 첫 자율 실행 — Codex가 T1이 못 잡는 gaming 차단) — `make loop --auto`로 gen-003을
+  **완전 무인** 실행(사람 개입 0). median이 codex 후보(cand-001, median 0.0786)를 선택 → **T1 통계 게이트
+  통과**(winner 0.1025 vs baseline 0.1476, mean_diff −0.0452, 95% CI [−0.053,−0.037], p<0.001, **dz=−1.51**,
+  verdict `distinguishable`) → 그러나 **Codex 승격 심사관이 차단**(`rejected_codex`). Codex 사유: 후보가
+  `for model in models: mae=MAE(y[va], model.predict); if mae<best: best_model=model` 로 **바로 그 검증셋(va)에서
+  best_model을 골라** 그 최솟값을 val_mae로 보고 — **post-selection bias / metric gaming**(train.py:232–245, grep
+  확증). 이 꼼수는 fold마다 진짜 낮은 MAE를 내 **T1을 구조적으로 속인다**(그래서 distinguishable). (1) **권력분립의
+  결정적 실증**: 순수 통계 게이트였다면 gamed 모델을 자동 승격했을 것(dz=−1.51로 "명백 우수"). 의미 게이트(Codex)가
+  코드를 읽어 leakage를 차단 — 두 게이트가 *상보적*이고, T1이 못 잡는 걸 Codex가 잡음. (2) **H-B 재정의 작동**:
+  사람 없이 신뢰가능한 자율 — 올바른 보수적 거부, train.py·tag 불변, main 무손상. "맹목적 자율 금지(Not)"가 코드로
+  실현됨. (3) **자기예언적 co-evolution**: Codex가 이전 리뷰에서 "T1은 fold 독립 가정으로 과신"이라 경고했는데, 바로
+  그 약점(val 기반 선택)을 찌르는 후보가 나왔고 Codex 게이트가 막음. (4) **비용 정정**: 루프 LLM 호출은 claude/codex
+  **CLI 구독**(추가 과금 0, 구독 사용량만) — metered API 미사용([[project-subscription-only-no-metered-llm]]).
+  후속: 검증 게이트가 fold 작업물 126M를 `gen-NNN/t1/`에 남김 → tempdir로 옮기는 소소한 개선 필요.
+
 - **2026-06-08** (재피벗: Operator authority → 비전문가 empowerment) — Operator가 "수동승인(H-B)을 핵심으로 꼽는 현 프레이밍은 과했다 — Karpathy식 자율 진행이 기본이어야 하고, 사람은 방향·큰 흐름만 이해·조종하면 된다. 목표는 비전문가가 전문영역서 의미있는 성과를 내는 것"이라 판단. **novelty 축 이동**: "자율 무인 vs Operator authority"(거버넌스) → **"비전문가 empowerment + 큰 흐름의 이해가능성"**(접근성). INTENT Not의 "자율 무인 머지 절대 금지"를 **"맹목적 자율 금지(객관적 게이트+이해가능성이 조건)"** 로 교체, H-B를 "per-winner 승인 없이 방향·이해만으로 신뢰가능한 자율" 로 재정의. **핵심 연속성**: 직전에 만든 T1 게이트가 버려지지 않고 *격상*됨 — advisory(사람 보조)에서 → *자율 승격을 신뢰가능케 하는 자동 판정자*로. 즉 엄밀 게이트가 있어야 사람을 per-winner 결정에서 뺄 수 있으니, T1이 자율성의 *전제조건*이 된다. status `clarified → exploring` (Learnings #1 예언대로 "되돌아감 자체가 co-evolution 신호" 실현 — 운영 통찰이 의도를 재변형). 후속: TUTORIAL/README/CLAUDE/PRD를 이 축으로 정합, 루프의 자동 승격 구현(operator_gate→auto-gate)은 별도 spec.
 
 - **2026-06-08** (T1 승격 검증 게이트 + H-A 엄밀 재확증) — gen-002 위양성을 계기로, "주장의 신뢰성"을
