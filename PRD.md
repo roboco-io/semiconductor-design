@@ -104,9 +104,9 @@ erDiagram
 
 ```
 ├── PRD.md                 # 본 문서
-├── prepare.py             # EDA 데이터셋 준비 (read-only / frozen — NFR-2)   [placeholder]
-├── train.py               # surrogate 학습 (에이전트 변형 단일 파일 — NFR-1)  [placeholder]
-├── program.md             # 에이전트 baseline 지시문                       [placeholder]
+├── prepare.py             # EDA 데이터셋 준비 (read-only / frozen — NFR-2)   [구현됨(frozen)]
+├── train.py               # surrogate 학습 (에이전트 변형 단일 파일 — NFR-1)  [구현됨(gen-001 winner)]
+├── program.md             # 에이전트 baseline 지시문                       [구현됨]
 ├── config.yaml            # AWS/파이프라인 설정 (region/Spot/세대수/N)        [placeholder]
 ├── src/pipeline/          # orchestrator · candidate_gen · batch_launcher · result_collector · selection
 ├── src/sagemaker/         # entry / training wrapper

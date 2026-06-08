@@ -32,4 +32,6 @@ startpoint_is_ff, endpoint_is_ff, path_group`) + 라벨 `post_route_slack_ns` + 
 마크다운/설명/펜스 없이 **변형된 train.py 전체 소스만** 출력.
 
 ## Operator 감독
-winner 선택·머지는 항상 사람 (자율 무인 머지 없음). 본 지시는 후보 *생성*에만 적용.
+winner 승격은 **자동 게이트(median + T1 통계 검증 + Codex 승격 심사관)** 가 판정한다.
+Operator는 `program.md`로 *방향*을 잡고 세대 리포트(`gen-NNN/report.md`)로 *큰 흐름을 이해*한다 —
+per-winner 승인은 없음(2026-06-08 재피벗). 본 지시는 후보 *생성*에만 적용.
