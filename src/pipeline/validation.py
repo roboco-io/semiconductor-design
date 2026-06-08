@@ -169,8 +169,8 @@ def _mean(xs):
 
 
 def render_validation_report(res: dict) -> str:
-    """승격 검증 게이트 리포트(advisory). Operator가 승격 판단 시 참고."""
-    L = ["# 승격 검증 리포트 (advisory)", ""]
+    """승격 검증 게이트 리포트. auto 모드에선 하드 게이트, 수동 모드에선 Operator 참고."""
+    L = ["# 승격 검증 리포트 (T1 게이트)", ""]
     L.append(f"- folds: {res['n_folds']} (repeated K-fold, paired)")
     L.append(
         f"- winner 실패 fold: {res['n_failed_winner']} / baseline 실패 fold: "
