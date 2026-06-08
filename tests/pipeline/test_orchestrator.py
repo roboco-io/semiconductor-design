@@ -227,3 +227,31 @@ def test_per_seed_vals_inf_serialized_as_null(tmp_path):
     gen_meta = json.loads((gdir / "generation.json").read_text())
     valid_winner = gen_meta["winner_candidate_id"]
     assert winner_id == valid_winner
+
+
+def test_auto_gate_fold_workdir_is_tempdir_not_experiments(tmp_path):
+    # T1 fold 작업물(대용량)이 experiments/gen-NNN/ 아래 영속되지 않고 임시 정리돼야 한다.
+    seen = {}
+
+    def spy_gate(winner_train_py, baseline_train_py, rows, workdir, **kw):
+        seen["workdir"] = Path(workdir)
+        Path(workdir).mkdir(parents=True, exist_ok=True)
+        (Path(workdir) / "fold0.tmp").write_text("big fold artifact")  # 게이트가 작업물을 쓴다
+        return {
+            "verdict_vs_baseline": "indistinguishable", "winner_folds": [0.1],
+            "baseline_folds": [0.1], "naive_folds": [1.4], "n_failed_winner": 0,
+            "n_failed_baseline": 0, "n_folds": 1, "single_design": True,
+            "winner_vs_baseline": None, "winner_vs_naive": None,
+        }
+
+    out_root = tmp_path / "g"
+    run_generation(
+        gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=out_root,
+        auto=True, gate_fn=spy_gate, reviewer_fn=lambda p: '{"approve": true, "reasons": "x"}',
+        do_git=False,
+    )
+    gdir = out_root / "gen-003"
+    assert not (gdir / "t1").exists()  # 작업물이 experiments에 안 남음
+    assert seen["workdir"].exists() is False  # 임시 dir 자동 정리됨
+    assert gdir not in seen["workdir"].parents  # 게이트는 gen dir 밖(temp)에서 작업

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import tempfile
 from pathlib import Path
 
 import click
@@ -66,7 +67,10 @@ def run_generation(
     if auto and winner is not None:
         rows = [json.loads(line) for line in Path(dataset).read_text().splitlines() if line.strip()]
         gate = gate_fn or run_validation_gate
-        t1 = gate(Path(winner.src_path), Path(baseline_train_py), rows, gdir / "t1")
+        # T1 fold 작업물(50 fold × jsonl/joblib, 100MB+)은 임시 — tempdir에 쓰고 자동 정리.
+        # 게이트 함수는 "workdir에 쓴다"는 단순 계약 유지; 수명 관리는 호출자(여기) 책임.
+        with tempfile.TemporaryDirectory(prefix=f"t1-gen{gen_no:03d}-") as _t1dir:
+            t1 = gate(Path(winner.src_path), Path(baseline_train_py), rows, Path(_t1dir))
         t1_report = render_validation_report(t1)
         verdict = t1.get("verdict_vs_baseline")
         codex_verdict = {"approve": False, "reasons": "T1 미통과 — 심사 생략"}
