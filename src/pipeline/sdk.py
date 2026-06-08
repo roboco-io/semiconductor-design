@@ -17,6 +17,18 @@ def _extract_code(text: str) -> str:
     return m.group(1) if m else text
 
 
+def codex_review_fn(prompt: str) -> str:
+    """승격 심사 prompt를 Codex CLI로 보내 raw 응답을 반환 (비용). 실패 시 빈 문자열 → reviewer가 block."""
+    try:
+        proc = subprocess.run(
+            ["codex", "exec", "--skip-git-repo-check", prompt],
+            capture_output=True, text=True, timeout=900,
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return ""
+    return proc.stdout if proc.returncode == 0 else ""
+
+
 def claude_codex_gen_fn(strategy: str, sdk: str, baseline_src: str, program_md: str) -> str:
     prompt = (
         f"{program_md}\n\n전략: {strategy}. 아래 train.py를 변형하라. "
