@@ -105,7 +105,7 @@ uv run python prepare.py --synth experiments/real-gcd-fargate/synth.rpt \
 # (2) 대리 모델 1회 학습
 make train DATA=/tmp/ds/dataset.jsonl OUT=/tmp/art SEED=0
 
-# (3) 진화 1세대 — 실제 AI 호출(비용 발생). 5-seed median으로 winner 선택
+# (3) 진화 1세대 — claude/codex CLI 호출(구독 사용량 소모, 추가 LLM 과금 없음). 5-seed median으로 winner
 make loop GEN=3 DATASET=/tmp/ds/dataset.jsonl N=2 PROGRAM=program.md
 ```
 

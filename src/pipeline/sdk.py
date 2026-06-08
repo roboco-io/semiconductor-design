@@ -1,4 +1,4 @@
-"""sdk — 실제 Claude Code / Codex headless 호출 gen_fn (비용 발생, Operator-gated).
+"""sdk — 실제 Claude Code / Codex CLI 호출 (구독 사용량 소모, 추가 LLM 과금 없음).
 
 테스트는 이 모듈을 import하지 않는다(주입 mock 사용). orchestrator CLI 실행 시에만 로드.
 """

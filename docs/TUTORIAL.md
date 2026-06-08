@@ -267,7 +267,7 @@ uv run python prepare.py \
 make train DATA=/tmp/ds/dataset.jsonl OUT=/tmp/art SEED=0
 # → {"val_mae": ...} 출력
 
-# (3) 진화 루프 한 세대 — 실제 AI 호출(비용 발생, Operator 전용)
+# (3) 진화 루프 한 세대 — claude/codex CLI 호출(구독 사용량 소모, 추가 LLM 과금 없음)
 #     각 후보를 5개 seed로 평가해 median val_mae가 낮은 후보를 winner로 고른다.
 make loop GEN=3 DATASET=/tmp/ds/dataset.jsonl N=2 PROGRAM=program.md
 
