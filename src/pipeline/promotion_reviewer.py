@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import re
 
-_JSON = re.compile(r"\{.*?\"approve\".*?\}", re.DOTALL)
+_JSON = re.compile(r'\{[^{}]*"approve"[^{}]*\}', re.DOTALL)
 
 
 def build_review_prompt(winner_src: str, baseline_src: str, validation_report: str) -> str:
@@ -35,11 +35,11 @@ def review_promotion(winner_src, baseline_src, validation_report, *, reviewer_fn
         raw = reviewer_fn(prompt)
     except Exception as e:  # noqa: BLE001 — 어떤 실패든 보수적 block
         return {"approve": False, "reasons": f"Codex 심사 실패: {e}"}
-    m = _JSON.search(raw or "")
-    if not m:
+    matches = _JSON.findall(raw or "")
+    if not matches:
         return {"approve": False, "reasons": "Codex 심사 응답에서 JSON 미발견 — block(보수적)"}
     try:
-        obj = json.loads(m.group(0))
+        obj = json.loads(matches[-1])  # 마지막 JSON이 verdict (echo된 이전 JSON 무시 — 안전)
     except ValueError:
         return {"approve": False, "reasons": "Codex 심사 JSON 파싱 실패 — block(보수적)"}
     return {"approve": bool(obj.get("approve", False)), "reasons": str(obj.get("reasons", ""))}

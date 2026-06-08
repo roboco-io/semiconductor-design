@@ -1,6 +1,6 @@
-"""validation — 승격 검증 게이트 (T1). naive·baseline·winner를 동일 fold에서 paired 비교.
+"""validation — T1 검증 게이트. naive·baseline·winner를 동일 fold에서 paired 비교.
 
-advisory only — Operator 승격 결정(H-B)을 통계적 근거로 보조할 뿐 자동 거부하지 않는다.
+T1 게이트 — auto 모드에서 승격을 차단하는 하드 게이트(수동 모드에선 Operator 참고).
 train.py·prepare.py·dataset 무변경 (읽기 + 임시 fold 분할만).
 설계: docs/superpowers/specs/2026-06-07-t1-promotion-validation-gate-design.md
 """
@@ -131,7 +131,7 @@ def run_validation_gate(
     """naive·baseline·winner를 동일 fold에서 평가하고 winner 기준 paired 판정을 산출.
 
     winner가 한 fold라도 실패(inf)하면 불안정으로 보고 verdict='worse'(검증 불가)로 처리한다.
-    advisory — 승격 결정은 Operator(H-B).
+    T1 게이트 — auto 모드에서 승격을 차단하는 하드 게이트(수동 모드에선 Operator 참고).
     """
     workdir = Path(workdir)
     splits = fold_splits(len(rows), k=k, repeats=repeats, base_seed=base_seed)
@@ -215,5 +215,8 @@ def render_validation_report(res: dict) -> str:
     L.append("")
     L.append("> ⚠️ **단일 설계(n=53) 한계**: 본 검증은 한 설계 내 repeated K-fold일 뿐,")
     L.append("> 일반화(다른 설계 예측)를 주장하지 않는다. held-out *설계* 교차검증은 **T4**의 몫.")
-    L.append("> verdict는 advisory — 승격 결정은 Operator(H-B).")
+    L.append(
+        "> verdict: `distinguishable`일 때만 승격 후보 — auto 모드에선 이후 Codex 심사로 진행, "
+        "수동 모드에선 Operator 참고."
+    )
     return "\n".join(L)

@@ -60,12 +60,11 @@ def run_generation(
             )
 
     status = "awaiting_operator"
+    if auto and winner is None:
+        # auto 모드인데 유효 winner 없음 → 명시적으로 구분 가능하게 표기.
+        status = "no_winner"
     if auto and winner is not None:
-        import json as _json
-
-        rows = [
-            _json.loads(line) for line in Path(dataset).read_text().splitlines() if line.strip()
-        ]
+        rows = [json.loads(line) for line in Path(dataset).read_text().splitlines() if line.strip()]
         gate = gate_fn or run_validation_gate
         t1 = gate(Path(winner.src_path), Path(baseline_train_py), rows, gdir / "t1")
         t1_report = render_validation_report(t1)

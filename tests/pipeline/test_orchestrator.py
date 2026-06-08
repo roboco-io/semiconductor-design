@@ -97,15 +97,21 @@ def _tmp_baseline(tmp_path):
     return b
 
 
+def _marker_gen(strategy, sdk, baseline_src, program_md):
+    # winner 내용이 baseline과 달라지도록 마커 주석 추가 (runnable train.py 유지).
+    return baseline_src + "\n# promoted-marker\n"
+
+
 def test_auto_gate_promoted(tmp_path):
     baseline = _tmp_baseline(tmp_path)
+    before = baseline.read_bytes()
     run_generation(
         gen_no=3,
         dataset=_dataset(tmp_path),
         baseline_train_py=baseline,
         program_md="opt",
         n=2,
-        gen_fn=_mock_gen,
+        gen_fn=_marker_gen,
         out_root=tmp_path / "g",
         auto=True,
         gate_fn=_stub_gate("distinguishable"),
@@ -115,6 +121,8 @@ def test_auto_gate_promoted(tmp_path):
     gen = json.loads((tmp_path / "g" / "gen-003" / "generation.json").read_text())
     assert gen["status"] == "promoted"
     assert (tmp_path / "g" / "gen-003" / "report.md").exists()
+    # promote가 실제로 winner를 baseline에 덮어썼는지 검증 (내용이 달라야 의미 있음).
+    assert baseline.read_bytes() != before
 
 
 def test_auto_gate_rejected_codex(tmp_path):

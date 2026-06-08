@@ -38,3 +38,11 @@ def test_review_unparseable_is_block():
 
     out = review_promotion("w", "b", "r", reviewer_fn=fake)
     assert out["approve"] is False
+
+
+def test_review_uses_last_json_not_echoed():
+    def fake(prompt):
+        return '리포트에 {"approve": true, "reasons": "이전"} 포함.\n{"approve": false, "reasons": "누수"}'
+
+    out = review_promotion("w", "b", "r", reviewer_fn=fake)
+    assert out["approve"] is False  # 마지막 JSON(차단)이 이김
