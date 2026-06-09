@@ -1,0 +1,17 @@
+{
+  "feature_set": [
+    "num_stages",
+    "synth_slack_ns",
+    "synth_arrival_ns",
+    "max_stage_delay_ns",
+    "mean_stage_delay_ns",
+    "startpoint_is_ff",
+    "endpoint_is_ff",
+    "path_group"
+  ],
+  "flow_lockfile_sha": "8cb37d92da9fa690e54cc530bc73ac44af141030abfd5fbae280c074e897be11",
+  "id": "aes-8cb37d92da9f",
+  "label_metric": "post_route_slack_ns",
+  "n_samples": 691,
+  "source_design": "aes"
+}
