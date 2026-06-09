@@ -297,7 +297,7 @@ def test_crossdesign_gate_winner_equals_baseline(tmp_path):
     assert res["single_design"] is False
     assert len(res["per_design"]) == 3
     assert abs(res["mean_gap"]) < 0.05  # 동일 모델 → 격차≈0
-    assert res["verdict"] in ("mixed", "generalizes_better", "worse")
+    assert res["verdict"] == "mixed"  # winner==baseline → 동수 → mixed
 
 
 def test_crossdesign_gate_broken_winner_unverifiable(tmp_path):
@@ -306,6 +306,27 @@ def test_crossdesign_gate_broken_winner_unverifiable(tmp_path):
     res = run_crossdesign_gate(broken, REPO / "train.py", _multidesign_rows(), tmp_path / "cd2")
     assert res["verdict"] == "unverifiable"
     assert res["n_winner_better"] == 0
+
+
+def test_crossdesign_gate_partial_failure(tmp_path, monkeypatch):
+    import pipeline.validation as V
+
+    rows = _multidesign_rows()  # 3 designs A,B,C
+    # winner: fails (inf) on design A (fold 0), ok on B,C; baseline: ok on all
+    seq = {"winner": [float("inf"), 0.10, 0.12], "baseline": [0.11, 0.11, 0.11]}
+
+    def fake_cfm(train_py, rows_, splits, workdir):
+        key = "winner" if "winner" in str(workdir) else "baseline"
+        return list(seq[key])
+
+    monkeypatch.setattr(V, "candidate_fold_maes", fake_cfm)
+    res = run_crossdesign_gate("w.py", "b.py", rows, tmp_path / "pf")
+    assert res["n_designs"] == 3
+    assert res["n_valid"] == 2  # A excluded (inf)
+    assert len(res["per_design"]) == 3  # 모든 설계가 표에 남음
+    assert sum(1 for p in res["per_design"] if not p["valid"]) == 1
+    assert res["verdict"] in ("generalizes_better", "worse", "mixed")
+    assert res["mean_gap"] != float("inf")  # 유효 fold만 평균
 
 
 # ---------------------------------------------------------------------------

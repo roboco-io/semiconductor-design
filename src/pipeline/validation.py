@@ -17,6 +17,7 @@ from scipy.stats import wilcoxon
 from sklearn.model_selection import KFold
 
 _DENOM_EPS = 1e-9  # Cohen's dz std 가드: 부동소수점 잔차(≈1e-17)를 0으로 취급
+_TIE_EPS = 1e-9  # 교차설계 diff 동수 판정 가드: |winner-baseline|≤eps면 tie(부동소수점 잔차 무시)
 
 
 def fold_splits(n: int, k: int = 5, repeats: int = 10, base_seed: int = 0):
@@ -205,35 +206,40 @@ def run_crossdesign_gate(winner_train_py, baseline_train_py, rows, workdir, *, n
             diffs.append(wm - bm)
 
     n_valid = len(diffs)
-    n_winner_better = sum(1 for x in diffs if x < 0)
+    # 부동소수점 잔차(≈1e-17, 예: winner==baseline 동일 모델)를 win/loss로 오판하지 않도록
+    # |diff|≤_TIE_EPS는 동수로 취급한다.
+    n_winner_better = sum(1 for x in diffs if x < -_TIE_EPS)
+    n_baseline_better = sum(1 for x in diffs if x > _TIE_EPS)
     mean_gap = float(sum(diffs) / n_valid) if n_valid else float("inf")
     if n_valid == 0:
-        verdict = "unverifiable"
-    elif n_winner_better > n_valid / 2:
-        verdict = "generalizes_better"
-    elif n_winner_better < n_valid / 2:
-        verdict = "worse"
+        xdesign_verdict = "unverifiable"
+    elif n_winner_better > n_baseline_better:
+        xdesign_verdict = "generalizes_better"
+    elif n_winner_better < n_baseline_better:
+        xdesign_verdict = "worse"
     else:
-        verdict = "mixed"
+        xdesign_verdict = "mixed"  # 동수(ties 포함) → winner==baseline은 mixed
 
     return {
         "single_design": False,
         "n_designs": len(uniq),
         "n_valid": n_valid,
         "n_winner_better": n_winner_better,
+        "n_baseline_better": n_baseline_better,
         "mean_gap": mean_gap,
         "per_design": per_design,
-        "verdict": verdict,
+        "verdict": xdesign_verdict,
     }
 
 
 def render_crossdesign_report(res: dict) -> str:
     """교차설계 일반화 probe 리포트(리포트 전용 — 자동 promote 미편입)."""
     L = ["# 교차설계 일반화 리포트 (held-out 설계 LODO · 방향성 probe)", ""]
+    gap = f"{res['mean_gap']:+.4f}" if res["n_valid"] else "N/A"
     L.append(
         f"**verdict: {res['verdict']}**  ·  winner 우세 설계: "
         f"{res['n_winner_better']}/{res['n_designs']}  ·  평균 격차(winner−baseline): "
-        f"{res['mean_gap']:+.4f}"
+        f"{gap}"
     )
     L.append("")
     L.append("| 설계(held-out) | naive | baseline | winner | 검증 |")
