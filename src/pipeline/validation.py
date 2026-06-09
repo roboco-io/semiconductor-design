@@ -118,6 +118,22 @@ def candidate_fold_maes(train_py, rows: list[dict], splits, workdir: Path) -> li
     return maes
 
 
+def design_fold_splits(groups):
+    """Leave-One-Design-Out: 설계(group)마다 1 fold = (train=나머지 설계, val=그 설계).
+
+    교차설계 일반화엔 ≥2 설계 필요(단일 설계면 ValueError). 설계 순서는 sorted-unique로 결정적.
+    """
+    uniq = sorted(set(groups))
+    if len(uniq) < 2:
+        raise ValueError(f"교차설계엔 ≥2 설계 필요 (받음: {len(uniq)})")
+    splits = []
+    for d in uniq:
+        va = [i for i, g in enumerate(groups) if g == d]
+        tr = [i for i, g in enumerate(groups) if g != d]
+        splits.append((tr, va))
+    return splits
+
+
 def run_validation_gate(
     winner_train_py,
     baseline_train_py,
@@ -162,6 +178,68 @@ def run_validation_gate(
     res["winner_vs_naive"] = paired_comparison(winner_folds, naive_folds, n_boot, base_seed)
     res["verdict_vs_baseline"] = verdict(res["winner_vs_baseline"])
     return res
+
+
+def run_crossdesign_gate(winner_train_py, baseline_train_py, rows, workdir, *, naive=True):
+    """held-out 설계(LODO) 교차검증 — 방향성 probe(통계 유의성 미산출, D2).
+
+    설계별(=fold별) held-out MAE를 winner/baseline/naive로 재고, winner가 baseline보다 낮은 설계
+    수(n_winner_better)와 평균 격차(mean_gap)로 일반화 *경향*을 보고한다. 소수 설계라 verdict는
+    유의성이 아니라 방향성. 실패(inf) 설계는 "검증불가"로 집계 제외.
+    """
+    workdir = Path(workdir)
+    groups = [r["group_key"] for r in rows]
+    splits = design_fold_splits(groups)
+    uniq = sorted(set(groups))
+    w = candidate_fold_maes(winner_train_py, rows, splits, workdir / "winner")
+    b = candidate_fold_maes(baseline_train_py, rows, splits, workdir / "baseline")
+    nv = naive_fold_maes(rows, splits) if naive else [float("inf")] * len(splits)
+
+    per_design, diffs = [], []
+    for d, wm, bm, nm in zip(uniq, w, b, nv):
+        valid = wm != float("inf") and bm != float("inf")
+        per_design.append({"design": d, "winner_mae": wm, "baseline_mae": bm,
+                           "naive_mae": nm, "valid": valid})
+        if valid:
+            diffs.append(wm - bm)
+
+    n_valid = len(diffs)
+    n_winner_better = sum(1 for x in diffs if x < 0)
+    mean_gap = float(sum(diffs) / n_valid) if n_valid else float("inf")
+    if n_valid == 0:
+        verdict = "unverifiable"
+    elif n_winner_better > n_valid / 2:
+        verdict = "generalizes_better"
+    elif n_winner_better < n_valid / 2:
+        verdict = "worse"
+    else:
+        verdict = "mixed"
+
+    return {
+        "single_design": False, "n_designs": len(uniq), "n_valid": n_valid,
+        "n_winner_better": n_winner_better, "mean_gap": mean_gap,
+        "per_design": per_design, "verdict": verdict,
+    }
+
+
+def render_crossdesign_report(res: dict) -> str:
+    """교차설계 일반화 probe 리포트(리포트 전용 — 자동 promote 미편입)."""
+    L = ["# 교차설계 일반화 리포트 (held-out 설계 LODO · 방향성 probe)", ""]
+    L.append(f"**verdict: {res['verdict']}**  ·  winner 우세 설계: "
+             f"{res['n_winner_better']}/{res['n_designs']}  ·  평균 격차(winner−baseline): "
+             f"{res['mean_gap']:+.4f}")
+    L.append("")
+    L.append("| 설계(held-out) | naive | baseline | winner | 검증 |")
+    L.append("|---|---|---|---|---|")
+    for p in res["per_design"]:
+        ok = "✅" if p["valid"] else "❌검증불가"
+        L.append(f"| {p['design']} | {p['naive_mae']:.4f} | {p['baseline_mae']:.4f} | "
+                 f"{p['winner_mae']:.4f} | {ok} |")
+    L.append("")
+    L.append(f"> ⚠️ **저표본**: 설계 {res['n_designs']}개 → **통계 검정 불가**. 이건 일반화 *probe*(경향)이지")
+    L.append("> 유의성 주장이 아니다. 설계 더 확보(Sub-A) 시 강한 결론 가능. 또한 train.py 내부 분할을")
+    L.append("> 포함한 nested resampling(within-design 게이트와 동일 한계).")
+    return "\n".join(L)
 
 
 def _mean(xs):

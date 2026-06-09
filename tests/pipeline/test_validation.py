@@ -4,10 +4,13 @@ from pathlib import Path
 
 from pipeline.validation import (
     candidate_fold_maes,
+    design_fold_splits,
     fold_splits,
     naive_fold_maes,
     paired_comparison,
+    render_crossdesign_report,
     render_validation_report,
+    run_crossdesign_gate,
     run_validation_gate,
     verdict,
 )
@@ -234,3 +237,87 @@ def test_report_has_statistical_dependence_caveat():
     }
     md = render_validation_report(res)
     assert "상관" in md and ("낙관" in md or "과신" in md)  # 반복 fold 상관 → CI 낙관 caveat
+
+
+# ---------------------------------------------------------------------------
+# Task 1: design_fold_splits (LODO)
+# ---------------------------------------------------------------------------
+
+
+def test_design_fold_splits_lodo():
+    groups = ["A", "A", "B", "C", "B"]  # 설계 3개
+    splits = design_fold_splits(groups)
+    assert len(splits) == 3  # 설계당 1 fold
+    # 정렬-안정 순서: A, B, C
+    tr0, va0 = splits[0]
+    assert sorted(va0) == [0, 1]            # A 행
+    assert sorted(tr0) == [2, 3, 4]         # 나머지
+    for tr, va in splits:
+        assert set(tr).isdisjoint(va)
+        assert sorted(tr + va) == [0, 1, 2, 3, 4]
+
+
+def test_design_fold_splits_single_design_raises():
+    with pytest.raises(ValueError):
+        design_fold_splits(["A", "A", "A"])
+
+
+# ---------------------------------------------------------------------------
+# Task 2: run_crossdesign_gate
+# ---------------------------------------------------------------------------
+
+
+def _multidesign_rows(n_per=14):
+    rows = []
+    for d in ("A", "B", "C"):
+        for i in range(n_per):
+            rows.append({
+                "endpoint": f"{d}e{i}", "startpoint": f"{d}s{i}", "num_stages": 2 + i % 5,
+                "synth_slack_ns": 0.4 - (i % 6) * 0.1, "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+                "max_stage_delay_ns": 0.1 + (i % 3) * 0.15, "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+                "startpoint_is_ff": i % 2, "endpoint_is_ff": 1, "path_group": "core_clock",
+                "post_route_slack_ns": 0.5 - (i % 7) * 0.1, "group_key": d,
+            })
+    return rows
+
+
+def test_crossdesign_gate_winner_equals_baseline(tmp_path):
+    rows = _multidesign_rows()
+    res = run_crossdesign_gate(REPO / "train.py", REPO / "train.py", rows, tmp_path / "cd")
+    assert res["n_designs"] == 3
+    assert res["single_design"] is False
+    assert len(res["per_design"]) == 3
+    assert abs(res["mean_gap"]) < 0.05          # 동일 모델 → 격차≈0
+    assert res["verdict"] in ("mixed", "generalizes_better", "worse")
+
+
+def test_crossdesign_gate_broken_winner_unverifiable(tmp_path):
+    broken = tmp_path / "broken.py"
+    broken.write_text("import sys; sys.exit(3)\n")
+    res = run_crossdesign_gate(broken, REPO / "train.py", _multidesign_rows(), tmp_path / "cd2")
+    assert res["verdict"] == "unverifiable"
+    assert res["n_winner_better"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Task 3: render_crossdesign_report
+# ---------------------------------------------------------------------------
+
+
+def test_render_crossdesign_report():
+    res = {
+        "single_design": False, "n_designs": 3, "n_valid": 3,
+        "n_winner_better": 2, "mean_gap": -0.03,
+        "per_design": [
+            {"design": "A", "winner_mae": 0.10, "baseline_mae": 0.13, "naive_mae": 1.4, "valid": True},
+            {"design": "B", "winner_mae": 0.12, "baseline_mae": 0.11, "naive_mae": 1.3, "valid": True},
+            {"design": "C", "winner_mae": 0.09, "baseline_mae": 0.15, "naive_mae": 1.5, "valid": True},
+        ],
+        "verdict": "generalizes_better",
+    }
+    md = render_crossdesign_report(res)
+    assert "generalizes_better" in md
+    assert "A" in md and "B" in md and "C" in md       # 설계별 행
+    assert "2/3" in md or "2 / 3" in md                 # n_winner_better/n_designs
+    assert "probe" in md                                # 방향성 probe 명시
+    assert "통계" in md and ("검정 불가" in md or "유의성" in md)  # 저표본 caveat
