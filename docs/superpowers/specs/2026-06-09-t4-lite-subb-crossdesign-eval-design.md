@@ -37,8 +37,13 @@
   `candidate_fold_maes(baseline, rows, splits, workdir/"baseline")` · `naive_fold_maes(rows, splits)` 재사용.
   → 설계별(=fold별) held-out MAE 3계열.
 - **방향성 집계**(D2): fold별 `diff = winner_mae - baseline_mae`. inf(실패 fold) 있으면 그 설계는 "검증불가"로 표시하고 집계에서 제외(전부 inf면 verdict `unverifiable`).
-  - `n_designs`, `n_winner_better`(diff<0 수), `mean_gap`(유한 diff 평균), 설계별 `(design, winner_mae, baseline_mae, naive_mae)`.
-  - `verdict`: `"generalizes_better"` if `n_winner_better > n_valid/2`, `"mixed"` if 동수, `"worse"` if 과반 열세, `"unverifiable"` if 유효 fold 0.
+  - `n_designs`, `n_winner_better`(diff < −_TIE_EPS), `n_baseline_better`(diff > _TIE_EPS),
+    `mean_gap`(유한 diff 평균), 설계별 `(design, winner_mae, baseline_mae, naive_mae)`.
+  - **부동소수 가드**: `|diff| ≤ _TIE_EPS`(=1e-9)는 동수로 취급(train.py `n_jobs=-1` 병렬 잔차~1e-17가
+    승패로 새는 비결정성 차단 — `_DENOM_EPS` 패턴과 동일).
+  - `verdict`: `n_winner_better` vs `n_baseline_better` — winner 우세 설계가 더 많으면 `"generalizes_better"`,
+    baseline 우세가 더 많으면 `"worse"`, **동수(ties 포함)면 `"mixed"`**(winner==baseline → mixed),
+    유효 fold 0이면 `"unverifiable"`.
 - 반환 dict: 위 필드 + `single_design=False`(교차설계임 표시) + `per_design` 리스트.
 - **통계 유의성(Wilcoxon/CI) 미산출**(D2) — 소수 설계 과신 차단.
 
