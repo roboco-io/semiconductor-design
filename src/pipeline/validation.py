@@ -198,8 +198,9 @@ def run_crossdesign_gate(winner_train_py, baseline_train_py, rows, workdir, *, n
     per_design, diffs = [], []
     for d, wm, bm, nm in zip(uniq, w, b, nv):
         valid = wm != float("inf") and bm != float("inf")
-        per_design.append({"design": d, "winner_mae": wm, "baseline_mae": bm,
-                           "naive_mae": nm, "valid": valid})
+        per_design.append(
+            {"design": d, "winner_mae": wm, "baseline_mae": bm, "naive_mae": nm, "valid": valid}
+        )
         if valid:
             diffs.append(wm - bm)
 
@@ -216,28 +217,40 @@ def run_crossdesign_gate(winner_train_py, baseline_train_py, rows, workdir, *, n
         verdict = "mixed"
 
     return {
-        "single_design": False, "n_designs": len(uniq), "n_valid": n_valid,
-        "n_winner_better": n_winner_better, "mean_gap": mean_gap,
-        "per_design": per_design, "verdict": verdict,
+        "single_design": False,
+        "n_designs": len(uniq),
+        "n_valid": n_valid,
+        "n_winner_better": n_winner_better,
+        "mean_gap": mean_gap,
+        "per_design": per_design,
+        "verdict": verdict,
     }
 
 
 def render_crossdesign_report(res: dict) -> str:
     """교차설계 일반화 probe 리포트(리포트 전용 — 자동 promote 미편입)."""
     L = ["# 교차설계 일반화 리포트 (held-out 설계 LODO · 방향성 probe)", ""]
-    L.append(f"**verdict: {res['verdict']}**  ·  winner 우세 설계: "
-             f"{res['n_winner_better']}/{res['n_designs']}  ·  평균 격차(winner−baseline): "
-             f"{res['mean_gap']:+.4f}")
+    L.append(
+        f"**verdict: {res['verdict']}**  ·  winner 우세 설계: "
+        f"{res['n_winner_better']}/{res['n_designs']}  ·  평균 격차(winner−baseline): "
+        f"{res['mean_gap']:+.4f}"
+    )
     L.append("")
     L.append("| 설계(held-out) | naive | baseline | winner | 검증 |")
     L.append("|---|---|---|---|---|")
     for p in res["per_design"]:
         ok = "✅" if p["valid"] else "❌검증불가"
-        L.append(f"| {p['design']} | {p['naive_mae']:.4f} | {p['baseline_mae']:.4f} | "
-                 f"{p['winner_mae']:.4f} | {ok} |")
+        L.append(
+            f"| {p['design']} | {p['naive_mae']:.4f} | {p['baseline_mae']:.4f} | "
+            f"{p['winner_mae']:.4f} | {ok} |"
+        )
     L.append("")
-    L.append(f"> ⚠️ **저표본**: 설계 {res['n_designs']}개 → **통계 검정 불가**. 이건 일반화 *probe*(경향)이지")
-    L.append("> 유의성 주장이 아니다. 설계 더 확보(Sub-A) 시 강한 결론 가능. 또한 train.py 내부 분할을")
+    L.append(
+        f"> ⚠️ **저표본**: 설계 {res['n_designs']}개 → **통계 검정 불가**. 이건 일반화 *probe*(경향)이지"
+    )
+    L.append(
+        "> 유의성 주장이 아니다. 설계 더 확보(Sub-A) 시 강한 결론 가능. 또한 train.py 내부 분할을"
+    )
     L.append("> 포함한 nested resampling(within-design 게이트와 동일 한계).")
     return "\n".join(L)
 

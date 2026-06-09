@@ -250,8 +250,8 @@ def test_design_fold_splits_lodo():
     assert len(splits) == 3  # 설계당 1 fold
     # 정렬-안정 순서: A, B, C
     tr0, va0 = splits[0]
-    assert sorted(va0) == [0, 1]            # A 행
-    assert sorted(tr0) == [2, 3, 4]         # 나머지
+    assert sorted(va0) == [0, 1]  # A 행
+    assert sorted(tr0) == [2, 3, 4]  # 나머지
     for tr, va in splits:
         assert set(tr).isdisjoint(va)
         assert sorted(tr + va) == [0, 1, 2, 3, 4]
@@ -271,13 +271,22 @@ def _multidesign_rows(n_per=14):
     rows = []
     for d in ("A", "B", "C"):
         for i in range(n_per):
-            rows.append({
-                "endpoint": f"{d}e{i}", "startpoint": f"{d}s{i}", "num_stages": 2 + i % 5,
-                "synth_slack_ns": 0.4 - (i % 6) * 0.1, "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
-                "max_stage_delay_ns": 0.1 + (i % 3) * 0.15, "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
-                "startpoint_is_ff": i % 2, "endpoint_is_ff": 1, "path_group": "core_clock",
-                "post_route_slack_ns": 0.5 - (i % 7) * 0.1, "group_key": d,
-            })
+            rows.append(
+                {
+                    "endpoint": f"{d}e{i}",
+                    "startpoint": f"{d}s{i}",
+                    "num_stages": 2 + i % 5,
+                    "synth_slack_ns": 0.4 - (i % 6) * 0.1,
+                    "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+                    "max_stage_delay_ns": 0.1 + (i % 3) * 0.15,
+                    "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+                    "startpoint_is_ff": i % 2,
+                    "endpoint_is_ff": 1,
+                    "path_group": "core_clock",
+                    "post_route_slack_ns": 0.5 - (i % 7) * 0.1,
+                    "group_key": d,
+                }
+            )
     return rows
 
 
@@ -287,7 +296,7 @@ def test_crossdesign_gate_winner_equals_baseline(tmp_path):
     assert res["n_designs"] == 3
     assert res["single_design"] is False
     assert len(res["per_design"]) == 3
-    assert abs(res["mean_gap"]) < 0.05          # 동일 모델 → 격차≈0
+    assert abs(res["mean_gap"]) < 0.05  # 동일 모델 → 격차≈0
     assert res["verdict"] in ("mixed", "generalizes_better", "worse")
 
 
@@ -306,18 +315,39 @@ def test_crossdesign_gate_broken_winner_unverifiable(tmp_path):
 
 def test_render_crossdesign_report():
     res = {
-        "single_design": False, "n_designs": 3, "n_valid": 3,
-        "n_winner_better": 2, "mean_gap": -0.03,
+        "single_design": False,
+        "n_designs": 3,
+        "n_valid": 3,
+        "n_winner_better": 2,
+        "mean_gap": -0.03,
         "per_design": [
-            {"design": "A", "winner_mae": 0.10, "baseline_mae": 0.13, "naive_mae": 1.4, "valid": True},
-            {"design": "B", "winner_mae": 0.12, "baseline_mae": 0.11, "naive_mae": 1.3, "valid": True},
-            {"design": "C", "winner_mae": 0.09, "baseline_mae": 0.15, "naive_mae": 1.5, "valid": True},
+            {
+                "design": "A",
+                "winner_mae": 0.10,
+                "baseline_mae": 0.13,
+                "naive_mae": 1.4,
+                "valid": True,
+            },
+            {
+                "design": "B",
+                "winner_mae": 0.12,
+                "baseline_mae": 0.11,
+                "naive_mae": 1.3,
+                "valid": True,
+            },
+            {
+                "design": "C",
+                "winner_mae": 0.09,
+                "baseline_mae": 0.15,
+                "naive_mae": 1.5,
+                "valid": True,
+            },
         ],
         "verdict": "generalizes_better",
     }
     md = render_crossdesign_report(res)
     assert "generalizes_better" in md
-    assert "A" in md and "B" in md and "C" in md       # 설계별 행
-    assert "2/3" in md or "2 / 3" in md                 # n_winner_better/n_designs
-    assert "probe" in md                                # 방향성 probe 명시
+    assert "A" in md and "B" in md and "C" in md  # 설계별 행
+    assert "2/3" in md or "2 / 3" in md  # n_winner_better/n_designs
+    assert "probe" in md  # 방향성 probe 명시
     assert "통계" in md and ("검정 불가" in md or "유의성" in md)  # 저표본 caveat
