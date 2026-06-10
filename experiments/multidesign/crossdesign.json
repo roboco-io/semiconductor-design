@@ -1,0 +1,25 @@
+{
+  "single_design": false,
+  "n_designs": 2,
+  "n_valid": 2,
+  "n_winner_better": 1,
+  "n_baseline_better": 1,
+  "mean_gap": -0.11973741267607463,
+  "per_design": [
+    {
+      "design": "aes",
+      "winner_mae": 2.739304599475129,
+      "baseline_mae": 3.0485665516345692,
+      "naive_mae": 1.7198408104196818,
+      "valid": true
+    },
+    {
+      "design": "gcd",
+      "winner_mae": 2.512223826479307,
+      "baseline_mae": 2.4424366996720157,
+      "naive_mae": 1.411698113207547,
+      "valid": true
+    }
+  ],
+  "verdict": "mixed"
+}
