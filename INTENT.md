@@ -74,6 +74,23 @@
 
 ## Learnings
 
+- **2026-06-10** (첫 교차설계 실측 — 분포 shift가 모든 학습 모델을 무력화) — T4-lite Sub-A payoff.
+  gcd 53행(slack −1.37~0) + aes 691행(+0.44~+2.93)을 `combine_datasets`로 결합(744행), Sub-B
+  `run_crossdesign_gate`(LODO 2-fold)를 실데이터에 첫 가동. winner(gen-001 train.py) vs
+  baseline(pre-gen-001 사람, `619e24f~1`). 결과: verdict **`mixed`**(aes held-out에선 winner
+  2.74<baseline 3.05, gcd held-out에선 baseline 2.44<winner 2.51). (1) **진짜 발견은 verdict가
+  아니라 naive와의 격차**: 두 모델 모두 naive(항등 예측 synth=post_route, 훈련 데이터 미사용)
+  1.72/1.41에 크게 패배 — within-design MAE 0.10–0.15가 미관측 설계에서 2.5–3.0으로 **~20× 붕괴**.
+  분포가 정반대인 설계 간엔 *어떤* 학습 모델도 전이 안 됨(결정 브리프 시나리오 1, 정직한 negative).
+  (2) **원인 가설**: feature가 절대 ns 스케일이라 훈련 범위 밖 설계는 순수 외삽; naive는 훈련
+  데이터를 안 써 shift 면역. → 후속 방향은 설계 수 늘리기(ibex 3-fold)보다 ① 양/음 slack이 훈련
+  fold에 섞이는 구성 ② feature 정규화(상대 slack 등)가 선행 후보 — **ibex run-task는 이 재평가 후
+  결정**(지출 전 싼 검증이 지출의 가치 자체를 바꾼 사례). (3) **H-A의 범위 한정 확인**: 에이전트
+  우위(dz=−1.27)는 within-design 증거이며 cross-design으로 자동 연장되지 않음 — held-out *설계*
+  게이트가 auto-promote에 편입되기 전엔 일반화 주장 금지. (4) **기계 검증**: 교차설계 게이트가
+  합성 fixture 밖 실데이터에서 정상 작동(2 fold valid, tempdir 격리). 리포트:
+  [crossdesign.md](experiments/multidesign/crossdesign.md).
+
 - **2026-06-08** (auto-gate 첫 자율 실행 — Codex가 T1이 못 잡는 gaming 차단) — `make loop --auto`로 gen-003을
   **완전 무인** 실행(사람 개입 0). median이 codex 후보(cand-001, median 0.0786)를 선택 → **T1 통계 게이트
   통과**(winner 0.1025 vs baseline 0.1476, mean_diff −0.0452, 95% CI [−0.053,−0.037], p<0.001, **dz=−1.51**,
