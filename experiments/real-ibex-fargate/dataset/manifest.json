@@ -1,0 +1,17 @@
+{
+  "feature_set": [
+    "num_stages",
+    "synth_slack_ns",
+    "synth_arrival_ns",
+    "max_stage_delay_ns",
+    "mean_stage_delay_ns",
+    "startpoint_is_ff",
+    "endpoint_is_ff",
+    "path_group"
+  ],
+  "flow_lockfile_sha": "794220afb5f3cd0feaa9f33a1710c6f683cf4cd5e97b2fcb09ebca870b68c7df",
+  "id": "ibex-794220afb5f3",
+  "label_metric": "post_route_slack_ns",
+  "n_samples": 2040,
+  "source_design": "ibex"
+}
