@@ -23,3 +23,7 @@ def test_v2_groupstat_contract_roundtrip(probe_dir, probe_rows, tmp_path):
 
 def test_v3_ratio_contract_roundtrip(probe_dir, probe_rows, tmp_path):
     _smoke(probe_dir / "v3_ratio.py", probe_rows, tmp_path)
+
+
+def test_v4_delta_ratio_contract_roundtrip(probe_dir, probe_rows, tmp_path):
+    _smoke(probe_dir / "v4_delta_ratio.py", probe_rows, tmp_path)
