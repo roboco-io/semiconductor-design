@@ -15,3 +15,7 @@ def _smoke(script, probe_rows, tmp_path):
 
 def test_v1_delta_contract_roundtrip(probe_dir, probe_rows, tmp_path):
     _smoke(probe_dir / "v1_delta.py", probe_rows, tmp_path)
+
+
+def test_v2_groupstat_contract_roundtrip(probe_dir, probe_rows, tmp_path):
+    _smoke(probe_dir / "v2_groupstat.py", probe_rows, tmp_path)
