@@ -74,6 +74,21 @@
 
 ## Learnings
 
+- **2026-06-11** (정규화 probe — 델타 label이 교차설계 전이를 살리는 지배 축) — 전날 발견(분포 shift가
+  모든 학습 모델을 naive 이하로 무력화)에 대한 대응 probe. 변형 3개를 winner train.py 사본으로 만들어
+  (V1 델타 label · V2 설계별 통계 표준화 · V3 무차원 비율) gcd+aes LODO 2-fold로 실측, **판정 기준은
+  결과 확인 전 사전 고정**(두 설계 모두 naive 미만 = transferable — gen-002 교훈). 결과:
+  **V1 `partial`** — held-out aes에서 1.0824로 **naive(1.7198)를 37% 격파, 교차설계에서 naive를 이긴
+  첫 모델**(훈련 데이터가 gcd 53행뿐인데도). held-out gcd에선 1.5723로 naive(1.4117) 미달이나
+  winner(2.51) 대비 대폭 개선. V2·V3은 `not_transferable`(단 V2는 표준화된 stages가 사본의 per-stage
+  feature를 노이즈화하는 교란, V3은 절대 앵커 제거로 naive 표현 불가 구조 — 리뷰가 사전 발견한 해석
+  caveat 병기). (1) **label 오프셋 제거(잔차 학습)가 분포 shift 대응의 지배 축** — feature 스케일
+  정렬(V2·V3)만으로는 부족. (2) **전이 비대칭**: gcd(53행)→aes는 성공, aes(691행)→gcd는 부분 실패 —
+  데이터 양보다 분포 방향이 지배, 제3 설계의 가치 시사. (3) **프로세스**: 사전 고정 판정 + 변형은
+  통제변인 1개씩(사본) + 리뷰 caveat을 결과 해석에 선반영 — "싼 probe가 비싼 결정(ibex)을 정보화"
+  패턴 2회째. 후속: V1 축 조합·ibex 3-fold 확장은 별도 브리프. 리포트:
+  [probe.md](experiments/multidesign/probe/probe.md).
+
 - **2026-06-10** (첫 교차설계 실측 — 분포 shift가 모든 학습 모델을 무력화) — T4-lite Sub-A payoff.
   gcd 53행(slack −1.37~0) + aes 691행(+0.44~+2.93)을 `combine_datasets`로 결합(744행), Sub-B
   `run_crossdesign_gate`(LODO 2-fold)를 실데이터에 첫 가동. winner(gen-001 train.py) vs
