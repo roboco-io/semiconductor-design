@@ -74,6 +74,23 @@
 
 ## Learnings
 
+- **2026-06-11b** (ibex 3설계 3-fold — 혼합 분포 훈련이 절대 모델 전이를 회복, 단일 정답 축은 없음) —
+  B+A 병렬 실행(ibex Fargate 77분·2040 samples·파서 무변경 + 로컬 V4 조합 probe). 결과 셋:
+  (1) **V4(V1×V3 조합)는 V1 단독보다 악화**(aes 1.29/gcd 3.89) → 조합 탐색 종료(2-fold 다중비교
+  과적합 경고 준수). (2) **혼합 분포 훈련의 효과**: 3-fold(훈련 fold에 2설계 혼합)에서 winner가
+  held-out ibex의 naive를 **4.3× 격파**(2.96 vs 12.81) — 전날 "모든 학습 모델이 naive 이하" 결론은
+  *단일설계 훈련*의 한계였음이 부분 반증. 설계 다양성 자체가 절대 스케일 모델의 전이를 살린다.
+  (3) **V1(델타)의 적용 경계 발견**: ibex는 synth→route 드리프트가 거대(델타 평균 ~12.8ns)해 훈련
+  설계의 델타 분포(~1.5ns)와 자릿수가 다름 — **델타도 분포 밖 외삽엔 약함**(V1 6.44, naive보단
+  2× 낫지만 winner에 패배). 잔차 학습은 드리프트가 설계 간 안정적일 때의 무기. (4) **held-out별
+  최선이 갈림**(aes→V1 / gcd→naive / ibex→winner+혼합훈련) → 교차설계 일반화는 단일 축이 아니라
+  설계 특성 조건부 — 다음은 Operator 수동 조합이 아니라 **루프 환류**(에이전트가 trade-off 탐색,
+  게이트는 3-fold LODO)가 자연스러운 수순. (5) 운영 마찰 2건 기록: zsh가 `"$VAR:latest"`의 `:l`을
+  소문자화 modifier로 해석해 ECR repo명을 변형(`${VAR}:latest`로 회피 — 이전 세션의 `...atest`
+  유령 이미지도 같은 원인), ECR repo가 `emptyOnDelete`라 destroy 시 runner 이미지도 소멸(재배포 시
+  retag+push 필요, 로컬 docker 캐시 덕에 빌드는 생략). 리포트:
+  [probe-3design.md](experiments/multidesign/probe/probe-3design.md).
+
 - **2026-06-11** (정규화 probe — 델타 label이 교차설계 전이를 살리는 지배 축) — 전날 발견(분포 shift가
   모든 학습 모델을 naive 이하로 무력화)에 대한 대응 probe. 변형 3개를 winner train.py 사본으로 만들어
   (V1 델타 label · V2 설계별 통계 표준화 · V3 무차원 비율) gcd+aes LODO 2-fold로 실측, **판정 기준은
