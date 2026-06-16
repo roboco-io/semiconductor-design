@@ -86,6 +86,13 @@
   덮는다. (2) **co-evolution**: 검토 도구를 만든 그 세션에 그 도구가 산출물을 개선 → 도구가 의도(객관
   검토)를 즉시 실증. (3) **운영**: Codex MCP는 `.mcp.json` 등록 후 *세션 재시작*에 활성(staleness
   invariant). 스킬: [[project-codex-review-approval-skill]], `.claude/skills/codex-review-approval/`.
+  **(후속, 같은 날)**: 루프 환류 spec→plan→구현을 끝까지 진행하며 같은 Codex 게이트를 *세 단계 모두*에
+  적용 — spec(1건: 부분실패 LODO가 게이트 통과하는 안전 구멍), plan(3건: 단일설계 "LODO 생략" 미명기·
+  비교성 경고 리포트 누락·frozen 검사 누락), code diff(1건: program.md 게이트 체인이 LODO 누락) 결함을
+  각각 적발→수정→재검토 approve. **객관 게이트를 단계마다 거니 각 단계의 고유 결함이 드러났다**(spec은
+  의미 간극, plan은 spec 커버리지, code는 문서-구현 정합). 산출물: gen-004+ 자동 게이트가
+  median→**LODO**→T1→Codex 4중 권력분립(부분실패 fold까지 차단), 루프 dataset 3설계 혼합본 교체,
+  세대 리포트·program.md에 일반화 노출. 구현 plan: `docs/superpowers/plans/2026-06-16-loop-crossdesign-integration.md`.
 
 - **2026-06-11b** (ibex 3설계 3-fold — 혼합 분포 훈련이 절대 모델 전이를 회복, 단일 정답 축은 없음) —
   B+A 병렬 실행(ibex Fargate 77분·2040 samples·파서 무변경 + 로컬 V4 조합 probe). 결과 셋:
