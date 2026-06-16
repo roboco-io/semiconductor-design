@@ -11,6 +11,10 @@ surrogate val 지표 **`val_mae`(ns) 최소화**. train.py는 per-endpoint timin
 (`num_stages, synth_slack_ns, synth_arrival_ns, max_stage_delay_ns, mean_stage_delay_ns,
 startpoint_is_ff, endpoint_is_ff, path_group`) + 라벨 `post_route_slack_ns` + `group_key`.
 
+dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그 경우 `train.py`의 val split은
+**설계-분리**(GroupShuffleSplit)라 `val_mae`는 *학습에서 안 본 설계*에 대한 예측 성능 — 즉 selection
+지표 자체가 교차설계 일반화를 측정한다. 승격 전 별도 LODO 게이트가 일반화 후퇴를 한 번 더 차단한다.
+
 ## 변형 허용 범위 (이 안에서 자유롭게)
 - 모델 종류: sklearn 내 교체 (HistGradientBoostingRegressor / RandomForest / ExtraTrees /
   GradientBoosting / MLPRegressor 등).
@@ -30,6 +34,16 @@ startpoint_is_ff, endpoint_is_ff, path_group`) + 라벨 `post_route_slack_ns` + 
 
 ## 출력 형식
 마크다운/설명/펜스 없이 **변형된 train.py 전체 소스만** 출력.
+
+## 관찰 힌트 (probe 실측 — 지시 아님, 참고용)
+
+아래는 Operator의 교차설계 probe(`experiments/multidesign/probe/probe.md`,
+`probe-3design.md`)에서 관찰된 *사실*이다. 전략 선택은 너에게 맡긴다 — 따라야 할 지시가 아니다.
+
+- 델타 label(`post_route_slack_ns − synth_slack_ns` 잔차 학습)은 드리프트가 안정적인 설계(aes)에서
+  naive를 37% 이겼으나, 드리프트가 자릿수로 다른 설계(ibex)에선 약했다.
+- 혼합 분포 훈련은 절대 스케일 모델의 미관측 설계 전이를 회복시켰다(ibex held-out서 naive 4.3× 격파).
+- held-out 설계별 최선 전략이 갈렸다 — 단일 정답 축은 없었다.
 
 ## Operator 감독
 winner 승격은 **자동 게이트(median + T1 통계 검증 + Codex 승격 심사관)** 가 판정한다.
