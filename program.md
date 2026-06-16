@@ -46,6 +46,6 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
 - held-out 설계별 최선 전략이 갈렸다 — 단일 정답 축은 없었다.
 
 ## Operator 감독
-winner 승격은 **자동 게이트(median + T1 통계 검증 + Codex 승격 심사관)** 가 판정한다.
+winner 승격은 **자동 게이트(median + LODO 교차설계 + T1 통계 검증 + Codex 승격 심사관)** 가 판정한다.
 Operator는 `program.md`로 *방향*을 잡고 세대 리포트(`gen-NNN/report.md`)로 *큰 흐름을 이해*한다 —
 per-winner 승인은 없음(2026-06-08 재피벗). 본 지시는 후보 *생성*에만 적용.
