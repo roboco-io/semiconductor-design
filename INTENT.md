@@ -74,6 +74,19 @@
 
 ## Learnings
 
+- **2026-06-16** (Codex 검토 게이트가 첫 dogfood에서 spec 결함 적발 — 사람 워크플로의 권력분립) —
+  검토·승인을 객관화하는 `codex-review-approval` 스킬을 만들고(Codex MCP `mcp__codex__codex`로 verdict
+  위임, 생성자 Claude ≠ 판정자 Codex), 그 첫 대상으로 루프 환류 spec(2026-06-12)을 검토. **block**:
+  spec이 재사용한다던 `run_crossdesign_gate`는 일부 fold 실패(inf) 시 *유효 fold만으로* 통과형
+  verdict(`generalizes_better`/`mixed`)를 낼 수 있어, spec §7의 "fold 실패→unverifiable→차단" 의도와
+  어긋남 — **부분 실패한 LODO가 게이트를 통과**하는 안전 구멍. 함수를 순수 probe로 두고 orchestrator가
+  `n_valid < n_designs`를 `rejected_lodo`로 차단하도록 spec 수정 → 재검토 **approve**. (1) **자율 루프의
+  권력분립을 사람 워크플로로 확장**: gen-003에서 Codex가 T1을 속인 gaming을 잡았듯, 여기선 Codex가
+  *내(생성자)가 자기검토로 못 본 spec-코드 간극*을 잡음 — 통계도 자기리뷰도 못 잡는 층을 독립 엔진이
+  덮는다. (2) **co-evolution**: 검토 도구를 만든 그 세션에 그 도구가 산출물을 개선 → 도구가 의도(객관
+  검토)를 즉시 실증. (3) **운영**: Codex MCP는 `.mcp.json` 등록 후 *세션 재시작*에 활성(staleness
+  invariant). 스킬: [[project-codex-review-approval-skill]], `.claude/skills/codex-review-approval/`.
+
 - **2026-06-11b** (ibex 3설계 3-fold — 혼합 분포 훈련이 절대 모델 전이를 회복, 단일 정답 축은 없음) —
   B+A 병렬 실행(ibex Fargate 77분·2040 samples·파서 무변경 + 로컬 V4 조합 probe). 결과 셋:
   (1) **V4(V1×V3 조합)는 V1 단독보다 악화**(aes 1.29/gcd 3.89) → 조합 탐색 종료(2-fold 다중비교
