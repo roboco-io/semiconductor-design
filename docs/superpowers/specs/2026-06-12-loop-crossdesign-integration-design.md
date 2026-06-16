@@ -42,11 +42,20 @@ probe의 발견을 AutoResearch 루프의 3측면에 환류한다:
    `experiments/multidesign/dataset-3design.jsonl`로 변경.
 2. **`src/pipeline/orchestrator.py`** — auto 경로, T1 *앞*에 LODO 게이트 삽입:
    - `run_crossdesign_gate(winner.src_path, baseline_train_py, rows, tempdir)` —
-     기존 Sub-B 함수 재사용, fold 작업물은 `tempfile.TemporaryDirectory`(T1과 동일 패턴).
-   - verdict ∈ {`worse`, `unverifiable`} → `status="rejected_lodo"`, T1·Codex 생략.
-   - verdict ∈ {`generalizes_better`, `mixed`} → T1으로 진행.
+     기존 Sub-B 함수 재사용(**변경 없음** — 순수 방향성 probe로 유지, standalone 리포팅과 공유).
+     fold 작업물은 `tempfile.TemporaryDirectory`(T1과 동일 패턴).
+   - **실패 fold 차단(필수 — orchestrator 게이트 정책)**: `run_crossdesign_gate`는 설계별 fold가
+     실패(inf)해도 *유효한 fold만으로* verdict를 내므로(예: 3설계 중 1 fold 실패 시
+     `n_valid=2`로 `generalizes_better`/`mixed` 가능), **함수 verdict만 보면 부분 실패가 통과**한다.
+     따라서 orchestrator가 게이트 통과 전에 `lodo_res["n_valid"] < lodo_res["n_designs"]`를
+     먼저 검사해 **하나라도 실패 fold가 있으면 `status="rejected_lodo"`**(T1·Codex 생략). 이 "모든
+     fold가 유효해야 함" 정책은 *승격 게이트*의 책임이지 probe 함수의 책임이 아니다 — 그래서
+     함수가 아니라 호출자(orchestrator)에 둔다. (probe 함수는 부분 유효 결과를 방향성으로
+     리포트하는 standalone 용도를 그대로 보존.)
+   - 위 실패-fold 검사를 통과한 뒤: verdict ∈ {`worse`, `unverifiable`} → `rejected_lodo`,
+     T1·Codex 생략. verdict ∈ {`generalizes_better`, `mixed`} → T1으로 진행.
    - 테스트 주입용 `lodo_gate_fn=None` 파라미터(기본 `run_crossdesign_gate`).
-   - `generation.json`에 `lodo_verdict` 필드 추가.
+   - `generation.json`에 `lodo_verdict` + `lodo_n_valid`/`lodo_n_designs` 필드 추가.
    - 단일 설계 dataset이 들어오면 `design_fold_splits`가 ValueError → **LODO 게이트는
      dataset의 설계 수 ≥2일 때만 활성**(단일 설계면 기존 체인 그대로, 리포트에 "LODO 생략" 명기).
 3. **`src/pipeline/report.py`** — `render_generation_report`에 LODO 섹션 추가:
@@ -83,11 +92,17 @@ median selection (5-seed, 혼합 dataset → 설계 다양성 강건성)
 
 ## 7. 에러 처리 · 테스트
 
-- LODO fold 실패(inf) → `unverifiable` → 보수적 차단(`rejected_lodo`). 침묵 통과 금지.
+- LODO fold 실패(inf) 차단은 **두 경로**로 발생: ① 전 fold 실패(n_valid==0) → 함수가
+  `unverifiable` 반환 → `rejected_lodo`. ② 일부 fold 실패(0 < n_valid < n_designs) → 함수 verdict는
+  통과형일 수 있으나 orchestrator의 `n_valid < n_designs` 검사가 `rejected_lodo`로 차단(§4.2).
+  어느 경로든 침묵 통과 금지.
 - 테스트(전부 fake gate 주입, 실학습 없음):
-  - LODO `worse` → `rejected_lodo`, T1·Codex 미호출, generation.json에 `lodo_verdict` 기록.
-  - LODO `mixed` + T1 `distinguishable` + Codex approve → `promoted`(전체 체인 통과).
-  - LODO `unverifiable` → `rejected_lodo`.
+  - LODO `worse`(n_valid==n_designs) → `rejected_lodo`, T1·Codex 미호출, generation.json에
+    `lodo_verdict` 기록.
+  - LODO `mixed` + 전 fold 유효 + T1 `distinguishable` + Codex approve → `promoted`(전체 체인 통과).
+  - LODO `unverifiable`(n_valid==0) → `rejected_lodo`.
+  - **부분 실패**: verdict가 `generalizes_better`/`mixed`라도 `n_valid < n_designs`이면
+    `rejected_lodo`, **T1·Codex 미호출**(Codex가 잡은 안전 구멍의 회귀 가드).
   - 단일 설계 rows → LODO 생략, 기존 체인 동작(하위 호환).
   - `render_generation_report`의 LODO 섹션 유/무 렌더.
 - 기존 94 tests green 유지. Makefile·program.md는 코드 외 — gen-004 실측에서 검증.
@@ -98,7 +113,8 @@ median selection (5-seed, 혼합 dataset → 설계 다양성 강건성)
   내부의 운영 결정이며 ERD가 lineage를 기록.
 - **맹목적 자율 금지**: 게이트가 하나 *추가*되어 자율 승격의 신뢰가 강화됨(LODO는 T1이 못 보는
   일반화 축을, Codex는 통계가 못 보는 의미 축을 차단 — 3중 권력분립).
-- **사전 고정 판정**: 게이트 조건(worse·unverifiable 차단)을 gen-004 실행 전에 본 spec에 고정.
+- **사전 고정 판정**: 게이트 조건(worse·unverifiable 차단 + 실패 fold 존재 시 `n_valid < n_designs`
+  차단)을 gen-004 실행 전에 본 spec에 고정.
 - **비전문가 이해가능성**: 세대 리포트에 LODO 표 추가 — Operator가 "안 본 설계에서도 나아졌나"를
   표 하나로 추적.
 
