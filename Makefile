@@ -28,7 +28,8 @@ train:
 # 구현 plan 승인 후 serverless-autoresearch 구조에 맞춰 추가한다.
 
 GEN ?= 1
-DATASET ?= dataset.jsonl
+# gen-004+ 루프 dataset: 3설계 혼합(gcd+aes+ibex). gen-001~003 val_mae와 직접 비교 금지(설계 교체).
+DATASET ?= experiments/multidesign/dataset-3design.jsonl
 N ?= 4
 PROGRAM ?= program.md
 
