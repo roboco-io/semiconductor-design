@@ -115,6 +115,7 @@ def test_auto_gate_promoted(tmp_path):
         out_root=tmp_path / "g",
         auto=True,
         gate_fn=_stub_gate("distinguishable"),
+        lodo_gate_fn=_stub_lodo("mixed"),
         reviewer_fn=lambda prompt: '{"approve": true, "reasons": "ok"}',
         do_git=False,
     )
@@ -138,6 +139,7 @@ def test_auto_gate_rejected_codex(tmp_path):
         out_root=tmp_path / "g2",
         auto=True,
         gate_fn=_stub_gate("distinguishable"),
+        lodo_gate_fn=_stub_lodo("mixed"),
         reviewer_fn=lambda prompt: '{"approve": false, "reasons": "누수 의심"}',
         do_git=False,
     )
@@ -158,6 +160,7 @@ def test_auto_gate_rejected_t1(tmp_path):
         out_root=tmp_path / "g3",
         auto=True,
         gate_fn=_stub_gate("indistinguishable"),
+        lodo_gate_fn=_stub_lodo("mixed"),
         reviewer_fn=lambda prompt: calls.append(1) or '{"approve": true, "reasons": "x"}',
         do_git=False,
     )
@@ -248,10 +251,145 @@ def test_auto_gate_fold_workdir_is_tempdir_not_experiments(tmp_path):
     run_generation(
         gen_no=3, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
         program_md="opt", n=2, gen_fn=_mock_gen, out_root=out_root,
-        auto=True, gate_fn=spy_gate, reviewer_fn=lambda p: '{"approve": true, "reasons": "x"}',
+        auto=True, gate_fn=spy_gate, lodo_gate_fn=_stub_lodo("mixed"),
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "x"}',
         do_git=False,
     )
     gdir = out_root / "gen-003"
     assert not (gdir / "t1").exists()  # 작업물이 experiments에 안 남음
     assert seen["workdir"].exists() is False  # 임시 dir 자동 정리됨
     assert gdir not in seen["workdir"].parents  # 게이트는 gen dir 밖(temp)에서 작업
+
+
+def _stub_lodo(verdict, n_valid=2, n_designs=2):
+    """run_crossdesign_gate 모양의 결과를 돌려주는 주입형 게이트(실학습 없음)."""
+
+    def gate(winner_train_py, baseline_train_py, rows, workdir, **kw):
+        return {
+            "single_design": False,
+            "n_designs": n_designs,
+            "n_valid": n_valid,
+            "n_winner_better": 1,
+            "n_baseline_better": 0,
+            "mean_gap": -0.1,
+            "per_design": [
+                {"design": "gcd", "winner_mae": 0.2, "baseline_mae": 0.3,
+                 "naive_mae": 1.4, "valid": True},
+                {"design": "ibex", "winner_mae": 0.2, "baseline_mae": 0.3,
+                 "naive_mae": 1.4, "valid": True},
+            ],
+            "verdict": verdict,
+        }
+
+    return gate
+
+
+def _dataset_single(tmp_path):
+    # 단일 설계 dataset — LODO 생략 경로 검증용.
+    rows = [
+        {
+            "endpoint": f"e{i}", "startpoint": f"s{i}", "num_stages": 2 + i % 5,
+            "synth_slack_ns": 0.4 - (i % 6) * 0.1, "synth_arrival_ns": 0.3 + (i % 4) * 0.2,
+            "max_stage_delay_ns": 0.1 + (i % 3) * 0.15, "mean_stage_delay_ns": 0.05 + (i % 3) * 0.05,
+            "startpoint_is_ff": i % 2, "endpoint_is_ff": 1,
+            "path_group": "clk" if i % 2 else "clk2",
+            "post_route_slack_ns": 0.5 - (i % 7) * 0.1, "group_key": "gcd",
+        }
+        for i in range(50)
+    ]
+    p = tmp_path / "ds_single.jsonl"
+    p.write_text("\n".join(json.dumps(r) for r in rows) + "\n")
+    return p
+
+
+def _spy_t1_gate():
+    calls = []
+
+    def gate(winner_train_py, baseline_train_py, rows, workdir, **kw):
+        calls.append(1)
+        return _stub_gate("distinguishable")(winner_train_py, baseline_train_py, rows, workdir)
+
+    return gate, calls
+
+
+def test_auto_gate_rejected_lodo_worse(tmp_path):
+    t1_gate, t1_calls = _spy_t1_gate()
+    codex_calls = []
+    run_generation(
+        gen_no=4, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "gl",
+        auto=True, gate_fn=t1_gate, lodo_gate_fn=_stub_lodo("worse"),
+        reviewer_fn=lambda p: codex_calls.append(1) or '{"approve": true, "reasons": "x"}',
+        do_git=False,
+    )
+    gen = json.loads((tmp_path / "gl" / "gen-004" / "generation.json").read_text())
+    assert gen["status"] == "rejected_lodo"
+    assert gen["lodo_verdict"] == "worse"
+    assert t1_calls == []  # LODO 차단 → T1 미호출(fail-fast)
+    assert codex_calls == []  # Codex 미호출
+    assert "교차설계" in (tmp_path / "gl" / "gen-004" / "report.md").read_text()
+
+
+def test_auto_gate_rejected_lodo_partial_fail(tmp_path):
+    # Codex 검토가 잡은 안전 구멍의 회귀 가드: verdict는 통과형(mixed)이나 일부 fold 실패.
+    t1_gate, t1_calls = _spy_t1_gate()
+    run_generation(
+        gen_no=4, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "gp",
+        auto=True, gate_fn=t1_gate,
+        lodo_gate_fn=_stub_lodo("mixed", n_valid=1, n_designs=2),
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "x"}', do_git=False,
+    )
+    gen = json.loads((tmp_path / "gp" / "gen-004" / "generation.json").read_text())
+    assert gen["status"] == "rejected_lodo"  # 부분 실패 → 차단
+    assert t1_calls == []  # T1 미호출
+
+
+def test_auto_gate_rejected_lodo_unverifiable(tmp_path):
+    # 전 fold 실패(n_valid==0) → 함수가 unverifiable 반환 → 차단(spec §7 enumerated).
+    t1_gate, t1_calls = _spy_t1_gate()
+    run_generation(
+        gen_no=4, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "gu",
+        auto=True, gate_fn=t1_gate,
+        lodo_gate_fn=_stub_lodo("unverifiable", n_valid=0, n_designs=2),
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "x"}', do_git=False,
+    )
+    gen = json.loads((tmp_path / "gu" / "gen-004" / "generation.json").read_text())
+    assert gen["status"] == "rejected_lodo"
+    assert gen["lodo_verdict"] == "unverifiable"
+    assert t1_calls == []  # T1 미호출
+
+
+def test_auto_gate_lodo_mixed_proceeds_to_t1(tmp_path):
+    baseline = _tmp_baseline(tmp_path)
+    before = baseline.read_bytes()
+    run_generation(
+        gen_no=4, dataset=_dataset(tmp_path), baseline_train_py=baseline,
+        program_md="opt", n=2, gen_fn=_marker_gen, out_root=tmp_path / "gm",
+        auto=True, gate_fn=_stub_gate("distinguishable"), lodo_gate_fn=_stub_lodo("mixed"),
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "ok"}', do_git=False,
+    )
+    gen = json.loads((tmp_path / "gm" / "gen-004" / "generation.json").read_text())
+    assert gen["status"] == "promoted"  # mixed + 전 fold 유효 → T1·Codex 통과
+    assert gen["lodo_verdict"] == "mixed"
+    assert baseline.read_bytes() != before
+    # 다설계 dataset → 리포트에 비교성 경고 명기(spec §6)
+    assert "직접 비교 금지" in (tmp_path / "gm" / "gen-004" / "report.md").read_text()
+
+
+def test_auto_gate_single_design_skips_lodo(tmp_path):
+    # 단일 설계면 LODO 생략 — 실제 run_crossdesign_gate(주입 안 함)는 <2설계서 ValueError이므로
+    # 이 테스트가 통과한다는 것 자체가 "LODO 미호출"을 증명한다.
+    run_generation(
+        gen_no=4, dataset=_dataset_single(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_marker_gen, out_root=tmp_path / "gs",
+        auto=True, gate_fn=_stub_gate("distinguishable"),
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "ok"}', do_git=False,
+    )
+    gen = json.loads((tmp_path / "gs" / "gen-004" / "generation.json").read_text())
+    assert gen["status"] == "promoted"
+    assert gen["lodo_verdict"] is None  # LODO 미실행
+    report_txt = (tmp_path / "gs" / "gen-004" / "report.md").read_text()
+    assert "LODO 생략" in report_txt  # 단일 설계 — 생략 사실 명기(spec §4.2)
+    assert "직접 비교 금지" not in report_txt  # 단일 설계 → 비교성 경고 없음
