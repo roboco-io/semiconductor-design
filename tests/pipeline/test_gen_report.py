@@ -19,3 +19,44 @@ def test_report_contains_all_sections():
     assert "distinguishable" in md  # T1
     assert "계약 준수" in md  # Codex 사유
     assert "promoted" in md  # 결정
+
+
+def test_report_includes_lodo_section_when_provided():
+    md = render_generation_report(
+        gen_no=4,
+        ranking=[("cand-001", "codex", "moderate", 0.099)],
+        winner_id="cand-001",
+        t1_report="T1: distinguishable",
+        codex_verdict={"approve": True, "reasons": "ok"},
+        decision="promoted",
+        lodo_report="LODO-SENTINEL-XYZ",
+    )
+    assert "LODO-SENTINEL-XYZ" in md  # LODO 섹션 본문
+    assert "교차설계" in md  # LODO 섹션 제목
+    # LODO 섹션은 T1 섹션보다 앞에 온다 (게이트 순서와 동일)
+    assert md.index("LODO-SENTINEL-XYZ") < md.index("T1: distinguishable")
+
+
+def test_report_omits_lodo_section_when_none():
+    md = render_generation_report(
+        gen_no=4,
+        ranking=[("cand-001", "codex", "moderate", 0.099)],
+        winner_id="cand-001",
+        t1_report="T1: distinguishable",
+        codex_verdict={"approve": True, "reasons": "ok"},
+        decision="promoted",
+    )
+    assert "교차설계" not in md
+
+
+def test_report_includes_comparability_note():
+    md = render_generation_report(
+        gen_no=4,
+        ranking=[("cand-001", "codex", "moderate", 0.099)],
+        winner_id="cand-001",
+        t1_report="T1: distinguishable",
+        codex_verdict={"approve": True, "reasons": "ok"},
+        decision="promoted",
+        comparability_note="비교-금지-SENTINEL",
+    )
+    assert "비교-금지-SENTINEL" in md  # 세대 리포트에 비교성 경고 명기(spec §6)
