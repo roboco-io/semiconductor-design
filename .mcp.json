@@ -9,6 +9,14 @@
         "graphify.serve",
         "graphify-out/graph.json"
       ]
+    },
+    "codex": {
+      "type": "stdio",
+      "command": "codex",
+      "args": [
+        "mcp-server"
+      ],
+      "env": {}
     }
   }
 }
