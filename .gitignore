@@ -77,3 +77,4 @@ graphify-out/.graphify_*
 experiments/*/t1/
 experiments/*/candidates/*/art/
 experiments/*/candidates/*/__pycache__/
+experiments/*.log

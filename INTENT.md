@@ -74,6 +74,23 @@
 
 ## Learnings
 
+- **2026-06-19** (첫 자율+LODO 게이트 세대 — 비개선 winner를 자동 차단, harness 견고성 갭 노출) —
+  루프 환류로 구현한 LODO 게이트를 단 첫 자율 세대 gen-004(3설계 혼합 dataset, `--auto`)에서 실측.
+  median winner는 cand-003(codex/conservative, val_mae 3.74)이 선발됐으나, **held-out LODO에서
+  baseline보다 후퇴**(winner 우세 1/3, 평균 격차 +0.015) → `verdict=worse` → **`rejected_lodo`로
+  자동 차단**(T1·Codex 생략, fail-fast). 세 fold 전부 유효(n_valid=3=n_designs)라 부분실패 차단이
+  아니라 *진짜 일반화 후퇴 판정* — gen-002 위양성의 코드화된 방지가 자율 세대에서 처음 발화. baseline
+  불변 유지, winner 없음. **(1) negative result = 산출물**: 승격 0건이지만 "median-best가 교차설계
+  일반화-best와 다를 수 있고 게이트가 그 간극을 잡는다"가 실증됨 — 접근성/프로세스 novelty 축에 직접
+  기여. **(2) 혼합훈련 회복 재현**: baseline·winner 모두 ibex held-out서 naive를 4.3× 격파(2.96 vs
+  12.81) — 2026-06-11b 발견이 자율 세대에서도 성립. **(3) 자연 도태 ≠ harness 버그**: cand-001은
+  `VotingRegressor`에 sklearn 규약 미충족 추정기를 넣어 fit 크래시(정직한 도태), 그러나 cand-002는
+  claude가 "소스만 출력" 계약을 어기고 채팅 산문("✅ …완료")을 반환했는데 `sdk.py:_extract_code`가
+  코드펜스 부재 시 산문 전체를 train.py로 기록 → `✅` SyntaxError. **harness 견고성 갭**(도태가 아니라
+  버그) — `_extract_code` 가드 보강이 후속 과제. **(4) co-evolution**: 사람이 만든 게이트가 자율 루프를
+  *신뢰가능*케 한다는 2026-06-08 재피벗 가설이 첫 자율 세대에서 검증 — Operator는 결과를 보기 전
+  게이트를 고정했고(사전 고정 판정), 게이트가 비개선을 차단해 baseline 오염을 막음.
+
 - **2026-06-16** (Codex 검토 게이트가 첫 dogfood에서 spec 결함 적발 — 사람 워크플로의 권력분립) —
   검토·승인을 객관화하는 `codex-review-approval` 스킬을 만들고(Codex MCP `mcp__codex__codex`로 verdict
   위임, 생성자 Claude ≠ 판정자 Codex), 그 첫 대상으로 루프 환류 spec(2026-06-12)을 검토. **block**:
