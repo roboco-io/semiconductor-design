@@ -6,6 +6,12 @@ AutoResearch 루프의 에이전트가 `train.py`를 변형할 때 따르는 bas
 surrogate val 지표 **`val_mae`(ns) 최소화**. train.py는 per-endpoint timing slack 회귀
 모델을 학습하고 stdout에 `{"val_mae": <float>}` 한 줄을 출력한다 (낮을수록 좋음).
 
+단, **승격 게이트의 최종 기준은 `val_mae` 단독이 아니라 LODO 교차설계 일반화**다. in-loop `val_mae`는
+GroupShuffleSplit으로 *설계-분리* 검증을 하지만, 매 seed마다 *샘플된* held-out 설계 부분집합에 대한
+대리 지표다 — 그 샘플 split에 잘 맞춰도, 모든 설계를 차례로 빼며 baseline과 비교하는 LODO에서는
+후퇴할 수 있다. LODO 게이트가 그 대리-지표/baseline 후퇴를 잡아 승격을 판정한다. `val_mae`는 유용한
+대리 지표이되 완전하지 않다(아래 관찰 힌트 참고).
+
 ## 입력 데이터 (frozen 계약 — 변경 금지)
 `--data <dataset.jsonl>`: prepare.py 출력. 각 행은 8 feature
 (`num_stages, synth_slack_ns, synth_arrival_ns, max_stage_delay_ns, mean_stage_delay_ns,
@@ -44,6 +50,11 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
   naive를 37% 이겼으나, 드리프트가 자릿수로 다른 설계(ibex)에선 약했다.
 - 혼합 분포 훈련은 절대 스케일 모델의 미관측 설계 전이를 회복시켰다(ibex held-out서 naive 4.3× 격파).
 - held-out 설계별 최선 전략이 갈렸다 — 단일 정답 축은 없었다.
+- gen-004·gen-005 자율 세대에서 `val_mae` 최저 winner가 held-out 설계 LODO에서 baseline에 연속으로
+  졌다(우세 1/3 → 0/3). `val_mae`를 더 낮추는 변형이 *미관측 설계 전체*로는 오히려 후퇴할 수 있다는
+  직접 신호다. 어떤 방향이 일반화를 살릴지는 *열린 질문*이며 전적으로 너의 선택이다 — 가능성의 한 예일
+  뿐(요구되는 레시피 아님)로 "in-loop val split 과적합을 피하는 표현"이나 "절대 스케일 의존을 줄이는
+  feature·설계-불변 신호"를 떠올려볼 수 있고, 정반대 접근도 자유다.
 
 ## Operator 감독
 winner 승격은 **자동 게이트(median + LODO 교차설계 + T1 통계 검증 + Codex 승격 심사관)** 가 판정한다.
