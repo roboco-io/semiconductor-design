@@ -22,6 +22,7 @@ related: [[evolution-loop]], [[gate-chain]], [[cross-design-generalization]]
 | gen-003 | 06-08 | gcd | **auto-gate** | T1 게이트 + Codex 심사 첫 자율, [[adr-operator-empowerment-repivot]] |
 | gen-004 | 06-19 | 3설계 혼합 | **rejected_lodo** | LODO가 비개선 winner 자동 차단(우세 1/3, 평균 +0.015). 혼합훈련 회복 재현 |
 | gen-005 | 06-20 | 3설계 혼합 | **rejected_lodo** | harness 수정 검증(후보 4/4 유효). winner 우세 0/3(평균 +0.043) → 2세대 연속 일반화 후퇴 |
+| gen-006 | 06-20 | 3설계 혼합 | **rejected_t1** | program.md 힌트 강화 후 첫 LODO **통과**(우세 2/3, 평균 −0.083, generalizes_better)! 그러나 T1(혼합 K-fold)서 worse → 차단. LODO↔T1 목표 충돌 표면화 |
 
 ## gen-004 상세 (첫 자율+LODO)
 - median winner cand-003(codex/conservative, val_mae 3.74)가 held-out LODO서 baseline 후퇴 → `worse` → 차단.

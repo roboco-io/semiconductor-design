@@ -74,6 +74,22 @@
 
 ## Learnings
 
+- **2026-06-20** (gen-006 — 힌트 강화가 LODO 벽을 넘김, 그러나 LODO↔T1 게이트 목표 충돌 표면화) —
+  강화된 program.md(승격 기준=LODO salience)로 gen-006 자율 실행. **(1) 가설 지지**: winner
+  cand-001(codex/moderate, val_mae 3.50)이 **처음으로 LODO 통과**(우세 2/3, 평균 −0.083,
+  `generalizes_better`) — gen-004/005의 0~1/3 후퇴에서 반전. "생성 단계가 일반화 병목"이라는 가설을
+  지지하고, *코드 한 줄 없이 지시문만으로* 자율 루프 행동을 바꿀 수 있음을 실증. **(2) 게이트 충돌**:
+  그러나 T1(50-fold repeated K-fold, 설계 *혼합*)에서 winner 2.92 vs baseline 2.48 → `worse`(p=0.000,
+  dz=2.89) → `rejected_t1`. **LODO(미관측 설계 강건성)와 T1(in-distribution 정확도)이 부분적으로 상반된
+  목표를 측정** — winner는 교차설계 강건성을 얻는 대가로 혼합-CV 적합을 희생(robustness↔accuracy
+  트레이드오프). 내가 program.md에 "승격 기준=LODO"라 적었으나(Codex 승인) 실제 체인은 `LODO AND T1`이고
+  T1은 LODO와 다른 걸 강제 → **stated bar와 enforced bar의 불일치**가 드러남. co-evolution: Operator 학습
+  (힌트 강화)이 게이트 정의의 숨은 모순을 표면화. 해소 방향(T1을 LODO-style held-out-design fold로
+  재정의 vs LODO+T1 공동요건 유지)은 spec-level 결정 — Operator 판단 대기. **(3) 2차 harness 갭**:
+  cand-000이 *산문 머리말+코드*(펜스 없음)를 반환 → `_looks_like_source` 토큰 검사가 코드부 토큰만 보고
+  통과 → SyntaxError(inf). gen-004 순수-산문과 다른 변종. `ast.parse` 기반 강화가 후속(token 검사는
+  parseable을 보장 못 함).
+
 - **2026-06-20** (gen-005 — harness 수정 검증 + 2세대 연속 일반화 후퇴 패턴) — `_looks_like_source`
   가드를 넣은 harness로 gen-005 자율 실행. **(1) 수정 검증**: 후보 유효율 2/4(gen-004) → **4/4**.
   gen-004서 산문 반환으로 크래시했던 cand-002가 이번엔 distinct 유효 변형(median 4.27, per-seed가
