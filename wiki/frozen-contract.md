@@ -31,5 +31,6 @@ related: [[evolution-loop]], [[autoresearch-eda-surrogate]]
 - **harness 견고성**: 에이전트가 소스 대신 산문을 반환하면 `_extract_code`/`_looks_like_source`가
   감지해 baseline fallback(gen-004 cand-002 회귀). 가드 미통과 시 후보를 버리지 않고 baseline 채점.
 
-## 미해결 이슈
-- `_looks_like_source` 휴리스틱 강도(오탈락 vs 누락 균형)는 진행 중 — [[generation-log]] gen-004 후속.
+## 해결 이력
+- `_looks_like_source` 휴리스틱 구현(2026-06-19): `import`+`def`+`val_mae` 세 구조 토큰 AND.
+  산문/빈값 거부, 정상 변형 통과. gen-004 cand-002 회귀 해소(전체 109 tests green).

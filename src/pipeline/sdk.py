@@ -17,6 +17,22 @@ def _extract_code(text: str) -> str:
     return m.group(1) if m else text
 
 
+def _looks_like_source(text: str) -> bool:
+    """변형 결과가 train.py 소스인지 최소 검증 — 산문/채팅 메시지 반환(계약 위반)을 차단.
+
+    gen-004 cand-002: claude가 소스 대신 "✅ …완료" 산문을 반환했는데 _extract_code가
+    펜스 부재 시 산문 전체를 train.py로 기록 → SyntaxError. 이 가드가 False면 호출자는
+    후보를 버리지 않고 baseline으로 fallback한다(runner가 정상 채점, 진화는 다음 후보로).
+    """
+    t = text.strip()
+    if not t:
+        return False
+    # frozen 계약상 모든 train.py는 import + 함수 def를 갖고 stdout에 val_mae를 출력한다.
+    # 세 구조 토큰의 AND — 산문/채팅 메시지는 이를 동시에 갖지 않으므로 오탈락 위험은 낮고,
+    # 단일 토큰(예: "def")만 보는 것보다 산문 누락(false-accept)에 강하다.
+    return "import " in t and "def " in t and "val_mae" in t
+
+
 def codex_review_fn(prompt: str) -> str:
     """승격 심사 prompt를 Codex CLI로 보내 raw 응답을 반환 (비용). 실패 시 빈 문자열 → reviewer가 block."""
     try:
@@ -51,4 +67,7 @@ def claude_codex_gen_fn(strategy: str, sdk: str, baseline_src: str, program_md: 
         # 실패 시 baseline 그대로 (runner가 val_mae 산출, 진화는 다음 후보로).
         return baseline_src
     out = _extract_code(proc.stdout).strip()
-    return out + "\n" if out else baseline_src
+    # 산문/계약 위반 출력이면 후보를 버리지 말고 baseline으로 fallback.
+    if not out or not _looks_like_source(out):
+        return baseline_src
+    return out + "\n"
