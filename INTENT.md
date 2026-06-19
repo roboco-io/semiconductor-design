@@ -74,6 +74,18 @@
 
 ## Learnings
 
+- **2026-06-20** (gen-005 — harness 수정 검증 + 2세대 연속 일반화 후퇴 패턴) — `_looks_like_source`
+  가드를 넣은 harness로 gen-005 자율 실행. **(1) 수정 검증**: 후보 유효율 2/4(gen-004) → **4/4**.
+  gen-004서 산문 반환으로 크래시했던 cand-002가 이번엔 distinct 유효 변형(median 4.27, per-seed가
+  baseline과 상이 → fallback 아님)을 냄 — 정상 변형 false-reject 0도 동시 확인. **(2) 반복 패턴**:
+  winner cand-001(codex/moderate, val_mae 3.70)이 held-out 3개 설계 **전부**서 baseline 후퇴(우세 0/3,
+  평균 +0.043) → `rejected_lodo`. gen-004(1/3)·gen-005(0/3) **2세대 연속** median-winner가 교차설계서
+  baseline보다 나쁨 — 에이전트 변형이 *val_mae는 낮추나 진짜 일반화는 개선 못 함*. LODO 게이트가
+  baseline 오염을 두 번 막아 운영 가치 반복 실증. **(3) 함의**: 같은 baseline·dataset에서 진화가
+  교차설계 일반화 개선에 막혀있음 → 다음 지렛대는 후보 재추첨(stochastic)보다 **(a) program.md 힌트
+  강화로 일반화 지향 변형 유도, (b) 설계 확보(Sub-A)로 LODO를 probe→유의성 격상** 중 하나. negative
+  result(승격 0건)가 "어디서 막혔나"를 가리키는 진단 신호로 기능.
+
 - **2026-06-19** (첫 자율+LODO 게이트 세대 — 비개선 winner를 자동 차단, harness 견고성 갭 노출) —
   루프 환류로 구현한 LODO 게이트를 단 첫 자율 세대 gen-004(3설계 혼합 dataset, `--auto`)에서 실측.
   median winner는 cand-003(codex/conservative, val_mae 3.74)이 선발됐으나, **held-out LODO에서
