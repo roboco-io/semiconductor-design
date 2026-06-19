@@ -84,7 +84,11 @@
   baseline 오염을 두 번 막아 운영 가치 반복 실증. **(3) 함의**: 같은 baseline·dataset에서 진화가
   교차설계 일반화 개선에 막혀있음 → 다음 지렛대는 후보 재추첨(stochastic)보다 **(a) program.md 힌트
   강화로 일반화 지향 변형 유도, (b) 설계 확보(Sub-A)로 LODO를 probe→유의성 격상** 중 하나. negative
-  result(승격 0건)가 "어디서 막혔나"를 가리키는 진단 신호로 기능.
+  result(승격 0건)가 "어디서 막혔나"를 가리키는 진단 신호로 기능. **후속 실행**: 지렛대 (a)를 택해
+  program.md 힌트를 강화(승격 기준=LODO salience + gen-004/005 사실)했고, 이 *지시문* 변경을 Codex
+  검토 게이트에 태우자 첫 판정에서 **block** — 내가 쓴 "val_mae는 부분 holdout" 프레이밍이
+  GroupShuffleSplit(설계-분리) 사실과 모순임을 적발(수정→approve). 검토 게이트의 가치가 spec/plan/code를
+  넘어 *자율 루프를 좌우하는 instruction-doc*까지 확장됨 — 생성자(나)의 자기검토는 같은 오해를 공유했을 것.
 
 - **2026-06-19** (첫 자율+LODO 게이트 세대 — 비개선 winner를 자동 차단, harness 견고성 갭 노출) —
   루프 환류로 구현한 LODO 게이트를 단 첫 자율 세대 gen-004(3설계 혼합 dataset, `--auto`)에서 실측.
