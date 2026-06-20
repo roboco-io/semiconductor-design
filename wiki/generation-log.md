@@ -28,6 +28,8 @@ related: [[evolution-loop]], [[gate-chain]], [[cross-design-generalization]]
 gen-006 winner 재평가 시 혼합-T1 `worse` → 교차설계-T1 `distinguishable`(mean_diff −0.53, p=0.003)로
 판정 반전 → 두 게이트가 다른 축(robustness↔accuracy) 측정 입증. 새 체인이었다면 gen-006은 승격 후보.
 
+| gen-007 | 06-21 | 3설계 혼합 | **rejected_t1** | 새 4단 체인 첫 실전. winner cand-002 val_mae 1.29(역대 최저)·LODO 통과(2/3)했으나 교차설계 T1 `indistinguishable`(p=0.655) → 차단. LODO(방향성)↔T1(통계 유의)의 역할 분담 입증 — ibex 큰 패배로 격차가 noise에 묻힘 |
+
 ## gen-004 상세 (첫 자율+LODO)
 - median winner cand-003(codex/conservative, val_mae 3.74)가 held-out LODO서 baseline 후퇴 → `worse` → 차단.
 - 세 fold 전부 유효(부분실패 아님) = 진짜 일반화 후퇴. baseline 불변, 승격 0건.

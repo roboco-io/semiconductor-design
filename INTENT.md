@@ -74,6 +74,19 @@
 
 ## Learnings
 
+- **2026-06-21b** (gen-007 — 새 4단 체인 첫 실전, LODO↔T1 역할 분담 입증) — 게이트 정합(교차설계 T1)
+  후 첫 자율 세대. winner cand-002가 median val_mae **1.29**(gen-004~006의 3.5~3.7 대비 역대 최저)로
+  뽑혔고 LODO도 통과(`generalizes_better`, 우세 2/3)했으나, 교차설계 T1에서 `indistinguishable`
+  (mean_diff +0.36, CI[−0.82,+1.55], p=0.655, dz=0.10) → `rejected_t1`. **(1) 게이트 역할 분담 입증**:
+  LODO는 "설계 *수*로 누가 이겼나"(방향성), T1은 "그 격차가 *통계적으로 유의한가*". winner는 방향성은
+  좋아도 격차가 noise에 묻혀 차단 — 정확히 T1의 존재 이유. per-design: winner가 aes(1.28 vs 2.68)·
+  gcd(2.04 vs 2.52) 우세이나 **ibex(6.93 vs 2.96)서 크게 패배**(평균 격차 +0.69) → LODO는 2설계 우세로
+  통과, T1은 ibex 패배 반영해 유의성 부정. **(2) val_mae ≠ 일반화 재확인**: gen-007 winner는 역대 최저
+  val_mae인데도 T1 `indistinguishable`, gen-006 winner(val_mae 3.50)는 `distinguishable`이었음 — median이
+  낮다고 교차설계 일반화가 좋은 게 아님. **(3) 게이트가 위양성 차단**: 역대 최저 median이 자율 승격됐다면
+  baseline이 오염됐을 것 — 새 체인이 정확히 막음. 한계: 저표본(설계 3) + 반복-상관 → 더 강한 결론은
+  설계 확보(Sub-A) 후.
+
 - **2026-06-21** (게이트 충돌 해소 — T1을 교차설계 통계 게이트로 재정의, 판정 반전이 측정축 차이를 입증) —
   gen-006이 드러낸 LODO↔T1 모순(stated bar=LODO ≠ enforced bar=LODO AND 혼합-T1)을 선택지 A2로 해소.
   T1의 fold 스킴을 혼합 K-fold → **repeated leave-one-design-out**(D×R fold)으로 교체해 T1이 LODO와
