@@ -19,6 +19,7 @@ from pipeline.validation import (
     render_crossdesign_report,
     render_validation_report,
     run_crossdesign_gate,
+    run_crossdesign_validation_gate,
     run_validation_gate,
 )
 
@@ -95,7 +96,14 @@ def run_generation(
             t1_report = "LODO 게이트 미통과 — T1 생략."
             codex_verdict = {"approve": False, "reasons": "LODO 미통과 — 심사 생략"}
         else:
-            gate = gate_fn or run_validation_gate
+            # 다설계 → 교차설계 T1(repeated LODO), 단일설계 → 기존 혼합 K-fold T1 (spec §3.4).
+            # gate_fn 주입 시 그대로(테스트 mock) — 기본값만 분기.
+            if gate_fn is not None:
+                gate = gate_fn
+            elif len({r["group_key"] for r in rows}) >= 2:
+                gate = run_crossdesign_validation_gate
+            else:
+                gate = run_validation_gate
             # T1 fold 작업물(50 fold × jsonl/joblib, 100MB+)은 임시 — tempdir에 쓰고 자동 정리.
             with tempfile.TemporaryDirectory(prefix=f"t1-gen{gen_no:03d}-") as _t1dir:
                 t1 = gate(Path(winner.src_path), Path(baseline_train_py), rows, Path(_t1dir))

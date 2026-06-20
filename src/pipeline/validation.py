@@ -31,9 +31,14 @@ def fold_splits(n: int, k: int = 5, repeats: int = 10, base_seed: int = 0):
 
 
 def naive_fold_maes(rows: list[dict], splits) -> list[float]:
-    """naive 예측(합성 슬랙=최종 슬랙)의 fold별 val MAE."""
+    """naive 예측(합성 슬랙=최종 슬랙)의 fold별 val MAE.
+
+    split은 2-tuple `(tr, va)` 또는 3-tuple `(tr, va, seed)`. naive는 학습이 없어 seed 무관 —
+    val 인덱스만 쓴다(`split[1]`).
+    """
     maes = []
-    for _tr, va in splits:
+    for split in splits:
+        va = split[1]
         errs = [abs(rows[j]["synth_slack_ns"] - rows[j]["post_route_slack_ns"]) for j in va]
         maes.append(sum(errs) / len(errs))
     return maes
@@ -103,11 +108,14 @@ def candidate_fold_maes(train_py, rows: list[dict], splits, workdir: Path) -> li
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     maes = []
-    for i, (tr, va) in enumerate(splits):
+    for i, split in enumerate(splits):
+        # 2-tuple (tr, va) → seed=0; 3-tuple (tr, va, seed) → 그 seed로 train.py 내부분할 변동.
+        tr, va = split[0], split[1]
+        fold_seed = split[2] if len(split) > 2 else 0
         train_path = _write_jsonl([rows[j] for j in tr], workdir / f"f{i}_train.jsonl")
         val_path = _write_jsonl([rows[j] for j in va], workdir / f"f{i}_val.jsonl")
         out_dir = workdir / f"f{i}_out"
-        train_val = run_candidate(Path(train_py), train_path, out_dir, seed=0)
+        train_val = run_candidate(Path(train_py), train_path, out_dir, seed=fold_seed)
         model = out_dir / "model.joblib"
         if train_val == float("inf") or not model.exists():
             maes.append(float("inf"))
@@ -132,6 +140,21 @@ def design_fold_splits(groups):
         va = [i for i, g in enumerate(groups) if g == d]
         tr = [i for i, g in enumerate(groups) if g != d]
         splits.append((tr, va))
+    return splits
+
+
+def repeated_design_fold_splits(groups, repeats: int = 10, base_seed: int = 0):
+    """repeated Leave-One-Design-Out: design_fold_splits를 `repeats` seed로 반복(spec §3.1).
+
+    각 원소 = `(tr, va, seed)`. seed = base_seed + r (r=0..repeats-1)는 train.py 내부 0.75 분할을
+    변동시켜 같은 (train,val) 설계 쌍에서도 다른 모델/MAE를 산출(반복 통계의 원천). 설계 순서는
+    design_fold_splits와 동일하게 sorted-unique로 결정적. ≥2 설계 필요(단일설계 ValueError).
+    """
+    base = design_fold_splits(groups)  # D fold, sorted-unique 순서 (ValueError 위임)
+    splits = []
+    for r in range(repeats):
+        for tr, va in base:
+            splits.append((tr, va, base_seed + r))
     return splits
 
 
@@ -178,6 +201,59 @@ def run_validation_gate(
     res["winner_vs_baseline"] = paired_comparison(winner_folds, baseline_folds, n_boot, base_seed)
     res["winner_vs_naive"] = paired_comparison(winner_folds, naive_folds, n_boot, base_seed)
     res["verdict_vs_baseline"] = verdict(res["winner_vs_baseline"])
+    return res
+
+
+def run_crossdesign_validation_gate(
+    winner_train_py,
+    baseline_train_py,
+    rows: list[dict],
+    workdir: Path,
+    repeats: int = 10,
+    base_seed: int = 0,
+    n_boot: int = 10000,
+    alpha: float = 0.05,
+) -> dict:
+    """교차설계 T1 게이트 — repeated leave-one-design-out으로 winner/baseline/naive paired 통계 비교.
+
+    혼합 K-fold T1(`run_validation_gate`)과 같은 통계 구조이되 fold 스킴이 *설계 단위 held-out*이라
+    교차설계 일반화를 검정한다(spec 2026-06-20). winner 또는 baseline이 한 fold라도 실패(inf)하면
+    검증 불가로 보고 `verdict_vs_baseline='worse'`(보수적). repeats는 통계 파워용 fold 증식 — 같은
+    held-out 설계 반복은 상관되므로 CI는 낙관적(리포트 caveat). 임계값은 spec §4가 single source.
+    """
+    workdir = Path(workdir)
+    groups = [r["group_key"] for r in rows]
+    splits = repeated_design_fold_splits(groups, repeats=repeats, base_seed=base_seed)
+    uniq = sorted(set(groups))
+    winner_folds = candidate_fold_maes(winner_train_py, rows, splits, workdir / "winner")
+    baseline_folds = candidate_fold_maes(baseline_train_py, rows, splits, workdir / "baseline")
+    naive_folds = naive_fold_maes(rows, splits)
+
+    n_failed_winner = sum(1 for m in winner_folds if m == float("inf"))
+    n_failed_baseline = sum(1 for m in baseline_folds if m == float("inf"))
+
+    res = {
+        "scheme": "repeated_design_lodo",
+        "repeats": repeats,
+        "n_designs": len(uniq),
+        "winner_folds": winner_folds,
+        "baseline_folds": baseline_folds,
+        "naive_folds": naive_folds,
+        "n_failed_winner": n_failed_winner,
+        "n_failed_baseline": n_failed_baseline,
+        "n_folds": len(splits),
+        "winner_vs_baseline": None,
+        "winner_vs_naive": None,
+        "verdict_vs_baseline": None,
+        "single_design": False,
+    }
+    if n_failed_winner > 0 or n_failed_baseline > 0:
+        res["verdict_vs_baseline"] = "worse"  # 검증 불가(불안정) → 보수적
+        return res
+
+    res["winner_vs_baseline"] = paired_comparison(winner_folds, baseline_folds, n_boot, base_seed)
+    res["winner_vs_naive"] = paired_comparison(winner_folds, naive_folds, n_boot, base_seed)
+    res["verdict_vs_baseline"] = verdict(res["winner_vs_baseline"], alpha)
     return res
 
 
@@ -266,9 +342,21 @@ def _mean(xs):
 
 
 def render_validation_report(res: dict) -> str:
-    """승격 검증 게이트 리포트. auto 모드에선 하드 게이트, 수동 모드에선 Operator 참고."""
-    L = ["# 승격 검증 리포트 (T1 게이트)", ""]
-    L.append(f"- folds: {res['n_folds']} (repeated K-fold, paired)")
+    """승격 검증 게이트 리포트. auto 모드에선 하드 게이트, 수동 모드에선 Operator 참고.
+
+    `scheme == "repeated_design_lodo"`면 교차설계 T1(repeated LODO) 리포트, 그 외/부재면 기존 혼합
+    K-fold T1 리포트(회귀 보존).
+    """
+    is_xdesign = res.get("scheme") == "repeated_design_lodo"
+    if is_xdesign:
+        L = ["# 승격 검증 리포트 (교차설계 T1 · repeated LODO)", ""]
+        L.append(
+            f"- folds: {res['n_folds']} (설계 {res['n_designs']}개 × repeats {res['repeats']}, "
+            f"leave-one-design-out, paired)"
+        )
+    else:
+        L = ["# 승격 검증 리포트 (T1 게이트)", ""]
+        L.append(f"- folds: {res['n_folds']} (repeated K-fold, paired)")
     L.append(
         f"- winner 실패 fold: {res['n_failed_winner']} / baseline 실패 fold: "
         f"{res['n_failed_baseline']}"
@@ -303,15 +391,31 @@ def render_validation_report(res: dict) -> str:
             f"verdict 'worse'는 통계적 열등이 아니라 검증 불가를 뜻함."
         )
     L.append("")
-    L.append(
-        "> ⚠️ 반복 K-fold는 train/val 중첩으로 fold 점수들이 **상관**된다 — bootstrap CI·Wilcoxon p는"
-    )
-    L.append(
-        "> 독립 표본 가정보다 **낙관적**(불확실성 과소평가)일 수 있다. verdict는 보수적으로 해석."
-    )
+    if is_xdesign:
+        # 교차설계 T1(repeated LODO)의 통계 한계 caveat.
+        L.append(
+            "> ⚠️ **반복-상관**: 같은 held-out 설계를 repeats번 반복한 fold들은 동일 val set을 공유해"
+        )
+        L.append(
+            "> **상관**된다 — 독립 표본이 아니므로 bootstrap CI·Wilcoxon p는 독립 가정보다 **낙관적**"
+        )
+        L.append("> (불확실성 과소평가)이다. verdict는 보수적으로 해석.")
+        L.append("")
+        L.append(
+            f"> ⚠️ **저표본**: 설계 {res['n_designs']}개뿐 → 교차설계 표본이 근본적으로 작다. 강한 일반화"
+        )
+        L.append("> 결론은 설계 확보(Sub-A) 후에야 가능 — 현 verdict는 *방향성에 가까운* 통계 신호.")
+    else:
+        L.append(
+            "> ⚠️ 반복 K-fold는 train/val 중첩으로 fold 점수들이 **상관**된다 — bootstrap CI·Wilcoxon p는"
+        )
+        L.append(
+            "> 독립 표본 가정보다 **낙관적**(불확실성 과소평가)일 수 있다. verdict는 보수적으로 해석."
+        )
+        L.append("")
+        L.append("> ⚠️ **단일 설계(n=53) 한계**: 본 검증은 한 설계 내 repeated K-fold일 뿐,")
+        L.append("> 일반화(다른 설계 예측)를 주장하지 않는다. held-out *설계* 교차검증은 **T4**의 몫.")
     L.append("")
-    L.append("> ⚠️ **단일 설계(n=53) 한계**: 본 검증은 한 설계 내 repeated K-fold일 뿐,")
-    L.append("> 일반화(다른 설계 예측)를 주장하지 않는다. held-out *설계* 교차검증은 **T4**의 몫.")
     L.append(
         "> verdict: `distinguishable`일 때만 승격 후보 — auto 모드에선 이후 Codex 심사로 진행, "
         "수동 모드에선 Operator 참고."

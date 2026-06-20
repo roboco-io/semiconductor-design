@@ -361,6 +361,50 @@ def test_auto_gate_rejected_lodo_unverifiable(tmp_path):
     assert t1_calls == []  # T1 미호출
 
 
+def _patch_default_t1_spies(monkeypatch):
+    """orchestrator의 두 기본 T1 게이트를 spy로 교체 — 어느 쪽이 불렸는지 기록."""
+    import pipeline.orchestrator as O
+
+    calls = {"crossdesign": 0, "mixed": 0}
+
+    def _spy(name):
+        def gate(w, b, rows, workdir, **kw):
+            calls[name] += 1
+            return _stub_gate("distinguishable")(w, b, rows, workdir)
+
+        return gate
+
+    monkeypatch.setattr(O, "run_crossdesign_validation_gate", _spy("crossdesign"))
+    monkeypatch.setattr(O, "run_validation_gate", _spy("mixed"))
+    return calls
+
+
+def test_auto_gate_multidesign_uses_crossdesign_t1(tmp_path, monkeypatch):
+    # 다설계 dataset + LODO 통과 → 기본 T1은 교차설계(repeated LODO) 게이트 (spec §3.4).
+    calls = _patch_default_t1_spies(monkeypatch)
+    run_generation(
+        gen_no=4, dataset=_dataset(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "gx",
+        auto=True, lodo_gate_fn=_stub_lodo("mixed"),  # gate_fn 미주입 → 기본 분기
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "ok"}', do_git=False,
+    )
+    assert calls["crossdesign"] == 1
+    assert calls["mixed"] == 0
+
+
+def test_auto_gate_singledesign_uses_mixed_t1(tmp_path, monkeypatch):
+    # 단일설계 dataset → LODO 생략, 기본 T1은 기존 혼합 K-fold 게이트 (회귀 가드).
+    calls = _patch_default_t1_spies(monkeypatch)
+    run_generation(
+        gen_no=4, dataset=_dataset_single(tmp_path), baseline_train_py=_tmp_baseline(tmp_path),
+        program_md="opt", n=2, gen_fn=_mock_gen, out_root=tmp_path / "gs",
+        auto=True,  # gate_fn·lodo_gate_fn 미주입 → 단일설계 경로
+        reviewer_fn=lambda p: '{"approve": true, "reasons": "ok"}', do_git=False,
+    )
+    assert calls["mixed"] == 1
+    assert calls["crossdesign"] == 0
+
+
 def test_auto_gate_lodo_mixed_proceeds_to_t1(tmp_path):
     baseline = _tmp_baseline(tmp_path)
     before = baseline.read_bytes()

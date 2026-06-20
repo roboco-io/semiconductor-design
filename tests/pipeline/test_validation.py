@@ -10,7 +10,9 @@ from pipeline.validation import (
     paired_comparison,
     render_crossdesign_report,
     render_validation_report,
+    repeated_design_fold_splits,
     run_crossdesign_gate,
+    run_crossdesign_validation_gate,
     run_validation_gate,
     verdict,
 )
@@ -63,6 +65,149 @@ def _rows(n=40):
         }
         for i in range(n)
     ]
+
+
+# --- Task 1: repeated_design_fold_splits + split 3-tuple 호환 (spec §3.1·§3.2) ---
+
+
+def test_repeated_design_fold_splits_count_and_structure():
+    groups = ["a", "b", "a", "c", "b", "c"]  # D=3 설계
+    splits = repeated_design_fold_splits(groups, repeats=2, base_seed=0)
+    assert len(splits) == 6  # D(3) × repeats(2)
+    for tr, va, seed in splits:  # 3-tuple
+        assert set(tr).isdisjoint(va)
+        assert sorted(tr + va) == list(range(6))
+        assert isinstance(seed, int)
+
+
+def test_repeated_design_fold_splits_seed_assignment():
+    groups = ["a", "b", "c"]
+    splits = repeated_design_fold_splits(groups, repeats=3, base_seed=10)
+    seeds = sorted({s for _, _, s in splits})
+    assert seeds == [10, 11, 12]  # base_seed + r
+
+
+def test_repeated_design_fold_splits_deterministic_sorted_order():
+    # 비정렬 레이블이어도 fold 순서는 sorted(set(groups)) = [a,b,c]를 따른다(spec §3.1).
+    groups = ["b", "a", "b", "c", "a"]
+    splits = repeated_design_fold_splits(groups, repeats=1, base_seed=0)
+    held_out = []
+    for _tr, va, _s in splits:
+        held_out.append(sorted({groups[i] for i in va}))
+    assert held_out == [["a"], ["b"], ["c"]]  # held-out 설계 순서 = 정렬
+
+
+def test_repeated_design_fold_splits_requires_two_designs():
+    with pytest.raises(ValueError):
+        repeated_design_fold_splits(["a", "a", "a"], repeats=2)
+
+
+def test_naive_fold_maes_accepts_3tuple():
+    rows = [
+        {"synth_slack_ns": 0.5, "post_route_slack_ns": 0.2},  # 0.3
+        {"synth_slack_ns": 0.0, "post_route_slack_ns": -0.4},  # 0.4
+        {"synth_slack_ns": 1.0, "post_route_slack_ns": 1.0},  # 0.0
+    ]
+    # 3-tuple split (seed 무시)도 2-tuple과 같은 결과여야.
+    s3 = [([0], [1, 2], 7), ([1], [0, 2], 99)]
+    maes = naive_fold_maes(rows, s3)
+    assert maes[0] == (0.4 + 0.0) / 2
+    assert maes[1] == (0.3 + 0.0) / 2
+
+
+def test_candidate_fold_maes_passes_3tuple_seed(monkeypatch):
+    import pipeline.validation as V
+
+    seen_seeds = []
+
+    def fake_run_candidate(train_py, dataset, out_dir, seed=0):
+        seen_seeds.append(seed)
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        (Path(out_dir) / "model.joblib").write_text("x")
+        return 1.0
+
+    monkeypatch.setattr(V, "run_candidate", fake_run_candidate)
+    monkeypatch.setattr(V, "score_holdout", lambda *a, **k: 1.0)
+    rows = _rows(6)
+    splits = [([0, 1], [2, 3], 5), ([2, 3], [0, 1], 8)]  # 3-tuple
+    V.candidate_fold_maes(REPO / "train.py", rows, splits, Path("/tmp/x_unused"))
+    assert seen_seeds == [5, 8]  # split의 seed가 run_candidate로 전달
+
+
+def test_candidate_fold_maes_2tuple_defaults_seed0(monkeypatch):
+    import pipeline.validation as V
+
+    seen_seeds = []
+
+    def fake_run_candidate(train_py, dataset, out_dir, seed=0):
+        seen_seeds.append(seed)
+        Path(out_dir).mkdir(parents=True, exist_ok=True)
+        (Path(out_dir) / "model.joblib").write_text("x")
+        return 1.0
+
+    monkeypatch.setattr(V, "run_candidate", fake_run_candidate)
+    monkeypatch.setattr(V, "score_holdout", lambda *a, **k: 1.0)
+    rows = _rows(4)
+    splits = [([0, 1], [2, 3]), ([2, 3], [0, 1])]  # 2-tuple (하위 호환)
+    V.candidate_fold_maes(REPO / "train.py", rows, splits, Path("/tmp/y_unused"))
+    assert seen_seeds == [0, 0]
+
+
+# --- Task 2: run_crossdesign_validation_gate + 리포트 scheme 분기 (spec §3.3·§3.5) ---
+
+
+def _toy_gate_rows():
+    # 2설계 × 소수 행 — 빠른 실제 train.py 평가용.
+    r = _rows(30)
+    for i, row in enumerate(r):
+        row["group_key"] = "gcd" if i % 2 == 0 else "aes"
+    return r
+
+
+def test_crossdesign_validation_gate_scheme_and_keys(tmp_path):
+    rows = _toy_gate_rows()
+    res = run_crossdesign_validation_gate(
+        REPO / "train.py", REPO / "train.py", rows, tmp_path / "wd", repeats=2
+    )
+    assert res["scheme"] == "repeated_design_lodo"
+    assert res["repeats"] == 2
+    assert res["n_designs"] == 2
+    # winner==baseline(같은 train.py) → 유의한 우열 없음 → distinguishable 아님.
+    assert res["verdict_vs_baseline"] in ("indistinguishable", "worse")
+
+
+def test_crossdesign_validation_gate_winner_fail_is_worse(tmp_path):
+    broken = tmp_path / "broken.py"
+    broken.write_text("import sys; sys.exit(2)\n")
+    rows = _toy_gate_rows()
+    res = run_crossdesign_validation_gate(broken, REPO / "train.py", rows, tmp_path / "wd2", repeats=2)
+    assert res["verdict_vs_baseline"] == "worse"  # 부분실패 → 보수적 차단
+
+
+def test_render_validation_report_crossdesign_scheme():
+    res = {
+        "scheme": "repeated_design_lodo",
+        "repeats": 10,
+        "n_designs": 3,
+        "winner_folds": [1.0, 1.1],
+        "baseline_folds": [1.2, 1.3],
+        "naive_folds": [2.0, 2.1],
+        "n_failed_winner": 0,
+        "n_failed_baseline": 0,
+        "n_folds": 2,
+        "winner_vs_baseline": {
+            "mean_diff": -0.2, "ci_low": -0.3, "ci_high": -0.1,
+            "wilcoxon_p": 0.01, "effect_size": -1.5, "n_valid": 2,
+        },
+        "winner_vs_naive": {
+            "mean_diff": -1.0, "ci_low": -1.1, "ci_high": -0.9,
+            "wilcoxon_p": 0.01, "effect_size": -3.0, "n_valid": 2,
+        },
+        "verdict_vs_baseline": "distinguishable",
+    }
+    md = render_validation_report(res)
+    assert "교차설계" in md  # 교차설계 제목/캡션
+    assert "상관" in md  # 상관 caveat (단일설계 경고 대신)
 
 
 def test_candidate_fold_maes_real_trainpy(tmp_path):
