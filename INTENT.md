@@ -74,6 +74,20 @@
 
 ## Learnings
 
+- **2026-06-21** (게이트 충돌 해소 — T1을 교차설계 통계 게이트로 재정의, 판정 반전이 측정축 차이를 입증) —
+  gen-006이 드러낸 LODO↔T1 모순(stated bar=LODO ≠ enforced bar=LODO AND 혼합-T1)을 선택지 A2로 해소.
+  T1의 fold 스킴을 혼합 K-fold → **repeated leave-one-design-out**(D×R fold)으로 교체해 T1이 LODO와
+  같은 축(교차설계 일반화)을 통계 검정하게 만듦. **핵심 증거**: gen-006 winner를 새 게이트로 재평가하니
+  혼합-T1 `worse`(mean_diff +0.45, dz +2.89) → 교차설계-T1 **`distinguishable`**(mean_diff −0.53,
+  CI[−0.86,−0.23], p=0.003) — *같은 winner, 정반대 verdict*. 게이트가 측정축을 바꾸자 판정이 뒤집힘 =
+  두 게이트가 진짜 다른 것(robustness↔accuracy)을 측정함을 통계로 입증. 새 체인이었다면 gen-006은
+  승격 후보였음 → program.md 힌트 강화 효과가 게이트 정합 후 비로소 승격으로 이어질 수 있음.
+  **권력분립 4단 적용**: spec(block: A2 권한 근거·3-tuple naive 누락 → 수정), plan(request_changes:
+  sorted-order 테스트·gen-006 재평가 필수화·scheme 정확분기), code(approve) — 각 단계 Codex가 고유 결함
+  적발. **방법론**: 코드 한 줄 안 건드리고 지시문만 바꾼 가설(힌트 강화)이 게이트 정의의 숨은 모순을
+  노출했고, 그 모순 해소가 다시 "게이트가 옳은 축을 측정해야 한다"는 invariant를 코드화 — Operator 학습
+  ↔ 프로젝트 진화의 양방향. 한계: 저표본(설계 3) + 반복-상관 → 강한 결론은 설계 확보(Sub-A) 후.
+
 - **2026-06-20** (gen-006 — 힌트 강화가 LODO 벽을 넘김, 그러나 LODO↔T1 게이트 목표 충돌 표면화) —
   강화된 program.md(승격 기준=LODO salience)로 gen-006 자율 실행. **(1) 가설 지지**: winner
   cand-001(codex/moderate, val_mae 3.50)이 **처음으로 LODO 통과**(우세 2/3, 평균 −0.083,

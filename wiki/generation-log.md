@@ -24,6 +24,10 @@ related: [[evolution-loop]], [[gate-chain]], [[cross-design-generalization]]
 | gen-005 | 06-20 | 3설계 혼합 | **rejected_lodo** | harness 수정 검증(후보 4/4 유효). winner 우세 0/3(평균 +0.043) → 2세대 연속 일반화 후퇴 |
 | gen-006 | 06-20 | 3설계 혼합 | **rejected_t1** | program.md 힌트 강화 후 첫 LODO **통과**(우세 2/3, 평균 −0.083, generalizes_better)! 그러나 T1(혼합 K-fold)서 worse → 차단. LODO↔T1 목표 충돌 표면화 |
 
+**후속 (06-21)**: LODO↔T1 충돌 해소 — T1을 교차설계 repeated-LODO 통계 게이트로 재정의([[gate-chain]]).
+gen-006 winner 재평가 시 혼합-T1 `worse` → 교차설계-T1 `distinguishable`(mean_diff −0.53, p=0.003)로
+판정 반전 → 두 게이트가 다른 축(robustness↔accuracy) 측정 입증. 새 체인이었다면 gen-006은 승격 후보.
+
 ## gen-004 상세 (첫 자율+LODO)
 - median winner cand-003(codex/conservative, val_mae 3.74)가 held-out LODO서 baseline 후퇴 → `worse` → 차단.
 - 세 fold 전부 유효(부분실패 아님) = 진짜 일반화 후퇴. baseline 불변, 승격 0건.

@@ -22,7 +22,10 @@ gen-002 위양성(단일 seed로 broken winner가 승격될 뻔)을 계기로, "
 1. **median** — 5-seed median val_mae로 winner 선발([[adr-multiseed-median-selection]]). 통계 노이즈 차단.
 2. **LODO** — held-out 설계 일반화 probe. baseline 후퇴(`worse`)·부분 fold 실패 시 `rejected_lodo`로
    차단(T1·Codex 생략, fail-fast). [[cross-design-generalization]] 참조.
-3. **T1** — winner vs baseline 분포 구분 가능성(`distinguishable`) 통계 검정.
+3. **T1** — winner vs baseline 통계 검정(`distinguishable`/`worse`). 다설계 dataset에선 **교차설계
+   repeated-LODO**(D×R fold, 설계 단위 held-out)로 LODO와 같은 축을 통계 검정(2026-06-21 재정의);
+   단일설계에선 기존 혼합 K-fold. gen-006 winner가 혼합-T1 `worse` → 교차설계-T1 `distinguishable`로
+   반전 — 두 스킴이 다른 축(robustness↔accuracy)을 측정함을 입증.
 4. **Codex** — 무결성·안전·gaming 심사. T1이 못 잡는 계약 우회를 차단([[codex-review-gate]]).
 
 ## 주의사항 / 오해
