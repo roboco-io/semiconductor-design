@@ -34,3 +34,6 @@ related: [[evolution-loop]], [[autoresearch-eda-surrogate]]
 ## 해결 이력
 - `_looks_like_source` 휴리스틱 구현(2026-06-19): `import`+`def`+`val_mae` 세 구조 토큰 AND.
   산문/빈값 거부, 정상 변형 통과. gen-004 cand-002 회귀 해소(전체 109 tests green).
+- **`ast.parse` 구문 검사 추가(2026-06-21)**: gen-006 cand-000이 *산문 머리말+코드*(펜스 없음)를
+  반환 — 코드부 토큰은 있으나 첫 줄 산문이 SyntaxError. 토큰 검사만으론 못 잡아 `ast.parse`로
+  구문 유효성을 먼저 확인(parseable 아니면 False). 두 층 직교 방어: ast=산문 혼입, 토큰=train.py다움.

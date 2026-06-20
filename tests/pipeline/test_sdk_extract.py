@@ -22,6 +22,13 @@ REAL_SOURCE = (
     "    print('{\"val_mae\": 1.0}')\n"
 )
 
+# gen-006 cand-000 회귀: 산문 머리말(em-dash 포함) + 코드(펜스 없음). 토큰 검사는 코드부의
+# import/def/val_mae를 보고 통과하지만, 첫 줄 산문이 SyntaxError(U+2014 등) → train.py로 쓰면 깨짐.
+PROSE_THEN_CODE = (
+    "전략: conservative — baseline 구조(HGB+ExtraTrees Voting)를 유지하고 튜닝했습니다.\n"
+    + REAL_SOURCE
+)
+
 
 def test_extract_code_unwraps_python_fence():
     text = "잡담\n```python\nimport x\ndef f(): pass\n```\n끝"
@@ -40,6 +47,18 @@ def test_looks_like_source_accepts_real_train_py():
 def test_looks_like_source_rejects_prose():
     # 핵심 회귀: 산문 메시지는 소스가 아니다.
     assert sdk._looks_like_source(PROSE) is False
+
+
+def test_looks_like_source_rejects_prose_prefixed_code():
+    # gen-006 cand-000 회귀: 산문 머리말 + 코드(펜스 없음)는 구문이 깨져 소스가 아니다.
+    # 토큰(import/def/val_mae)은 있으나 ast.parse가 실패 → False여야 한다.
+    assert sdk._looks_like_source(PROSE_THEN_CODE) is False
+
+
+def test_looks_like_source_rejects_unparseable_with_tokens():
+    # 토큰은 있으나 구문 오류(닫히지 않은 괄호) → ast.parse 실패 → False.
+    bad = "import x\ndef f(:\n    val_mae = 1\n"
+    assert sdk._looks_like_source(bad) is False
 
 
 def test_looks_like_source_rejects_empty():

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import ast
 import re
 import subprocess
 
@@ -27,9 +28,14 @@ def _looks_like_source(text: str) -> bool:
     t = text.strip()
     if not t:
         return False
+    # 구문 유효성: 순수 산문(gen-004)도, 산문 머리말+코드 혼합(gen-006 cand-000)도 ast.parse가
+    # SyntaxError로 잡는다. 토큰 검사만으론 "코드부에 토큰이 있으나 전체는 안 파싱되는" 혼합을 놓침.
+    try:
+        ast.parse(t)
+    except (SyntaxError, ValueError):
+        return False
     # frozen 계약상 모든 train.py는 import + 함수 def를 갖고 stdout에 val_mae를 출력한다.
-    # 세 구조 토큰의 AND — 산문/채팅 메시지는 이를 동시에 갖지 않으므로 오탈락 위험은 낮고,
-    # 단일 토큰(예: "def")만 보는 것보다 산문 누락(false-accept)에 강하다.
+    # 세 구조 토큰의 AND — parseable하지만 train.py가 아닌 코드(예: `x=1`)를 거른다.
     return "import " in t and "def " in t and "val_mae" in t
 
 
