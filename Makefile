@@ -28,8 +28,9 @@ train:
 # 구현 plan 승인 후 serverless-autoresearch 구조에 맞춰 추가한다.
 
 GEN ?= 1
-# gen-004+ 루프 dataset: 3설계 혼합(gcd+aes+ibex). gen-001~003 val_mae와 직접 비교 금지(설계 교체).
-DATASET ?= experiments/multidesign/dataset-3design.jsonl
+# gen-008+ 루프 dataset: 4설계 혼합(gcd+aes+ibex+jpeg, Sub-A 2026-06-21). LODO/T1 4 fold로
+# 통계력↑. gen-001~007 val_mae와 직접 비교 금지(설계 교체).
+DATASET ?= experiments/multidesign/dataset-4design.jsonl
 N ?= 4
 PROGRAM ?= program.md
 
