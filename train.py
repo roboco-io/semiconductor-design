@@ -7,6 +7,7 @@ slack 회귀 모델을 학습하고 단일 val 지표를 출력한다.
 계약(고정): --data dataset.jsonl → stdout {"val_mae": <float>} + --out/model.joblib.
 제약: 단일 파일 · 고정 예산 · 신규 의존성 금지(sklearn+numpy만) · 단일 지표 최소화.
 설계: docs/superpowers/specs/2026-06-06-od4-train-baseline-design.md
+구현 레퍼런스(데이터 흐름·함수·변형 가이드): docs/TRAIN.md
 """
 
 from __future__ import annotations
