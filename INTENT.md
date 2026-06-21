@@ -74,6 +74,20 @@
 
 ## Learnings
 
+- **2026-06-21d** (gen-008 — 4설계 첫 세대, 세 지렛대 정렬 후에도 무승부 → "val_mae↓ ≠ 교차설계 우위"
+  견고) — Sub-A(데이터)·힌트(생성)·게이트(판정) 세 지렛대를 모두 당긴 뒤 첫 세대. winner cand-001
+  val_mae **0.53**(gen-007 1.29→계속 최저 경신)·LODO mixed(우세 2/4)·교차설계 T1 40 fold. **결과**:
+  winner vs baseline 평균 fold MAE 2.24 vs 2.22(mean_diff +0.018, p=0.666) → `indistinguishable` →
+  `rejected_t1`. **(1) jpeg 편향 부분 확인**: winner가 jpeg(0.41 vs 0.53)·aes(1.07 vs 2.52)서 우세,
+  gcd·ibex(jpeg과 먼 분포)서 열세 — jpeg(61% 비중)이 학습 지배해 *가까운 분포* 전이만 개선. 혼합훈련
+  회복과 jpeg 편향이 공존. **(2) 정직한 무승부**: 4설계로 승패 2:2 → 통계적으로 winner가 baseline을
+  전반적으로 못 능가. 4 fold가 됐어도 "전반 우위 없음"을 게이트가 정확히 판정. **(3) 핵심 발견 5세대째
+  견고**: median val_mae는 gen-007(1.29)→gen-008(0.53) 계속 낮아지나 교차설계 T1은 줄곧 indistinguishable.
+  **in-loop 지표 개선 ≠ 교차설계 일반화 우위** — 이게 본 프로젝트가 5세대 자율 진화로 축적한 가장 견고한
+  실증. 함의: 단순 재추첨·데이터 추가로는 이 벽을 못 넘음. 다음 지렛대는 *생성 전략의 질적 전환*(예:
+  설계-불변 표현을 명시 유도) 또는 *설계 균형*(jpeg 비중 완화 sampling)일 가능성. negative result가
+  "in-distribution 최적화와 교차설계 일반화의 구조적 분리"라는 일반화 가능한 발견으로 수렴.
+
 - **2026-06-21c** (Sub-A 완료 — jpeg 4번째 설계 확보, LODO/T1 3→4 fold) — 네 세대(gen-004~007)가
   일관되게 가리킨 근본 병목(저표본 설계 3 + ibex 단독 의존)을 해소. AWS Fargate로 jpeg ORFS flow를
   native x86 완주(~50분, exitCode 0, DRT 다수 iteration 후 violation 0 수렴) → prepare.py 4410 samples →

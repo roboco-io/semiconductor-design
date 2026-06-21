@@ -1,0 +1,19 @@
+{
+  "gen_no": 8,
+  "baseline_ref": "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/train.py",
+  "dataset": "experiments/multidesign/dataset-4design.jsonl",
+  "metric": "median_val_mae",
+  "eval_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "winner_candidate_id": "cand-001",
+  "winner_val_mae": 0.5257582297652756,
+  "status": "rejected_t1",
+  "lodo_verdict": "mixed",
+  "lodo_n_valid": 4,
+  "lodo_n_designs": 4
+}

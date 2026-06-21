@@ -29,6 +29,7 @@ gen-006 winner 재평가 시 혼합-T1 `worse` → 교차설계-T1 `distinguisha
 판정 반전 → 두 게이트가 다른 축(robustness↔accuracy) 측정 입증. 새 체인이었다면 gen-006은 승격 후보.
 
 | gen-007 | 06-21 | 3설계 혼합 | **rejected_t1** | 새 4단 체인 첫 실전. winner cand-002 val_mae 1.29(역대 최저)·LODO 통과(2/3)했으나 교차설계 T1 `indistinguishable`(p=0.655) → 차단. LODO(방향성)↔T1(통계 유의)의 역할 분담 입증 — ibex 큰 패배로 격차가 noise에 묻힘 |
+| gen-008 | 06-21 | **4설계**(+jpeg) | **rejected_t1** | Sub-A 후 첫 세대(LODO/T1 4 fold). winner val_mae 0.53(역대 최저)·LODO mixed(2/4). 교차설계 T1 무승부(2.24 vs 2.22, p=0.666 `indistinguishable`) → 차단. winner는 jpeg·aes(분포 가까움) 우세, gcd·ibex 열세 — jpeg 편향 부분 확인. val_mae↓에도 교차설계 우위 없음(5세대째) |
 
 ## gen-004 상세 (첫 자율+LODO)
 - median winner cand-003(codex/conservative, val_mae 3.74)가 held-out LODO서 baseline 후퇴 → `worse` → 차단.
