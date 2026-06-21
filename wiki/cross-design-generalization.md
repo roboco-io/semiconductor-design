@@ -31,6 +31,11 @@ slack 분포가 거의 비중첩: gcd [−1.37,0], aes [+0.44,+2.93], ibex [+1.4
   (`generalizes_better`/`worse`/`mixed`/`unverifiable`).
 - **저표본 한계**: 설계 3개 → 통계 검정 불가, 경향 probe일 뿐. 설계 확보(Sub-A) 시 유의성 격상.
 
+## 설계 표본 (Sub-A)
+- 2026-06-21 **jpeg 4번째 설계 추가**(AWS Fargate ORFS flow). 4설계 dataset 7194행:
+  gcd 53 · aes 691 · ibex 2040 · jpeg 4410. LODO/T1이 3→4 fold가 되어 Wilcoxon 통계력↑,
+  ibex 단독 의존 완화. gen-008+ 기본 dataset. 더 많은 설계 확보 시 유의성 추가 격상.
+
 ## 주의사항 / 오해
 - 다설계 dataset의 `val_mae`는 설계 교체 때문에 **단일설계 세대(gen-001~003)와 직접 비교 금지**.
 

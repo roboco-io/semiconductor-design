@@ -74,6 +74,17 @@
 
 ## Learnings
 
+- **2026-06-21c** (Sub-A 완료 — jpeg 4번째 설계 확보, LODO/T1 3→4 fold) — 네 세대(gen-004~007)가
+  일관되게 가리킨 근본 병목(저표본 설계 3 + ibex 단독 의존)을 해소. AWS Fargate로 jpeg ORFS flow를
+  native x86 완주(~50분, exitCode 0, DRT 다수 iteration 후 violation 0 수렴) → prepare.py 4410 samples →
+  combine 4설계(gcd 53 + aes 691 + ibex 2040 + jpeg 4410 = 7194행). **의의**: 교차설계 LODO/T1이 3→4
+  fold가 되어 Wilcoxon 통계력↑, ibex(자릿수 다른 분포) 단독 의존 완화 — gen-004~007에서 "probe only/강한
+  결론 보류"였던 게이트를 통계 유의성으로 격상할 기반. **방법론**: 기존 Sub-A spec/plan(2026-06-09)·
+  Fargate flow·prepare.py·combine 파이프라인을 *코드 변경 거의 없이 재사용* — 한 설계 추가가 검증된 절차.
+  **운영**: AWS는 실 과금이라 D4 비용 게이트(Operator per-instance 동의) 준수, run-task 후 즉시 cdk
+  destroy로 비용 정지(스택 does-not-exist 확인). region 실제값 ap-northeast-2(DEPLOY.md us-east-1은 stale).
+  gen-008+는 4설계 dataset 기본값. 한계: jpeg도 한 설계일 뿐 — 더 많은 설계가 LODO 유의성을 더 키움.
+
 - **2026-06-21b** (gen-007 — 새 4단 체인 첫 실전, LODO↔T1 역할 분담 입증) — 게이트 정합(교차설계 T1)
   후 첫 자율 세대. winner cand-002가 median val_mae **1.29**(gen-004~006의 3.5~3.7 대비 역대 최저)로
   뽑혔고 LODO도 통과(`generalizes_better`, 우세 2/3)했으나, 교차설계 T1에서 `indistinguishable`
