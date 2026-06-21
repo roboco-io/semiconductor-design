@@ -93,6 +93,10 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 **4-step 루프**: Candidate Generation → Batch Launch(병렬 Spot) → Result Collection → Selection,
 세대 winner는 **자동 게이트(median + T1) 통과 시** git tag `gen-NNN-best`(전환 전까지 Operator가 게이트 확인 후 머지).
 
+**세대 완료 후 튜토리얼(필수 마무리 단계)**: `generation.json`이 생긴 직후 **`experiment-tutorial` 스킬**로
+`experiments/gen-NNN/README.md`(12살 눈높이 튜토리얼)를 생성한다. 비전문가 empowerment + 이해가능성
+novelty 축의 산출물이므로 결과 정리·커밋 전에 항상 포함한다.
+
 ## Code Conventions
 
 - **Direct commits to `main`** is the user's explicit workflow (no feature branches for now).
