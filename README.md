@@ -43,9 +43,9 @@ flowchart TD
         direction TB
         D1["후보 N개 생성"] --> D2["각 후보를 5개 seed로 학습·평가"]
         D2 --> D3["최저 median val_mae → winner"]
-        D3 --> D4{"자동 품질 게이트<br/>median + T1 통계 검증"}
-        D4 -->|"통과 (distinguishable)"| D5["자동 승격 → gen-NNN-best 태그"]
-        D4 -->|"미달 (indistinguishable / worse)"| D6["승격 안 함 · baseline 유지"]
+        D3 --> D4{"자동 품질 게이트 (4단 권력분립)<br/>median → LODO → 교차설계 T1 → Codex"}
+        D4 -->|"전 단계 통과"| D5["자동 승격 → gen-NNN-best 태그"]
+        D4 -->|"한 단계라도 미달<br/>(worse / indistinguishable / gaming)"| D6["승격 안 함 · baseline 유지"]
     end
 
     C --> D1
@@ -61,39 +61,53 @@ flowchart TD
 - **목표**: 합성 직후 정보(feature) → 최종 타이밍 슬랙(label)을 예측하는 **대리(surrogate) 모델**을,
   AI 에이전트가 학습 스크립트(`train.py`)를 반복 변형하며 자동으로 더 잘 학습.
 - **루프**: 세대마다 N개 후보 변형(Claude+Codex) → 각각 **5개 seed로 학습** → 최저 **median val_mae**
-  winner → **객관적 자동 게이트(median + T1 검증) 통과 시 자동 승격**(`gen-NNN-best` 태그).
+  winner → **객관적 자동 게이트 4단(median → LODO → 교차설계 T1 → Codex) 통과 시 자동 승격**(`gen-NNN-best` 태그).
+  게이트는 *생성자 ≠ 판정자* 권력분립 — 한 단계라도 막히면 baseline 유지. 자세히는 [`wiki/gate-chain.md`](wiki/gate-chain.md).
 - **차별 축(가설, 2026-06-08 재피벗)**:
   - **H-A** — 에이전트 루프가 사람 수작업을 능가한다. *(gen-001에서 엄밀 통계로 확증 — 아래.)*
   - **H-B(재정의)** — 비전문가가 *per-winner 승인 없이* 방향·큰 흐름만 이해해도 자율 루프가 신뢰할
     수 있는 성과를 낸다. 이를 가능케 하는 건 **객관적 자동 게이트 + 튜토리얼식 이해가능성**이다.
     *(novelty 축이 Operator authority → 비전문가 empowerment로 이동.)*
 
-## 지금까지 (2026-06-08)
+## 지금까지 (2026-06-21, gen-008)
 
-✅ **시스템 functional · 2세대 실증 · 평가 프로토콜이 스스로 진화.** (자세히는 [`INTENT.md`](INTENT.md) Learnings)
+✅ **시스템 functional · 8세대 자율 진화 · 평가 프로토콜이 스스로 4단 게이트로 진화.** (자세히는 [`INTENT.md`](INTENT.md) Learnings)
 
 | 조각 | 파일 | 상태 |
 |---|---|---|
-| EDA flow (클라우드) | `cdk/`, `docker/eda-flow*` | ✅ AWS Fargate 배포·검증 (진짜 데이터 53행 확보) |
+| EDA flow (클라우드) | `cdk/`, `docker/eda-flow*` | ✅ AWS Fargate 배포·검증 — **4개 설계** 데이터(gcd 53 + aes 691 + ibex 2040 + jpeg 4410 = 7194행) |
 | 데이터 준비 (고정) | `prepare.py`, `src/prepare_lib/` | ✅ frozen 계약 |
-| 학습 스크립트 (변형대상) | `train.py` | ✅ sklearn Gradient Boosting baseline |
-| 자율 진화 루프 | `src/pipeline/` | ✅ candidate_gen·runner·**multi-seed median**·selection·**T1 검증 게이트**·operator_gate·orchestrator (59 tests) |
-| **gen-001** | tag `gen-001-best` | ✅ 승격 · **H-A 엄밀 재확증**(winner 0.148 vs 사람 baseline 0.194, dz=−1.27, p<0.001 → verdict `distinguishable`) |
-| **gen-002** | `experiments/gen-002/` | ❌ **reject** — 단일 seed winner가 5-seed median에선 baseline에 패배(위양성) |
+| 학습 스크립트 (변형대상) | `train.py` | ✅ gen-001 winner(VotingRegressor + 도메인 feature 13개) 챔피언. 레퍼런스 [`docs/TRAIN.md`](docs/TRAIN.md) |
+| 자율 진화 루프 | `src/pipeline/` | ✅ candidate_gen·runner·**multi-seed median**·selection·**LODO·교차설계 T1·Codex 게이트**·orchestrator (123 tests) |
 
-> 🧪 **이 프로젝트의 가장 값진 발견은 "측정의 엄밀함"입니다.** gen-002에서 단일 seed 선택이 *운 좋은*
-> 위양성 winner를 뽑은 걸 계기로, 채점을 **5-seed median → 50-fold 통계 검증(T1 게이트)** 으로 강화했고,
-> 그 엄밀한 게이트가 gen-001의 H-A를 오히려 *재확증*했습니다. 운영하며 배운 게 시스템을 바꾸고, 바뀐
-> 시스템이 다시 결론을 단단히 만든 **co-evolution**의 실제 사례입니다. → [`docs/TUTORIAL.md` §5·§6](docs/TUTORIAL.md#5-실제로-무슨-일이-일어났나-gen-001-결과)
+**세대 기록** (튜토리얼: [`experiments/README.md`](experiments/README.md)):
 
-> 🔧 **전환 중**: 자율 *자동 승격* 코드(`operator_gate` → auto-gate)는 다음 작업입니다. 현재는
-> Operator가 게이트 리포트를 확인하고 머지하는 임시 단계가 남아 있습니다(방향은 INTENT에 확정).
+| 세대 | 결과 | 한 줄 |
+|---|---|---|
+| gen-001 | ✅ **승격** | H-A 엄밀 재확증(winner 0.148 vs 사람 0.194, dz=−1.27, p<0.001) |
+| gen-002 | ❌ reject | 단일 seed winner가 5-seed median에선 꼴찌(위양성) → median 게이트 도입 |
+| gen-003 | ❌ rejected_codex | Codex가 평가 누수(검증셋에서 best 모델 cherry-pick) 적발 |
+| gen-004–005 | ❌ rejected_lodo | 다설계 혼합 + LODO 도입. median-winner가 미관측 설계서 baseline에 연속 후퇴 |
+| gen-006 | ❌ rejected_t1 | LODO 통과↔혼합-T1 충돌 → **T1을 교차설계 통계 게이트로 재정의** |
+| gen-007 | ❌ rejected_t1 | LODO(방향성)와 교차설계 T1(통계 유의)의 역할 분담 입증 |
+| gen-008 | ❌ rejected_t1 | 4설계(+jpeg)에서도 무승부 — 아래 발견이 5세대째 견고 |
+
+> 🧪 **이 프로젝트의 가장 견고한 발견: "in-loop `val_mae` 개선 ≠ 교차설계 일반화 우위".**
+> gen-004~008 다섯 세대 내내 median val_mae는 계속 낮아졌지만(gen-007 1.29 → gen-008 0.53 역대 최저),
+> 교차설계 T1은 줄곧 `indistinguishable`이었습니다. **in-distribution 최적화와 미관측 설계 일반화는
+> 구조적으로 분리**되며, 단순 재추첨·데이터 추가로는 이 벽을 못 넘습니다. 승격 0건은 실패가 아니라
+> 4단 게이트가 *5건의 위양성 승격을 막아* baseline 오염을 방지한 결과입니다 — 운영하며 배운 게
+> 게이트를 진화시키고(단일 seed→median→LODO→교차설계 T1→Codex), 진화한 게이트가 다시 결론을
+> 단단히 만든 **co-evolution**의 실제 사례. → [`docs/TUTORIAL.md`](docs/TUTORIAL.md) · [`experiments/README.md`](experiments/README.md)
+
+> 🔧 **전환 중**: 자율 *자동 승격* 코드(auto-gate 전환)는 남은 작업입니다. 현재는 Operator가 게이트
+> 리포트를 확인하고 머지하는 임시 단계가 남아 있습니다(방향은 INTENT에 확정).
 
 ## 빠른 시작
 
 ```bash
 make install                         # 의존성 설치
-make test                            # 59 tests
+make test                            # 123 tests
 make lint                            # 코드 스타일 검사
 
 # (1) 진짜 데이터 → 표(53행)
@@ -106,7 +120,8 @@ uv run python prepare.py --synth experiments/real-gcd-fargate/synth.rpt \
 make train DATA=/tmp/ds/dataset.jsonl OUT=/tmp/art SEED=0
 
 # (3) 진화 1세대 — claude/codex CLI 호출(구독 사용량 소모, 추가 LLM 과금 없음). 5-seed median으로 winner
-make loop GEN=3 DATASET=/tmp/ds/dataset.jsonl N=2 PROGRAM=program.md
+#     다설계 dataset이면 median 뒤 LODO → 교차설계 T1 → Codex 4단 게이트가 자동 판정.
+make loop GEN=9 DATASET=experiments/multidesign/dataset-4design.jsonl N=2 PROGRAM=program.md
 ```
 
 검증 게이트 실행 등 더 많은 명령은 [`docs/TUTORIAL.md` §8](docs/TUTORIAL.md#8-직접-해보기-명령어).
@@ -117,10 +132,13 @@ make loop GEN=3 DATASET=/tmp/ds/dataset.jsonl N=2 PROGRAM=program.md
 | 문서 | 내용 |
 |---|---|
 | [`docs/TUTORIAL.md`](docs/TUTORIAL.md) | **여기부터** — EDA 비전공자용 튜토리얼 + 전체 흐름 + 용어 사전 |
+| [`experiments/README.md`](experiments/README.md) | **세대별 튜토리얼 시리즈**(gen-001~008) — 각 세대 전제·방법·결과·분석 |
+| [`docs/TRAIN.md`](docs/TRAIN.md) | `train.py` 구현 레퍼런스 — 데이터 흐름·함수·에이전트 변형 가이드 |
+| [`wiki/gate-chain.md`](wiki/gate-chain.md) | 4단 권력분립 게이트(median→LODO→교차설계 T1→Codex) 설명 |
 | [`INTENT.md`](INTENT.md) | 프로젝트의 Why/What/Not/Learnings (status: exploring, 2026-06-08 재피벗) |
 | [`PRD.md`](PRD.md) | 제품 요구사항 + 데이터 모델(ERD) |
 | [`issues/`](issues/) | 결정 기록 OD-1~6 |
-| [`docs/superpowers/specs/`](docs/superpowers/specs/) | 단계별 설계 문서 (median harness · T1 검증 게이트 포함) |
+| [`docs/superpowers/specs/`](docs/superpowers/specs/) | 단계별 설계 문서 (median harness · T1 검증 · 교차설계 T1 게이트 포함) |
 | [`docs/superpowers/plans/`](docs/superpowers/plans/) | 단계별 TDD 구현 plan |
 | [`experiments/gen-001/revalidation.md`](experiments/gen-001/revalidation.md) | gen-001 H-A 엄밀 재확증 |
 | [`experiments/gen-002/rejudge.md`](experiments/gen-002/rejudge.md) | gen-002 위양성 → reject |
@@ -129,4 +147,4 @@ make loop GEN=3 DATASET=/tmp/ds/dataset.jsonl N=2 PROGRAM=program.md
 
 Python 3.12 · uv · ruff(100 char) · pytest. `main`에 직접 커밋. 에이전트가 변형하는 `train.py` 외의
 substrate(`prepare.py`, 평가 규칙)는 **고정(frozen)** — 공정 비교를 위해. winner 승격은 **객관적 자동
-게이트(median + T1)** 가 판정한다(auto-gate 미구현 동안은 Operator가 게이트 확인 후 머지 — 임시).
+게이트(median → LODO → 교차설계 T1 → Codex)** 가 판정한다(auto-gate 미구현 동안은 Operator가 게이트 확인 후 머지 — 임시).

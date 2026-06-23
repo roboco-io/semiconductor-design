@@ -120,9 +120,9 @@ flowchart TD
         direction TB
         D1["후보 N개 생성"] --> D2["각 후보를 5개 seed로 학습·평가"]
         D2 --> D3["최저 median val_mae → winner"]
-        D3 --> D4{"자동 품질 게이트<br/>median + T1 통계 검증"}
-        D4 -->|"통과 (distinguishable)"| D5["자동 승격 → gen-NNN-best 태그"]
-        D4 -->|"미달 (indistinguishable / worse)"| D6["승격 안 함 · baseline 유지"]
+        D3 --> D4{"자동 품질 게이트 (4단 권력분립)<br/>median → LODO → 교차설계 T1 → Codex"}
+        D4 -->|"전 단계 통과"| D5["자동 승격 → gen-NNN-best 태그"]
+        D4 -->|"한 단계라도 미달"| D6["승격 안 함 · baseline 유지"]
     end
 
     C --> D1
@@ -138,7 +138,8 @@ flowchart TD
 ### 조각 2 — `prepare.py` (데이터 준비, **고정/frozen**)
 두 STA 리포트를 읽어 **표(dataset)** 로 만듭니다. 한 행 = 한 endpoint, 컬럼 = 8개 feature + 정답 슬랙.
 이 파일은 **에이전트가 못 건드립니다**(공정한 비교를 위해 데이터·평가 규칙을 고정).
-실제로 진짜 데이터에서 **53행**을 만들었습니다.
+처음엔 `gcd` 한 설계에서 **53행**을 만들었고, 이후 일반화를 검증하려 설계를 넷으로 늘렸습니다
+(gcd 53 + aes 691 + ibex 2040 + jpeg 4410 = **7194행**, 6.5장 참고).
 
 ### 조각 3 — `train.py` (학습 스크립트, **에이전트가 변형**)
 표를 받아 대리 모델을 학습하고 `{"val_mae": 0.17}` 같은 점수를 출력합니다.
@@ -152,14 +153,23 @@ flowchart TD
    점수들의 **중앙값(median val_mae)** 이 가장 낮은 후보를 winner로 고른다. (왜 분할 5개냐는
    [6장](#6-두-번째-세대--좋아-보였지만-운이었다-gen-002)에서 — 분할 하나만 보면 "운"에 속는다.)
 4. **자동 품질 게이트**: winner가 **객관적 기준**을 통과해야만 다음 세대의 출발점(baseline)이
-   되고 `gen-NNN-best` 꼬리표가 붙는다. 기준은 두 겹입니다 — ① 5개 분할의 median(위 3번),
-   ② **승격 검증 게이트(T1)**: winner가 기존 baseline을 *통계적으로 유의하게* 이기는지 50개
-   분할로 검정(6장). 통과 못 하면 승격 안 됨. **사람은 매 winner를 승인하지 않습니다** — 방향을
-   잡고(`program.md`) 게이트의 리포트로 큰 흐름을 이해할 뿐(재정의된 가설 H-B).
+   되고 `gen-NNN-best` 꼬리표가 붙는다. 게이트는 *생성자 ≠ 판정자* 원칙의 **4단 권력분립**입니다 —
+   서로 다른 질문을 던지는 네 관문을 차례로 통과해야 합니다(자세히는 [`wiki/gate-chain.md`](../wiki/gate-chain.md)).
 
-> ✅ **구현 메모(2026-06-08 업데이트)**: 자동 게이트 구현 완료. `orchestrator --auto` 플래그로
-> median → T1 통계 게이트 → Codex 승격 심사관의 AND 판정이 자동 실행되고, 통과 시 자동
-> commit/tag됩니다. Operator는 방향(`program.md`)과 세대 리포트(`gen-NNN/report.md`) 이해만 담당.
+   | 단계 | 묻는 질문 | 막는 것 |
+   |---|---|---|
+   | ① **median** | 5개 분할의 중앙값에서도 최저인가? | 단일 분할의 운(위양성) — 6장 |
+   | ② **LODO** | 설계 하나를 통째로 빼고 평가했을 때 더 많은 설계에서 이기는가?(방향성) | 미관측 설계로의 일반화 후퇴 |
+   | ③ **교차설계 T1** | 그 격차가 *통계적으로 유의*한가, 노이즈인가? | 방향성은 좋아도 우연인 개선 |
+   | ④ **Codex** | 코드에 평가 누수·계약 우회가 없는가? | 통계가 못 잡는 cherry-pick·gaming |
+
+   **사람은 매 winner를 승인하지 않습니다** — 방향을 잡고(`program.md`) 게이트 리포트로 큰 흐름을
+   이해할 뿐(재정의된 가설 H-B).
+
+> ✅ **구현 메모(2026-06-21 기준)**: 자동 게이트 4단 구현 완료. `orchestrator --auto` 플래그로
+> median → LODO → 교차설계 T1 → Codex의 AND 판정이 자동 실행되고, 통과 시 자동 commit/tag됩니다.
+> 게이트는 gen-002~006을 거치며 *스스로 진화*했습니다(단일 seed → median → LODO → 교차설계 T1 추가).
+> Operator는 방향(`program.md`)과 세대 리포트(`gen-NNN/report.md`·`README.md`) 이해만 담당.
 
 ---
 
@@ -226,6 +236,56 @@ flowchart TD
 
 ---
 
+## 6.5 그 다음 — 다설계로 가며 만난 진짜 벽 (gen-003~008)
+
+gen-002 이후 여섯 세대를 더 돌렸습니다. 한 번도 승격하지 못했지만, **승격 0건이 곧 이 프로젝트의
+가장 단단한 발견**으로 수렴했습니다. 흐름을 따라가 봅시다.
+
+**왜 "다설계"로 갔나.** gen-001/002는 `gcd` 한 설계(53행)만 썼습니다. 그런데 한 설계 안에서 잘
+맞히는 것과, *처음 보는 다른 설계*에서도 잘 맞히는 것은 다른 문제입니다. 진짜 쓸모 있는 대리
+모델은 후자(일반화)를 해야 하므로, 설계를 `aes·ibex`로 늘려 섞은 **혼합 데이터셋**으로 바꿨습니다.
+이때 새 평가 도구가 필요해졌습니다 — **LODO**(Leave-One-Design-Out, 설계 하나를 학습에서 통째로
+빼고 그 설계로만 평가)입니다.
+
+| 세대 | 무엇을 시험했나 | 결과 | 게이트가 잡은 것 |
+|---|---|---|---|
+| **gen-003** | 더 엄밀해진 채점으로 한 세대 | `rejected_codex` | **Codex가 평가 누수 적발** — 후보가 *검증셋에서* 가장 좋은 모델만 골라 점수를 보고하는 cherry-pick. 통계(T1)는 속았지만 코드를 읽은 Codex가 막음 |
+| **gen-004–005** | 혼합 데이터 + LODO 첫 도입 | `rejected_lodo` | median val_mae는 낮은 winner가 **미관측 설계에선 baseline보다 후퇴**(우세 1/3 → 0/3). LODO가 baseline 오염을 두 번 막음 |
+| **gen-006** | `program.md` 힌트를 일반화 지향으로 강화 | `rejected_t1` | winner가 **처음으로 LODO 통과**했으나, T1(당시 *혼합* 분할 검정)에선 오히려 `worse`. → **LODO와 T1이 서로 다른 걸 측정**하는 모순이 드러남 |
+| **gen-007** | T1을 *교차설계* 통계 게이트로 재정의 후 첫 세대 | `rejected_t1` | winner가 역대 최저 median(1.29)·LODO 통과했으나 교차설계 T1은 `indistinguishable` — **ibex 한 설계에서 크게 져** 통계적 우위가 노이즈에 묻힘 |
+| **gen-008** | 4번째 설계(jpeg) 추가로 통계력 강화 | `rejected_t1` | median 0.53(또 최저)인데도 4설계 승패 2:2 무승부 → `indistinguishable` |
+
+### gen-006의 핵심 — 게이트가 스스로 모순을 드러내다
+
+gen-006에서 흥미로운 일이 벌어졌습니다. winner가 **LODO는 통과**(미관측 설계에서 더 많이 이김)했는데
+**T1은 `worse`**(통계적으로 더 나쁨)였습니다. 같은 모델을 두고 두 게이트가 **정반대 판정**을 내린
+것입니다. 원인은 당시 T1이 LODO와 *다른 종류의 분할*(여러 설계를 섞은 분할)을 채점하고 있었기
+때문입니다. 즉 게이트가 "일반화"를 본다면서 실제로는 "한 분포 안의 정확도"를 재고 있었습니다.
+
+이를 고쳐, T1이 LODO와 **같은 축**(설계 하나를 빼고 평가하는 방식)을 통계적으로 검정하도록
+재정의했습니다(교차설계 T1). 검증으로 gen-006 winner를 새 게이트에 다시 걸어보니 판정이
+`worse` → `distinguishable`로 **뒤집혔습니다** — 게이트가 측정하는 축을 바꾸자 결론이 바뀐 것은,
+두 게이트가 진짜로 다른 것(분포 내 정확도 ↔ 미관측 설계 강건성)을 잰다는 증거입니다.
+
+### 5세대를 관통하는 발견
+
+gen-004부터 008까지, **median val_mae는 계속 낮아졌습니다**(gen-007 1.29 → gen-008 0.53, 역대 최저).
+그런데 교차설계 T1은 **줄곧 `indistinguishable`**이었습니다. 정리하면:
+
+> **in-loop 검증 점수(`val_mae`)를 낮추는 것과, 처음 보는 설계로 일반화하는 것은 별개다.**
+
+이것이 이 프로젝트가 다섯 세대의 자율 진화로 쌓은 가장 견고한 실증입니다. 함의는 분명합니다 —
+후보를 더 많이 재추첨하거나 데이터를 조금 더 넣는 것으로는 이 벽을 넘지 못합니다. 다음 지렛대는
+*생성 전략의 질적 전환*(예: 설계마다 달라지는 절대 수치에 덜 의존하는 표현을 명시적으로 유도)이거나
+*설계 균형 조정*(jpeg가 전체의 61%라 학습을 지배하는 편향 완화)일 가능성이 큽니다.
+
+**승격 0건은 실패가 아닙니다.** 4단 게이트가 *다섯 번의 위양성 승격을 막아* baseline 오염을 방지한
+결과입니다. 만약 median만 믿고 자동 승격했다면, 일반화가 안 되는 모델이 다섯 번이나 다음 세대의
+기준이 됐을 것입니다. 각 세대의 자세한 이야기는 [`experiments/README.md`](../experiments/README.md)의
+세대별 튜토리얼에 있습니다.
+
+---
+
 ## 7. 솔직한 교훈 — "진짜로 돌려봐야 보이는 것들"
 
 이 프로젝트에서 가장 값진 부분은 **가짜(합성) 데이터로는 절대 안 드러나는 문제들**을
@@ -242,6 +302,9 @@ flowchart TD
    잠깐 main이 깨졌습니다. → 검증을 *자동으로 강제*해야 한다는 교훈(사람도 실수한다).
 5. **"이겼다"는 측정에 속을 수 있다**: gen-002에서 단일 분할 선택이 *운 좋은* 후보를 winner로
    뽑았습니다(6장). → 채점을 5개 분할의 중앙값으로 강화. 적은 데이터에서 단일 측정은 못 믿는다.
+6. **"한 데이터에서 잘함"이 "처음 보는 데이터에서 잘함"은 아니다**: gen-004~008에서 검증 점수가
+   계속 낮아졌는데도 미관측 설계 일반화는 제자리였습니다(6.5장). → 게이트에 LODO·교차설계 T1을
+   더해, *분포 안의 정확도*와 *미관측 설계 강건성*을 따로 측정하도록 진화시켰다.
 
 이런 마찰을 *발견하고 고치는 것*이 바로 AutoResearch가 존재하는 이유입니다 —
 기계적이지만 사람이 놓치기 쉬운 것을 드러냅니다.
@@ -252,7 +315,7 @@ flowchart TD
 
 ```bash
 make install        # 의존성 설치 (uv)
-make test           # 전체 테스트 (59개)
+make test           # 전체 테스트 (123개)
 make lint           # 코드 스타일 검사
 
 # (1) 진짜 데이터 표 만들기 — 이미 만들어진 STA 리포트에서
@@ -269,7 +332,8 @@ make train DATA=/tmp/ds/dataset.jsonl OUT=/tmp/art SEED=0
 
 # (3) 진화 루프 한 세대 — claude/codex CLI 호출(구독 사용량 소모, 추가 LLM 과금 없음)
 #     각 후보를 5개 seed로 평가해 median val_mae가 낮은 후보를 winner로 고른다.
-make loop GEN=3 DATASET=/tmp/ds/dataset.jsonl N=2 PROGRAM=program.md
+#     다설계 dataset이면 median 뒤 LODO → 교차설계 T1 → Codex 4단 게이트가 자동 판정.
+make loop GEN=9 DATASET=experiments/multidesign/dataset-4design.jsonl N=2 PROGRAM=program.md
 
 # (4) 승격 검증 게이트 — winner가 baseline을 통계적으로 이기는지 50개 분할로 검정
 #     (5장 gen-001 재심에서 쓴 게이트. 자율 자동 승격을 신뢰가능하게 만드는 핵심.)
@@ -295,7 +359,10 @@ print(render_validation_report(res))"
 | [`PRD.md`](../PRD.md) | 제품 요구사항 + 데이터 모델(ERD) |
 | [`INTENT.md`](../INTENT.md) | 프로젝트의 *왜/무엇/안 할 것/배운 것* (의도공학 기록) |
 | [`issues/`](../issues/) | 결정 기록(OD-1~6): 지표·feature·모델·인프라 등 |
-| [`docs/superpowers/specs/`](superpowers/specs/) | 각 단계 설계 문서 (다중 seed median harness 설계 포함) |
+| [`experiments/README.md`](../experiments/README.md) | **세대별 튜토리얼 시리즈**(gen-001~008) — 각 세대 전제·방법·결과·분석 |
+| [`docs/TRAIN.md`](TRAIN.md) | `train.py` 구현 레퍼런스 — 데이터 흐름·함수·변형 가이드 |
+| [`wiki/gate-chain.md`](../wiki/gate-chain.md) | 4단 게이트(median→LODO→교차설계 T1→Codex) 설명 |
+| [`docs/superpowers/specs/`](superpowers/specs/) | 각 단계 설계 문서 (median harness · 교차설계 T1 게이트 포함) |
 | [`experiments/gen-002/rejudge.md`](../experiments/gen-002/rejudge.md) | gen-002 재판정 기록 — 단일 seed 위양성 → reject |
 | [`experiments/gen-001/revalidation.md`](../experiments/gen-001/revalidation.md) | gen-001 소급 재심 — H-A 엄밀 재확증(verdict distinguishable) |
 | [`experiments/real-gcd-fargate/VALIDATION.md`](../experiments/real-gcd-fargate/VALIDATION.md) | 진짜 데이터 검증 기록 |
@@ -323,6 +390,12 @@ print(render_validation_report(res))"
 - **MAE**: 평균 절대 오차. 예측이 정답에서 평균 얼마나 빗나갔나(낮을수록 좋음).
 - **val_mae**: 검증 데이터에서 잰 MAE. 우리 루프가 **최소화**하려는 단일 점수.
 - **AutoResearch**: "연구를 검색으로" — 에이전트가 학습 스크립트를 변형하며 자동 개선.
+- **LODO** (Leave-One-Design-Out): 설계 하나를 학습에서 통째로 빼고 그 설계로만 평가해, *처음 보는
+  설계*로의 일반화를 측정하는 방법. 게이트 2단계.
+- **교차설계 T1**: LODO를 여러 시드로 반복해, baseline 대비 개선이 *통계적으로 유의*한지(p값·신뢰구간)
+  검정하는 게이트(3단계). "방향성"을 보는 LODO와 달리 "유의성"을 본다.
+- **Codex 게이트**: 후보를 만든 LLM과 *다른* LLM(Codex)이 코드를 읽어 평가 누수·계약 우회를 점검하는
+  심사(4단계). 통계가 못 잡는 cherry-pick·gaming을 차단(생성자 ≠ 판정자).
 - **Operator**: 이 시스템을 운영하는 사람(당신). *방향타이자 학습자* — `program.md`로 방향을 잡고
   큰 흐름을 이해한다. winner 채택은 객관적 자동 게이트가 판정(매 winner 승인 아님).
 - **Fargate / S3 / CDK**: AWS의 임시 컴퓨터 / 클라우드 저장소 / 인프라를 코드로 정의하는 도구.
