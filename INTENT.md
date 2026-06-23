@@ -27,11 +27,11 @@
 
 ## What
 
-**핵심 기능**:
-- [ ] **데이터셋 자가생성**(`prepare.py`): EDA flow 1회 → feature(합성 직후) + label(최종 PPA/routability) 쌍. CircuitNet 류 태스크 참조. `DATASET.flow_lockfile_sha`로 재현성 앵커.
-- [ ] **자율 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → **객관적 자동 게이트(median selection + T1 검증)로 자동 승격** → git tag(`gen-NNN-best`). per-winner 사람 승인 없음.
-- [ ] **자동 품질 게이트(T1)**: 자율 승격을 신뢰가능하게 만드는 통계적 자동 판정(naive·baseline·winner paired). *맹목적 자율* 방지의 핵심 — `distinguishable`만 승격.
-- [ ] **방향·이해 인터페이스**: Operator는 `program.md`로 *방향*을 잡고, **튜토리얼식 리포트로 큰 흐름을 이해**한다. (개입은 방향 수준, per-winner 아님.)
+**핵심 기능** (gen-008까지 작동 — 상태는 [`README.md`](README.md) "지금까지" 표):
+- [x] **데이터셋 자가생성**(`prepare.py`): EDA flow 1회 → feature(합성 직후) + label(최종 PPA/routability) 쌍. CircuitNet 류 태스크 참조. `DATASET.flow_lockfile_sha`로 재현성 앵커. *(4설계 7194행 확보.)*
+- [x] **자율 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → **객관적 자동 게이트로 자동 승격** → git tag(`gen-NNN-best`). per-winner 사람 승인 없음. *(gen-001~008 실행.)*
+- [x] **자동 품질 게이트**: 자율 승격을 신뢰가능하게 만드는 4단 권력분립(median → LODO → 교차설계 T1 → Codex). *맹목적 자율* 방지의 핵심 — 전 단계 통과만 승격. *(gen-002~006 거치며 스스로 진화.)*
+- [x] **방향·이해 인터페이스**: Operator는 `program.md`로 *방향*을 잡고, **튜토리얼식 리포트로 큰 흐름을 이해**한다. (개입은 방향 수준, per-winner 아님.) *(세대별 `experiments/gen-NNN/README.md`.)*
 - [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 이해가능성을 강화하는 2차 세대.
 
 **사용자 흐름**:

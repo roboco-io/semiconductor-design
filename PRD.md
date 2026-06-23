@@ -24,7 +24,7 @@
 
 ## 2. 목표 · 가설 (INTENT `Why`)
 
-**목표 (한 줄)**: karpathy AutoResearch의 population-based evolution 루프(serverless-autoresearch HUGI 패턴)를 **EDA surrogate 지표예측 모델 학습**에 적용한다. 에이전트는 학습 스크립트 한 파일만 변형하고, 고정 예산으로 학습 후 단일 val 지표로 keep/discard하며, **Operator가 세대 winner 선택을 감독**한다.
+**목표 (한 줄)**: karpathy AutoResearch의 population-based evolution 루프(serverless-autoresearch HUGI 패턴)를 **EDA surrogate 지표예측 모델 학습**에 적용한다. 에이전트는 학습 스크립트 한 파일만 변형하고, 고정 예산으로 학습 후 단일 val 지표로 keep/discard하며, **winner 승격은 객관적 자동 게이트(median → LODO → 교차설계 T1 → Codex)가 판정**한다(2026-06-08 재피벗 — Operator는 방향·이해 담당, per-winner 승인 아님).
 
 **가설**:
 - **H-A** — AutoResearch 진화 루프를 EDA surrogate 학습에 적용하면 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다.
@@ -39,7 +39,7 @@
 
 ## 3. 운영 모델 · 페르소나
 
-**single-operator multi-agent**. 사용자는 **Operator(방향타·학습자)** — Researcher/Developer 역할은 에이전트가 수행하고, **winner 승격은 객관적 자동 게이트(median + T1 검증)** 가 판정한다. 에이전트의 자율성은 후보 *생성·학습*에 더해 *게이트 통과 시 자동 승격*까지(2026-06-08 재피벗); 사람은 *방향·이해* 담당이다. **전환 중**: auto-gate 미구현 동안은 Operator가 게이트 리포트 확인 후 머지(권한이 아니라 임시 단계).
+**single-operator multi-agent**. 사용자는 **Operator(방향타·학습자)** — Researcher/Developer 역할은 에이전트가 수행하고, **winner 승격은 객관적 자동 게이트(median → LODO → 교차설계 T1 → Codex)** 가 판정한다. 에이전트의 자율성은 후보 *생성·학습*에 더해 *게이트 통과 시 자동 승격*까지(2026-06-08 재피벗); 사람은 *방향·이해* 담당이다. **전환 중**: auto-gate 미구현 동안은 Operator가 게이트 리포트 확인 후 머지(권한이 아니라 임시 단계).
 
 ## 4. 기능 요구사항 (INTENT `What` → FR)
 
@@ -49,18 +49,18 @@
 | **FR-2** | **후보 생성** — 세대당 N개의 `train.py` 변형 후보를 전략 다양화(conservative/moderate/aggressive/crossover)로 생성한다. 각 후보는 reversible patch(`CANDIDATE.patch_ref`)다. | What §핵심기능 2 / spec §5.1 | 한 세대에서 N개 후보가 서로 다른 patch로 생성되고, baseline에서 복원 가능하다. |
 | **FR-3** | **병렬 학습 실행** — 후보를 병렬 Spot 학습 job으로 제출하고(HUGI), 고정 예산 내에서 단일 val 지표를 산출한다. | What §핵심기능 2 / spec §5.2 | 후보 N개가 병렬 실행되고 각 JOB이 `val_metric`을 반환한다. |
 | **FR-4** | **Selection** — 최저(또는 최선) val 지표 winner를 식별해 Operator에게 제시한다. | What §핵심기능 2 / spec §5.4 | 세대 종료 시 winner 후보 1개와 전체 순위가 제시된다. |
-| **FR-5 (재정의 2026-06-08)** | **자동 게이트 + 방향·이해 인터페이스** — winner 승격은 **객관적 자동 게이트(median selection + T1 검증)** 가 판정한다. Operator는 `program.md`로 *방향*을 잡고 튜토리얼식 리포트로 *큰 흐름*을 이해한다(per-winner 승인 아님). 게이트 통과 시 `gen-NNN-best` git tag·세대 카운터 증가. | What §핵심기능 / Not §절대금지(맹목적 자율 금지) | 게이트(median + T1) 없이는 승격되지 않는다. **전환 중**: auto-gate 구현 전까지 Operator가 게이트 리포트 확인 후 머지. |
+| **FR-5 (재정의 2026-06-08)** | **자동 게이트 + 방향·이해 인터페이스** — winner 승격은 **객관적 자동 게이트(median → LODO → 교차설계 T1 → Codex)** 가 판정한다. Operator는 `program.md`로 *방향*을 잡고 튜토리얼식 리포트로 *큰 흐름*을 이해한다(per-winner 승인 아님). 게이트 통과 시 `gen-NNN-best` git tag·세대 카운터 증가. | What §핵심기능 / Not §절대금지(맹목적 자율 금지) | 4단 게이트 없이는 승격되지 않는다. **전환 중**: auto-gate 구현 전까지 Operator가 게이트 리포트 확인 후 머지. |
 | **FR-6** | **(연기) reasoning trace 증거 평면** — 후보별 hypothesis/observed effect를 누적한다. **2차 세대**. | What §핵심기능 4 | 1차 범위 밖 — §11. |
 
-**사용자 흐름** (INTENT `What`):
-1. Operator가 `program.md`(지시문)·`config.yaml`(예산·세대수·population 크기) 설정.
+**사용자 흐름** (INTENT `What`, 2026-06-08 재피벗):
+1. Operator가 `program.md`(방향·지시문)·`config.yaml`(예산·세대수·population 크기) 설정.
 2. 에이전트가 `train.py` 변형 후보 N개 생성·병렬 학습.
-3. 루프가 val 지표로 winner 후보 제시.
-4. Operator가 검토·승인·git tag commit → 다음 세대 baseline.
+3. 루프가 median val 지표로 winner를 선발하고, **4단 자동 게이트(median → LODO → 교차설계 T1 → Codex)** 로 승격을 판정 → 통과 시 `gen-NNN-best` tag(전환 중: auto-gate 구현 전까지 Operator가 게이트 리포트 확인 후 머지).
+4. Operator는 세대 리포트(튜토리얼식)로 *큰 흐름*을 이해하고 다음 *방향*을 조정(per-winner 승인 아님).
 
 **엣지 케이스** (INTENT `What`):
 - Spot 회수 시 job 재시도 (`CANDIDATE` 1:N `JOB`).
-- 후보가 데이터 누수/과적합으로 val 지표만 좋은 경우 → Operator 거절 (+연기된 trace에 기록).
+- 후보가 데이터 누수/과적합으로 val 지표만 좋은 경우 → **Codex 게이트가 차단**(gen-003 실증: 검증셋 cherry-pick 적발) (+연기된 trace에 기록).
 - surrogate 지표가 복수일 때(slack vs area vs routability) 단일화 방법 → §10.
 
 ## 5. 비기능 요구사항 · 제약 (INTENT `Not` 기술제약)
@@ -116,15 +116,15 @@ erDiagram
 └── docs/superpowers/specs/ # 설계 lineage
 ```
 
-**4-step 루프** (spec §5): Candidate Generation → Batch Launch(병렬 Spot/HUGI) → Result Collection → Selection. winner는 Operator 승인 후 git tag `gen-NNN-best`.
+**4-step 루프** (spec §5): Candidate Generation → Batch Launch(병렬 Spot/HUGI) → Result Collection → Selection. winner는 **4단 자동 게이트(median → LODO → 교차설계 T1 → Codex) 통과 시** git tag `gen-NNN-best`(전환 중: auto-gate 구현 전까지 Operator가 게이트 확인 후 머지).
 
 ## 9. 성공 기준 (INTENT `품질 기준`)
 
 | 기준 | 조건 | 비고 |
 |---|---|---|
-| 가설 지지 | surrogate winner val 지표 < 사람-수작업 baseline | 임계값은 §10 (데이터 확정 후 spec). |
+| 가설 지지 | surrogate winner val 지표 < 사람-수작업 baseline + **교차설계 T1 `distinguishable`** | 임계값은 §10 (데이터 확정 후 spec). |
 | 재현성 | 세대 간 결과 재현 (동일 데이터셋·`flow_lockfile_sha`) | NFR-2가 전제. |
-| Operator authority | 자율 무인 대비 성능 손실 없이 winner 선택 (세대 로그) | H-B 검증. |
+| 비전문가 empowerment (H-B) | per-winner 승인 없이 방향·이해만으로 신뢰가능한 자율 — 객관적 게이트가 위양성 차단 + 튜토리얼식 이해가능성 | H-B 검증(2026-06-08 재피벗, 구 "Operator authority"). |
 | (연기) trace 복원 | reasoning trace 복원 가능 | 2차 세대 (§11). |
 
 ## 10. Open Decisions ([`issues/`](issues/) 추적 — 본 PRD에 임의 확정 금지, spec §8)
