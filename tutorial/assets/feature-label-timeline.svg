@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="280" viewBox="0 0 700 280" font-family="sans-serif">
+  <rect width="700" height="280" fill="#ffffff"/>
+  <text x="30" y="34" font-size="18" font-weight="bold" fill="#222">feature와 label은 흐름의 서로 다른 *시점*에서 측정된다</text>
+
+  <!-- flow timeline -->
+  <line x1="50" y1="150" x2="650" y2="150" stroke="#888" stroke-width="2"/>
+  <polygon points="650,150 640,145 640,155" fill="#888"/>
+  <text x="600" y="175" font-size="13" fill="#888">설계 흐름 →</text>
+
+  <!-- stage nodes -->
+  <g font-size="13" fill="#333" text-anchor="middle">
+    <circle cx="110" cy="150" r="6" fill="#555"/><text x="110" y="135">RTL</text>
+    <circle cx="270" cy="150" r="6" fill="#1769aa"/><text x="270" y="135">합성 직후</text>
+    <circle cx="450" cy="150" r="6" fill="#555"/><text x="450" y="135">배치 &amp; 라우팅</text>
+    <circle cx="600" cy="150" r="6" fill="#c62828"/><text x="600" y="135">최종 (라우팅 후)</text>
+  </g>
+
+  <!-- feature marker -->
+  <rect x="205" y="185" width="130" height="34" rx="5" fill="#bbdefb" stroke="#1769aa"/>
+  <text x="270" y="207" font-size="13" font-weight="bold" fill="#0d47a1" text-anchor="middle">feature 측정</text>
+  <line x1="270" y1="156" x2="270" y2="185" stroke="#1769aa" stroke-width="1.5"/>
+
+  <!-- label marker -->
+  <rect x="535" y="185" width="130" height="34" rx="5" fill="#ffcdd2" stroke="#c62828"/>
+  <text x="600" y="207" font-size="13" font-weight="bold" fill="#b71c1c" text-anchor="middle">label 측정 (슬랙)</text>
+  <line x1="600" y1="156" x2="600" y2="185" stroke="#c62828" stroke-width="1.5"/>
+
+  <!-- surrogate prediction arrow -->
+  <path d="M 285 95 C 400 55, 480 55, 590 95" fill="none" stroke="#7b1fa2" stroke-width="2.5"/>
+  <polygon points="590,95 580,86 584,99" fill="#7b1fa2"/>
+  <text x="435" y="58" font-size="14" font-weight="bold" fill="#7b1fa2" text-anchor="middle">surrogate: 이른 정보 → 늦은 결과 예측</text>
+
+  <text x="50" y="258" font-size="13" fill="#333">느린 길이면 최종까지 다 돌려 슬랙을 측정. surrogate는 합성 직후 feature만으로 그 슬랙을 *건너뛰어* 예측한다.</text>
+</svg>
