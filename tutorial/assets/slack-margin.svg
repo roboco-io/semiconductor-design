@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="260" viewBox="0 0 660 260" font-family="sans-serif">
+  <rect width="660" height="260" fill="#ffffff"/>
+  <text x="30" y="36" font-size="18" font-weight="bold" fill="#222">타이밍 슬랙(timing slack) = 여유 마진</text>
+
+  <!-- time axis -->
+  <line x1="60" y1="170" x2="620" y2="170" stroke="#888" stroke-width="2"/>
+  <polygon points="620,170 610,165 610,175" fill="#888"/>
+  <text x="600" y="195" font-size="13" fill="#888">시간 →</text>
+
+  <!-- clock period bracket: required time -->
+  <line x1="60" y1="90" x2="60" y2="170" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="540" y1="90" x2="540" y2="170" stroke="#444" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="60" y1="100" x2="540" y2="100" stroke="#444" stroke-width="2"/>
+  <text x="200" y="92" font-size="14" fill="#444">클럭 주기 = required time (마감)</text>
+
+  <!-- arrival time -->
+  <line x1="420" y1="130" x2="420" y2="170" stroke="#1769aa" stroke-width="2"/>
+  <circle cx="420" cy="170" r="5" fill="#1769aa"/>
+  <text x="300" y="150" font-size="14" fill="#1769aa">신호 도착 = arrival time</text>
+
+  <!-- slack region -->
+  <rect x="420" y="105" width="120" height="55" fill="#9ccc65" fill-opacity="0.45" stroke="#7cb342"/>
+  <text x="430" y="138" font-size="15" font-weight="bold" fill="#558b2f">slack &gt; 0</text>
+
+  <!-- bottom note -->
+  <text x="60" y="232" font-size="13" fill="#333">slack = required − arrival.  <tspan fill="#558b2f" font-weight="bold">양수면 통과(여유)</tspan>, <tspan fill="#c62828" font-weight="bold">음수면 위반(마감 초과)</tspan>.</text>
+</svg>
