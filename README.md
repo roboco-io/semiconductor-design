@@ -131,6 +131,7 @@ make loop GEN=9 DATASET=experiments/multidesign/dataset-4design.jsonl N=2 PROGRA
 
 | 문서 | 내용 |
 |---|---|
+| [`tutorial/`](tutorial/) | **ML 개발자용 개념 커리큘럼**(반도체 처음) — 5레슨 + 다이어그램(EDA flow·surrogate·AutoResearch·게이트) |
 | [`docs/TUTORIAL.md`](docs/TUTORIAL.md) | **여기부터** — EDA 비전공자용 튜토리얼 + 전체 흐름 + 용어 사전 |
 | [`experiments/README.md`](experiments/README.md) | **세대별 튜토리얼 시리즈**(gen-001~008) — 각 세대 전제·방법·결과·분석 |
 | [`docs/TRAIN.md`](docs/TRAIN.md) | `train.py` 구현 레퍼런스 — 데이터 흐름·함수·에이전트 변형 가이드 |
