@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="360" viewBox="0 0 720 360" font-family="sans-serif">
+  <rect width="720" height="360" fill="#ffffff"/>
+  <text x="30" y="34" font-size="18" font-weight="bold" fill="#222">벽: in-loop 지표는 좋아져도, 교차설계 일반화는 그대로</text>
+
+  <!-- axes -->
+  <line x1="90" y1="70" x2="90" y2="270" stroke="#888" stroke-width="2"/>
+  <line x1="90" y1="270" x2="660" y2="270" stroke="#888" stroke-width="2"/>
+  <text x="40" y="80" font-size="12" fill="#888">높음</text>
+  <text x="40" y="265" font-size="12" fill="#888">낮음</text>
+
+  <!-- x ticks: gen-004..008 -->
+  <g font-size="12" fill="#444" text-anchor="middle">
+    <text x="150" y="290">gen-004</text>
+    <text x="270" y="290">gen-005</text>
+    <text x="390" y="290">gen-006</text>
+    <text x="510" y="290">gen-007</text>
+    <text x="630" y="290">gen-008</text>
+  </g>
+
+  <!-- Line A: in-loop val_mae descending (better) -->
+  <polyline points="150,100 270,108 390,115 510,205 630,242" fill="none" stroke="#1769aa" stroke-width="3"/>
+  <g fill="#1769aa">
+    <circle cx="150" cy="100" r="5"/><circle cx="270" cy="108" r="5"/><circle cx="390" cy="115" r="5"/>
+    <circle cx="510" cy="205" r="5"/><circle cx="630" cy="242" r="5"/>
+  </g>
+  <text x="500" y="195" font-size="12" fill="#1769aa">1.29</text>
+  <text x="620" y="235" font-size="12" fill="#1769aa">0.53</text>
+  <text x="150" y="92" font-size="13" font-weight="bold" fill="#1769aa">in-loop val_mae ↓ (계속 최저 경신)</text>
+
+  <!-- Line B: cross-design T1 flat (indistinguishable) -->
+  <line x1="150" y1="150" x2="630" y2="150" stroke="#c62828" stroke-width="3" stroke-dasharray="7 5"/>
+  <g fill="#c62828">
+    <circle cx="150" cy="150" r="5"/><circle cx="270" cy="150" r="5"/><circle cx="390" cy="150" r="5"/>
+    <circle cx="510" cy="150" r="5"/><circle cx="630" cy="150" r="5"/>
+  </g>
+  <text x="200" y="142" font-size="13" font-weight="bold" fill="#c62828">교차설계 T1: indistinguishable (5세대 평탄)</text>
+
+  <text x="40" y="325" font-size="13" fill="#333">in-distribution 최적화(파랑)가 좋아져도 처음 보는 설계로의 일반화(빨강)는 안 변한다 — 둘은 *구조적으로 분리*. 이게 "벽".</text>
+  <text x="40" y="346" font-size="11" fill="#999">※ ML-for-EDA에서 이미 알려진 현상(SwiftCTS·EDALearn 등). 이 프로젝트는 그것을 자율 루프로 재현하고 게이트로 포착했다.</text>
+</svg>
