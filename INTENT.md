@@ -17,7 +17,7 @@
 - AutoResearch와 그 형식화 [AutoResearch-RL](https://arxiv.org/abs/2603.07300)(PPO 메타정책)의 명시적 전제는 *no human in the loop* — "human might be asleep, you are autonomous". 우리도 **자율 진행을 기본으로 채택**하되, 차별점은 *전문가의 감독*이 아니라 **비전문가가 큰 흐름을 이해·조종(comprehensibility·steerability)** 하면서도 자율 루프가 의미있는 전문영역 성과를 내게 하는 것 — 이 사례는 부재.
 
 **가설**:
-- **H-A** — AutoResearch의 population-based evolution 루프([serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를 EDA surrogate 모델 학습에 적용하면, 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다. (gen-001서 엄밀 paired 통계로 확증 — Learnings 2026-06-08.)
+- **H-A** — AutoResearch의 population-based evolution 루프([serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를 EDA surrogate 모델 학습에 적용하면, 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다. (gen-001서 엄밀 paired 통계로 확증 — Learnings 2026-06-08.) **단 이 확증은 within-design 한정이며, gen-002~008 교차설계 T1에선 7세대 연속 `indistinguishable` — 교차설계 우위는 미달이고, 이 간극 자체가 본 프로젝트의 핵심 negative-result 발견이다(2026-06-24 프레이밍).**
 - **H-B (재정의)** — 비전문가 Operator가 **per-winner 승인 없이** 방향(`program.md`)·큰 흐름만으로 자율 루프를 *조종·이해*할 수 있고, 그 산출이 의미있는 전문영역 성과다. 신뢰가능한 자율을 가능케 하는 것은 **객관적 자동 게이트**(median selection + T1 검증)와 **튜토리얼식 이해가능성**이다. (자율이 기본 동력, 사람은 전략적 방향타이자 학습자.)
 
 **확인 방법**:
@@ -66,13 +66,27 @@
 - (1차) process novelty 증거 평면 — 2차 연기.
 
 **품질 기준**:
-- surrogate winner val 지표 < 사람-수작업 baseline, **T1 게이트 verdict `distinguishable`** (H-A 지지 조건).
+- (within-design) surrogate winner val 지표 < 사람-수작업 baseline, **T1 게이트 verdict `distinguishable`** — gen-001서 충족, 그러나 *교차설계 일반화의 충분조건은 아님*(gen-004~008).
+<!-- TODO(human): negative-result 프레이밍에서 본 프로젝트의 '성공 기준'을 한 줄로 재정의.
+     교차설계 H-A가 미달인 지금, 무엇을 충족하면 '달성'인가? 이 문장이 곧 논문의 contribution claim이 된다. -->
+  - (negative-result 성공 기준) <!-- 위 TODO(human) 답을 여기에 -->>
 - 자율 자동 승격은 객관적 게이트(median + T1)를 통과한 winner만 (맹목적 자율 방지).
 - **이해가능성**: 비전문가가 각 세대의 큰 흐름·방향을 튜토리얼식 산출물로 따라갈 수 있어야 함.
 - 세대 간 결과 재현 (동일 데이터셋·lockfile_sha).
 - (연기) reasoning trace 복원 가능.
 
 ## Learnings
+
+- **2026-06-24** (프레이밍 확정 — '달성'을 H-A positive에서 negative result로 재정의) — 리뷰 결과
+  gen-002~008 **7세대 연속 reject**로 교차설계 H-A는 미달이나, 이는 본 프로젝트의 진단(in-loop
+  val_mae↓ ≠ 교차설계 일반화)이 5세대째 견고함을 뜻한다. Operator가 '성공'을 *에이전트가 더 나은
+  surrogate 생산(H-A positive)*이 아니라 **프로세스 novelty + co-evolution + 정직한 negative result**
+  로 재정의. 함의: 추가 세대(재추첨·데이터 추가)는 Learnings 2026-06-21d가 예고한 대로 이 벽을 못
+  넘으므로, 동력을 *루프 반복*에서 **8세대 기록의 정합·컴파일(논문화)**로 전환. H-A는 *within-design
+  확증 / 교차설계는 구조적 분리 발견*으로 정직하게 범위 한정. **co-evolution**: '범위 과대' 마찰
+  (2026-05-29 피벗)에 이어 이번엔 '가설 미달'이라는 운영 결과가 의도의 *성공 정의 자체*를 재변형 —
+  승격 0건이 실패가 아니라 게이트가 5건의 위양성을 막은 증거라는 reframe이 핵심. status `exploring`
+  유지(구현으로의 수렴이 아니라 *발견으로의 수렴*).
 
 - **2026-06-21d** (gen-008 — 4설계 첫 세대, 세 지렛대 정렬 후에도 무승부 → "val_mae↓ ≠ 교차설계 우위"
   견고) — Sub-A(데이터)·힌트(생성)·게이트(판정) 세 지렛대를 모두 당긴 뒤 첫 세대. winner cand-001

@@ -13,6 +13,7 @@
 | [004](004-model-class-tabular-vs-gnn.md) | 모델 클래스 → **sklearn HistGradientBoostingRegressor** | ✅ resolved (2026-06-06) | OD-4 | NFR-1·train.py |
 | [005](005-comparison-baseline-thresholds.md) | 비교 baseline → **naive(합성 slack=label)** | ✅ resolved (2026-06-06, 임계값 다설계 후) | OD-5 | §9 |
 | [006](006-eda-flow-execution-infra.md) | EDA flow 인프라 → **ECS Fargate 배포·검증** (n_samples=53) | ✅ resolved (2026-06-06) | §8 plane / F4 | FR-1 실 데이터셋 |
+| [007](007-gen-009-next-experiment-direction.md) | gen-009 다음 실험 지렛대 (A 설계균형 / B 델타강제 / C 확정 / D 5설계) | 🔵 open (2026-06-24) | §9 / 4-step 루프 | gen-009 실행·논문 claim |
 
 ## 의존 순서
 
