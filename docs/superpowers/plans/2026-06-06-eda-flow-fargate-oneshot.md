@@ -264,7 +264,7 @@ import { EdaFlowStack } from "../lib/eda-flow-stack";
 
 const app = new App();
 
-// roboco 계정(779411790546)은 다른 프로젝트와 공유 — stack 이름 prefix로 충돌 회피.
+// roboco 계정(AWS_ACCOUNT_ID)은 다른 프로젝트와 공유 — stack 이름 prefix로 충돌 회피.
 new EdaFlowStack(app, "semi-design-eda-dev", {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -392,16 +392,16 @@ git commit -m "feat(docker): EdaFlow thin runner (orfs@digest + awscli + dump Tc
 ```markdown
 # EdaFlow 배포 런북 (Operator 전용 — 비용 발생)
 
-> 모든 명령은 `--profile roboco` (account 779411790546). region us-east-1.
+> 모든 명령은 `--profile roboco` (account AWS_ACCOUNT_ID). region us-east-1.
 > 실행 전 Operator 확인 필수. 완료 후 `cdk destroy`로 비용 정리.
 
 ## 1. Bootstrap (최초 1회)
     cd cdk && npm install
-    CDK_DEFAULT_ACCOUNT=779411790546 CDK_DEFAULT_REGION=us-east-1 \
+    CDK_DEFAULT_ACCOUNT=AWS_ACCOUNT_ID CDK_DEFAULT_REGION=us-east-1 \
       npx cdk bootstrap --profile roboco
 
 ## 2. Deploy 스택
-    CDK_DEFAULT_ACCOUNT=779411790546 CDK_DEFAULT_REGION=us-east-1 \
+    CDK_DEFAULT_ACCOUNT=AWS_ACCOUNT_ID CDK_DEFAULT_REGION=us-east-1 \
       npx cdk deploy --profile roboco --require-approval any-change
     # 출력: RunnerRepo URI, Artifacts 버킷명, Cluster/TaskDef ARN
 

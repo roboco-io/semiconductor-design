@@ -41,7 +41,7 @@ prepare.py의 입력(진짜 `report_checks` 2시점)을 만드는 **EDA flow를 
 
 ## 설계 확정 (2026-06-06, brainstorming)
 
-옵션 A(Fargate) 채택. **최소 one-shot** 구성 + **최소 CDK 스택 1개**로 결정. AWS 프로필 `roboco`(account 779411790546), region us-east-1. 설계: `docs/superpowers/specs/2026-06-06-eda-flow-fargate-oneshot-design.md`.
+옵션 A(Fargate) 채택. **최소 one-shot** 구성 + **최소 CDK 스택 1개**로 결정. AWS 프로필 `roboco`(account AWS_ACCOUNT_ID), region us-east-1. 설계: `docs/superpowers/specs/2026-06-06-eda-flow-fargate-oneshot-design.md`.
 
 - prebuilt `openroad/orfs@sha256:<digest>` native x86 Fargate task → ORFS gcd 완주(F4 해결) → 두-시점 minimal `report_checks` → S3.
 - `EdaFlowStack`(ECR·S3·IAM·ECS·TaskDef·LogGroup). Step Functions/DynamoDB/batch는 YAGNI(후속).

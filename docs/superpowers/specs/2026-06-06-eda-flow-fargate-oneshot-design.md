@@ -2,7 +2,7 @@
 
 > status: approved (2026-06-06, brainstorming) · 후속: CDK+runner writing-plans
 > 근거: `experiments/real-gcd/FINDINGS.md` F4(QEMU emulation이 CTS/route 불가) + `issues/006`.
-> AWS: 프로필 `roboco` (account 779411790546), region us-east-1(default).
+> AWS: 프로필 `roboco` (account AWS_ACCOUNT_ID), region us-east-1(default).
 > **배포 게이트**: 실제 `cdk deploy`/`run-task`는 비용·외부 영향이라 plan 승인 + Operator 확인 후. 코드·`cdk synth`·테스트까지만 자율.
 
 ## 1. 목표 (범위)

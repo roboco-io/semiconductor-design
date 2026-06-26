@@ -297,7 +297,7 @@ git commit -m "experiment(multidesign): 교차설계 일반화 첫 실측 — ve
 - [ ] **Step 1: ⚠️ destroy (Operator 동의 후)**
 
 ```bash
-cd cdk && CDK_DEFAULT_ACCOUNT=779411790546 CDK_DEFAULT_REGION=ap-northeast-2 \
+cd cdk && CDK_DEFAULT_ACCOUNT=AWS_ACCOUNT_ID CDK_DEFAULT_REGION=ap-northeast-2 \
   npx cdk destroy --profile roboco
 ```
 
