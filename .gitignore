@@ -23,6 +23,8 @@ node_modules/
 cdk.out/
 *.tsbuildinfo
 dist/
+# CDK context cache — 계정 ID·VPC·subnet ID가 박히는 환경별 캐시(재생성 가능). 커밋 금지.
+cdk/cdk.context.json
 
 # Build artifacts (too large for git)
 .cache/

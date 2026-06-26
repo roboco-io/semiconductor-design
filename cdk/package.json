@@ -2,8 +2,14 @@
   "name": "semi-design-eda-cdk",
   "version": "0.1.0",
   "private": true,
-  "bin": { "eda-flow": "bin/eda-flow.js" },
-  "scripts": { "build": "tsc", "test": "jest", "cdk": "cdk" },
+  "bin": {
+    "eda-flow": "bin/eda-flow.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "cdk": "cdk"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.30",
@@ -16,6 +22,7 @@
   "dependencies": {
     "aws-cdk-lib": "^2.140.0",
     "constructs": "^10.3.0",
+    "dotenv": "^16.6.1",
     "source-map-support": "^0.5.21"
   }
 }

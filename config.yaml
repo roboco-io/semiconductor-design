@@ -2,7 +2,7 @@
 # serverless-autoresearch config.yaml 아날로그. 구현 plan 승인 후 채운다.
 
 aws:
-  profile: roboco         # account 779411790546
+  profile: roboco         # 로컬 AWS 프로필 (계정 ID는 .env에서 주입 — .env.example 참조)
   region: ap-northeast-2  # EdaFlowStack 실제 배포 region (roboco 기본값)
   role_arn: TODO
 
