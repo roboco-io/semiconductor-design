@@ -7,8 +7,13 @@
 > 🎯 **진짜 목표**: 반도체 전문가가 아닌 사람도 자율 에이전트를 *방향만 잡아 부려서* 전문영역에서
 > 의미있는 성과를 내는 것.
 >
-> 📖 **EDA 배경 지식이 없어도 됩니다** — [`docs/TUTORIAL.md`](docs/TUTORIAL.md)에서 용어를 하나하나
-> 풀어 설명합니다. **처음이라면 거기부터** 읽으세요. 이 README는 한눈에 보는 요약입니다.
+> 📖 **어디서 시작하나** (둘 다 EDA 배경 지식이 없어도 됩니다):
+> - **ML은 알고 *반도체가 처음*인 개발자** → [`tutorial/`](tutorial/) 개념 커리큘럼(5레슨·다이어그램):
+>   EDA flow → surrogate → AutoResearch 루프 → 게이트.
+> - **EDA 배경이 *전혀 없는* 분** → [`docs/TUTORIAL.md`](docs/TUTORIAL.md): 용어를 하나하나 풀어 쓴
+>   프로젝트 서사 + 세대별 결과 + 용어 사전.
+>
+> 이 README는 한눈에 보는 요약입니다.
 
 karpathy [AutoResearch](https://github.com/karpathy/autoresearch)의 진화 루프를 **EDA surrogate
 지표예측 모델 학습**에 적용한다. 구조는
