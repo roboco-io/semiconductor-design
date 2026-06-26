@@ -15,6 +15,11 @@
 >
 > 이 README는 한눈에 보는 요약입니다.
 
+> ⚠️ **이 프로젝트의 성격**: 반도체 설계 **비전문가**가 *학습*과 **PoC(개념 증명)**를 위해 진행하는
+> 연구입니다. 상용 수준 정확도나 production 사용을 목표로 하지 않으며, 핵심 질문은 "비전문가가 자율
+> AI를 *방향만 잡아* 전문영역을 탐구할 수 있는가"입니다. 한계는 아래 [면책 조항](#면책-조항),
+> 함께할 분은 [기여 & 참여자 모집](#기여--참여자-모집)을 봐주세요.
+
 karpathy [AutoResearch](https://github.com/karpathy/autoresearch)의 진화 루프를 **EDA surrogate
 지표예측 모델 학습**에 적용한다. 구조는
 [roboco-io/serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) 패턴을 따른다.
@@ -154,3 +159,30 @@ make loop GEN=9 DATASET=experiments/multidesign/dataset-4design.jsonl N=2 PROGRA
 Python 3.12 · uv · ruff(100 char) · pytest. `main`에 직접 커밋. 에이전트가 변형하는 `train.py` 외의
 substrate(`prepare.py`, 평가 규칙)는 **고정(frozen)** — 공정 비교를 위해. winner 승격은 **객관적 자동
 게이트(median → LODO → 교차설계 T1 → Codex)** 가 판정한다(auto-gate 미구현 동안은 Operator가 게이트 확인 후 머지 — 임시).
+
+## 면책 조항
+
+- 이 저장소는 반도체 설계 **비전문가**의 **학습·PoC** 산출물입니다. 내용에 도메인 오류가 있을 수
+  있으며, 정정·보완을 환영합니다.
+- 코드·문서는 **있는 그대로(as-is)** 제공되며, 정확성·적합성·상용 사용 가능성에 대한 **어떤 보증도
+  하지 않습니다**.
+- surrogate 모델의 예측은 **근사치**입니다. 실제 칩 sign-off나 functional correctness를 대체하지 않으며,
+  production 설계 판단에 사용해서는 안 됩니다.
+- 모든 EDA 도구는 **오픈소스**(OpenROAD·Yosys 등)만 사용합니다. AWS 계정 ID 등 환경별 식별자는
+  `.env`로 분리합니다([`.env.example`](.env.example)).
+
+## 기여 & 참여자 모집
+
+**함께할 분을 찾습니다.** 이 프로젝트는 "비전문가 + 자율 AI"의 가능성을 탐구하는 열린 실험이고,
+전문성 수준과 무관하게 누구나 환영합니다. "초보 질문"도 환영하는 학습 친화적 공간을 지향합니다.
+
+- 🔬 **EDA·반도체 전문가** — 도메인 리뷰, 데이터·지표·해석의 오류 지적, 더 나은 surrogate 표현 제안.
+- 🤖 **ML 엔지니어** — 교차설계 일반화의 벽을 깨는 생성 전략, 게이트·평가 프로토콜 개선
+  (열린 결정: [`issues/007`](issues/007-gen-009-next-experiment-direction.md)).
+- 🌱 **비전문가 학습자** — [`tutorial/`](tutorial/)로 개념을 익히고, 막히거나 헷갈린 곳을 이슈로
+  남겨주세요. 그 피드백 자체가 이 프로젝트의 "이해가능성" 검증에 직접 기여합니다.
+
+**참여 방법**:
+1. [`tutorial/`](tutorial/) → [`docs/TUTORIAL.md`](docs/TUTORIAL.md)로 맥락을 잡습니다.
+2. [`issues/`](issues/)에서 열린 결정(특히 [007 다음 실험](issues/007-gen-009-next-experiment-direction.md))을 확인합니다.
+3. 의견·질문은 **GitHub Issue**로, 코드·문서 개선은 **Pull Request**로 보내주세요.
