@@ -29,8 +29,9 @@
 > **프로세스/접근성** 축에 있다. 승격 0건은 실패가 아니라 게이트가 작동한 증거다. 전 과정·코드·
 > 데이터를 오픈소스로 공개한다.
 
-> ⚠️ **contribution claim 확정 대기**: Abstract의 "기여" 문장은 [`INTENT.md`](../INTENT.md) 품질기준의
-> `TODO(human)`(negative-result 성공 기준 한 줄)이 확정되면 그에 맞춰 1:1 정렬한다. 현 초안은 제안값.
+> ✅ **contribution claim 정렬됨(2026-06-28)**: Abstract·§3의 기여(2 방어·3 발견·4 접근성)는
+> [`INTENT.md`](../INTENT.md) 품질기준의 **negative-result 성공 기준 3조건(방어·발견·접근성)**과 1:1
+> 대응한다. "달성"은 H-A positive가 아니라 이 셋의 동시 충족.
 
 ## 2. Introduction
 
@@ -149,6 +150,6 @@
 
 ## 부록 B — 미해결(논문 확정 전 필요)
 
-1. **성공 기준 한 줄** — [`INTENT.md`](../INTENT.md) `TODO(human)` 확정 → Abstract/§3 contribution claim 정렬.
+1. ~~성공 기준 한 줄 — INTENT `TODO(human)` 확정~~ ✅ **완료(2026-06-28)**: 3조건 결합형(방어·발견·접근성)으로 확정, Abstract/§3 정렬.
 2. **정량 게이트 임계값** — 설계 spec에서 nail down(INTENT-vs-spec invariant) 후 §6에 인용.
 3. **타깃 venue** — workshop(negative-result/ML-for-EDA) vs arXiv 선공개. 분량·형식 결정.

@@ -67,9 +67,14 @@
 
 **품질 기준**:
 - (within-design) surrogate winner val 지표 < 사람-수작업 baseline, **T1 게이트 verdict `distinguishable`** — gen-001서 충족, 그러나 *교차설계 일반화의 충분조건은 아님*(gen-004~008).
-<!-- TODO(human): negative-result 프레이밍에서 본 프로젝트의 '성공 기준'을 한 줄로 재정의.
-     교차설계 H-A가 미달인 지금, 무엇을 충족하면 '달성'인가? 이 문장이 곧 논문의 contribution claim이 된다. -->
-  - (negative-result 성공 기준) <!-- 위 TODO(human) 답을 여기에 -->>
+  - **(negative-result 성공 기준)** '달성'은 *교차설계서 baseline을 이긴 surrogate*(H-A positive)가
+    아니라, 다음 셋을 **모두** 충족할 때로 정의한다 (2026-06-28 확정 — 논문 contribution claim과 정렬):
+    - **(방어)** 객관적 4단 게이트(median→LODO→교차설계 T1→Codex)가 in-loop 최저 후보의 부당 승격을
+      차단하고 baseline 무결성을 유지 — gen-002~008 5세대 실증.
+    - **(발견)** "in-loop `val_mae`↓ ≠ 교차설계 일반화 우위"가 서로 다른 후보·지렛대의 복수 세대에서
+      일관 재현되고, 그 판정이 *사전 고정된* 객관적 게이트로 내려짐.
+    - **(접근성)** 비전문가 Operator가 per-winner 승인 없이 방향(`program.md`)만으로 진행하고, 각 세대
+      승격/기각을 *튜토리얼식 산출물만으로* 따라갈 수 있음(이해가능성).
 - 자율 자동 승격은 객관적 게이트(median + T1)를 통과한 winner만 (맹목적 자율 방지).
 - **이해가능성**: 비전문가가 각 세대의 큰 흐름·방향을 튜토리얼식 산출물로 따라갈 수 있어야 함.
 - 세대 간 결과 재현 (동일 데이터셋·lockfile_sha).
