@@ -152,4 +152,6 @@
 
 1. ~~성공 기준 한 줄 — INTENT `TODO(human)` 확정~~ ✅ **완료(2026-06-28)**: 3조건 결합형(방어·발견·접근성)으로 확정, Abstract/§3 정렬.
 2. **정량 게이트 임계값** — 설계 spec에서 nail down(INTENT-vs-spec invariant) 후 §6에 인용.
-3. **타깃 venue** — workshop(negative-result/ML-for-EDA) vs arXiv 선공개. 분량·형식 결정.
+3. ~~타깃 venue~~ ✅ **arXiv 선공개 확정(2026-06-29)**: 자유 분량 → 현 11절 구조 유지, co-evolution
+   서사·8세대 전체를 압축 없이 전개. 나중에 워크숍(ICBINB/MLCAD류) 축약판으로 확장 가능. 형식은
+   arXiv 표준(LaTeX, 단일 컬럼 또는 양식 자유).
