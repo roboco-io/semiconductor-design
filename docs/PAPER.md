@@ -28,7 +28,7 @@ indistinguishable* from the baseline, while earlier generations were rejected up
 phenomenon already documented in ML-for-EDA. Our contributions are therefore on the **process and
 accessibility** axis: (1) an autonomous loop reproduced this known wall with no human hand-designing the model changes;
 (2) a four-stage **separation-of-powers gate** (median → leave-one-design-out → cross-design
-statistical test → independent code review) blocked five false-positive promotions and kept the
+statistical test → independent code review) blocked every would-be promotion across gen-002–008 (each for a distinct, documented reason) and kept the
 baseline uncontaminated; (3) a non-expert steered the loop via written direction plus tutorial-grade
 reports. Zero promotions is not a failure but evidence the gate worked. All code, data, and the full
 generation history are open source.
@@ -59,7 +59,7 @@ gate caught the false positives along the way.
 1. **First application of AutoResearch to EDA surrogate learning** (single-file `train.py` mutation,
    fixed budget, population + median selection).
 2. **A four-stage separation-of-powers gate** (median → LODO → cross-design T1 → independent Codex
-   review) that blocked **five** false-positive promotions (gen-002–008) and *self-evolved* across
+   review) that blocked every would-be promotion across gen-002–008 (single-seed luck, evaluation leakage, cross-design regression, and a gate misalignment its own winner exposed) and *self-evolved* across
    generations.
 3. **An honest negative result**: "in-loop `val_mae` ↓ ≠ cross-design generalization," reproduced by
    the autonomous loop across generations (clearest at gen-007/008, the generations judged by the
@@ -161,12 +161,15 @@ T1—both returned *indistinguishable* despite record-low medians. The key figur
 ## 6. Discussion
 
 **Structural separation.** Lowering in-distribution validation error and generalizing to unseen
-designs are *different abilities*. This held across five generations, three different selection
+designs are *different abilities*. This held across successive generations, three different selection
 levers (more data, stronger hints, a fourth design), and both agent families.
 
-**The gate's value is false-positive prevention.** Had we trusted the median alone, five
-record-low-but-non-generalizing winners would have contaminated the baseline. A gate proves its worth
-not when it promotes, but when it refuses to be fooled by an optimistic in-loop number. Gen-003 is
+**The gate's value is false-positive prevention.** Had we trusted the median alone, the record-low
+winners that did not generalize (gen-004/005 regressed on held-out designs; gen-007/008 were
+cross-design indistinguishable), plus the single-seed false positive at gen-002, would have
+contaminated the baseline; gen-006 was a different case—blocked by the gate misalignment its own
+winner exposed, not by failing to generalize. A gate proves its worth not when it promotes, but when
+it refuses to be fooled by an optimistic in-loop number. Gen-003 is
 the sharpest case: a candidate selected the best model *on the validation fold itself* (dz = −1.51,
 which fooled the statistical gate), and only the independent code reviewer blocked it.
 
