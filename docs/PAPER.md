@@ -28,7 +28,7 @@ indistinguishable* from the baseline, while earlier generations were rejected up
 phenomenon already documented in ML-for-EDA. Our contributions are therefore on the **process and
 accessibility** axis: (1) an autonomous loop reproduced this known wall with no human hand-designing the model changes;
 (2) a four-stage **separation-of-powers gate** (median → leave-one-design-out → cross-design
-statistical test → independent code review) blocked every would-be promotion across gen-002–008 (each for a distinct, documented reason) and kept the
+statistical test → independent code review) blocked every would-be promotion across gen-002–008 (for documented, gate-specific reasons) and kept the
 baseline uncontaminated; (3) a non-expert steered the loop via written direction plus tutorial-grade
 reports. Zero promotions is not a failure but evidence the gate worked. All code, data, and the full
 generation history are open source.
