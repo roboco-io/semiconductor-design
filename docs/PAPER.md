@@ -5,8 +5,7 @@
 
 > Compiled from [`docs/PAPER-OUTLINE.md`](PAPER-OUTLINE.md). Generation statistics are drawn from the
 > repository's `experiments/gen-NNN/` reports and [`INTENT.md`](../INTENT.md) Learnings; external
-> claims are grounded in the cited references (§11). This is a draft; an accompanying Korean version
-> is available on request.
+> claims are grounded in the cited references (§11). This is a draft. 한국어 번역본: [`PAPER.ko.md`](PAPER.ko.md).
 
 ---
 
