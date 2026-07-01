@@ -15,14 +15,18 @@ The model-search loop for EDA *surrogate* models—predictors that estimate a ch
 timing/PPA from post-synthesis features—is mechanical yet still performed by hand. We apply
 Karpathy's **AutoResearch** (an autonomous "research-as-search" loop that mutates a single training
 script under a fixed budget and keeps changes only if a metric improves) to EDA timing-slack
-surrogate learning for the first time, and let a **non-expert operator** steer eight generations by
-*direction only*, with no per-winner approval. Our central result is not a better model but an
+surrogate learning for the first time, and let a **non-expert operator** steer eight generations at
+the *direction* level rather than by approving individual winners (fully automatic promotion is the
+design target; in the current interim the operator merges after reading each gate report, and the
+earliest generations predate this reframe). Our central result is not a better model but an
 **honest negative result**: in-loop validation error (`val_mae`) reached successive record lows
-(generation 7: 1.29 → generation 8: 0.53 ns) while cross-design generalization remained
-*statistically indistinguishable* from the baseline across five consecutive generations. That is,
+(generation 7: 1.29 → generation 8: 0.53 ns, though the gen-8 median is on an enlarged 4-design
+dataset and not strictly comparable), yet no generation earned a gate-passing cross-design win—the
+two generations judged by the finalized cross-design test (7 and 8) came back *statistically
+indistinguishable* from the baseline, while earlier generations were rejected upstream. That is,
 *in-distribution optimization and unseen-design generalization are structurally separate*—a
 phenomenon already documented in ML-for-EDA. Our contributions are therefore on the **process and
-accessibility** axis: (1) an autonomous loop *reproduced* this known wall without human design;
+accessibility** axis: (1) an autonomous loop reproduced this known wall with no human hand-designing the model changes;
 (2) a four-stage **separation-of-powers gate** (median → leave-one-design-out → cross-design
 statistical test → independent code review) blocked five false-positive promotions and kept the
 baseline uncontaminated; (3) a non-expert steered the loop via written direction plus tutorial-grade
@@ -58,8 +62,9 @@ gate caught the false positives along the way.
    review) that blocked **five** false-positive promotions (gen-002–008) and *self-evolved* across
    generations.
 3. **An honest negative result**: "in-loop `val_mae` ↓ ≠ cross-design generalization," reproduced by
-   the autonomous loop over five generations, explicitly positioned as a *known* ML-for-EDA
-   phenomenon rather than a new discovery.
+   the autonomous loop across generations (clearest at gen-007/008, the generations judged by the
+   finalized cross-design test), explicitly positioned as a *known* ML-for-EDA phenomenon rather
+   than a new discovery.
 4. **Non-expert empowerment and co-evolution**: a non-expert operator steered the loop by direction
    and tutorials; we document the operator-learning ↔ project-evolution cycle by date.
 
@@ -114,8 +119,11 @@ failure keeps the baseline:
    gaming that statistics cannot see.
 
 Exact statistical thresholds are owned by the design spec; this paper cites observed values, not
-threshold definitions. **Operator-in-loop:** the operator does not approve individual winners; they
-set direction (`program.md`) and follow each generation through tutorial-grade reports.
+threshold definitions. **Operator-in-loop:** the design target is that the operator sets direction
+(`program.md`) and follows each generation through tutorial-grade reports rather than approving
+individual winners. In the current interim (auto-gate not yet implemented, see §7) the operator
+still merges after reading the gate report; the earliest generations (1–2) predate this reframe and
+involved operator approval/rejection.
 
 ## 4. Experimental Setup
 
@@ -140,10 +148,15 @@ The eight generations are summarized below (statistics from the per-generation r
 | 7 | new four-stage chain | rejected_t1 | record-low median (1.29) and LODO pass, but cross-design T1 indistinguishable (mean diff +0.36, p = 0.655, dz = 0.10); lost on ibex |
 | 8 | fourth design (jpeg) | rejected_t1 | record-low median (0.53), 2–2 split over four designs → indistinguishable (mean diff +0.018, p = 0.666); jpeg bias confirmed |
 
-**The wall.** From gen-004 to gen-008, the in-loop median `val_mae` fell monotonically to successive
-record lows, yet the cross-design T1 verdict stayed `indistinguishable` the entire time. The key
-figure (in the repository, `tutorial/assets/the-wall.svg`) plots the descending in-loop curve
-against the flat cross-design curve.
+**The wall.** From gen-004 to gen-008 the in-loop median `val_mae` fell to successive record lows
+(with the caveat that gen-008's median is on an enlarged 4-design dataset, so the medians are not
+strictly like-for-like), yet no winner earned a gate-passing cross-design win. The rejection
+mechanism differed by generation: gen-004/005 failed the earlier LODO stage and never reached T1;
+gen-006 exposed the LODO↔T1 conflict that forced us to redefine T1 as a cross-design test (its
+retroactive cross-design re-evaluation was in fact *distinguishable*, which motivated the
+redefinition); and gen-007 and gen-008—the two generations judged by the finalized cross-design
+T1—both returned *indistinguishable* despite record-low medians. The key figure (in the repository,
+`tutorial/assets/the-wall.svg`) plots the descending in-loop curve against the flat cross-design outcome.
 
 ## 6. Discussion
 
@@ -158,9 +171,10 @@ the sharpest case: a candidate selected the best model *on the validation fold i
 which fooled the statistical gate), and only the independent code reviewer blocked it.
 
 **Autonomous reproduction of a known phenomenon (honesty).** Our finding is not new science; it
-restates what SwiftCTS [11] and EDALearn [13] report. The novelty is that a loop *no human designed*
-converged on this wall, and the gate captured it. The contribution is reproduction-plus-capture, not
-discovery.
+restates what SwiftCTS [11] and EDALearn [13] report. The loop and gates were human-designed and
+human-evolved; what no human hand-designed was the *candidate trajectory*, which converged on this
+wall under that loop while the gate captured the false positives. The contribution is
+reproduction-plus-capture, not discovery.
 
 **Co-evolution.** Operational friction drove the method: a false positive (gen-002) produced the
 median harness; an LODO↔T1 contradiction (gen-006) produced the cross-design statistical gate. Each
