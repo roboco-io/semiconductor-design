@@ -52,3 +52,21 @@ def test_exclusion_rules_are_fixed(tmp_path):
     bad = GOOD.replace('  - "extracted endpoints < 10"', '  - "operator judgement"')
     with pytest.raises(ValueError, match="exclusion_rules"):
         load_manifest(_write(tmp_path, bad))
+
+
+def test_exclusion_reason_must_be_fixed_rule(tmp_path):
+    bad = GOOD.replace(
+        "exclusions: []",
+        'exclusions: [{design: gcd, reason: "operator judgement"}]',
+    )
+    with pytest.raises(ValueError, match="exclusions"):
+        load_manifest(_write(tmp_path, bad))
+
+
+def test_exclusion_with_fixed_reason_passes(tmp_path):
+    ok = GOOD.replace(
+        "exclusions: []",
+        'exclusions: [{design: gcd, reason: "yosys synth exit code != 0"}]',
+    )
+    m = load_manifest(_write(tmp_path, ok))
+    assert m["exclusions"][0]["design"] == "gcd"

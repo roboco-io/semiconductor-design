@@ -30,4 +30,6 @@ def load_manifest(path: str | Path) -> dict:
     for ex in m.get("exclusions", []):
         if not ex.get("design") or not ex.get("reason"):
             raise ValueError("exclusions: design·reason 필수")
+        if ex["reason"] not in FIXED_EXCLUSION_RULES:
+            raise ValueError(f"exclusions: 사유는 사전 고정 규칙만 허용 — {ex['reason']!r}")
     return m
