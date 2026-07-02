@@ -60,6 +60,7 @@ Researcher/Developer 역할은 에이전트가 수행하고, **winner 승격은 
 | `prepare.py` 구현 | EDA flow 1회 → feature+label 데이터셋 (frozen, 사람 유지) | ⏳ plan 대기 |
 | `train.py` 구현 | surrogate 학습 (에이전트 변형 단일 파일) | ⏳ plan 대기 |
 | 진화 루프 (src/pipeline) | candidate_gen · batch_launcher · result_collector · selection | ⏳ plan 대기 |
+| pretrain/ encoder 층 (v2) | 코퍼스 manifest·graph AE·채택 게이트·v2 dataset | ✅ 코드 완료 (Task 1~12) / ⏳ 실행(코퍼스·학습·판정) 대기 |
 | (연기) reasoning trace | reasoning_trace·decision·finding 증거 평면 | 2차 세대 |
 
 ## Commands
@@ -81,6 +82,7 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 
 **리포지토리 구조 (serverless-autoresearch 정렬)**:
 - `prepare.py` — EDA 데이터셋 준비 (**read-only / frozen** — 에이전트 변경 금지, 공정 비교 보장).
+- `pretrain/` — frozen encoder 사전학습 층 (사람 소유·에이전트 변형 금지, v2 spec §4).
 - `train.py` — surrogate 학습 (**에이전트가 변형하는 단일 파일**, 신규 의존성 금지, 고정 예산).
 - `program.md` — 에이전트 baseline 지시문. `config.yaml` — AWS/파이프라인 설정.
 - `src/pipeline/` — orchestrator · candidate_gen · batch_launcher · result_collector · selection.
@@ -105,11 +107,14 @@ novelty 축의 산출물이므로 결과 정리·커밋 전에 항상 포함한�
 - **Ruff 100 char line limit**, `target-version = "py312"`.
 - 에이전트가 작성하는 코드 변경은 `INTENT.md` `Not` 정합 검사를 통과해야 하며, **객관적 게이트 통과 후
   머지**한다(auto-gate 미구현 동안은 Operator가 게이트 확인 후 머지 — 임시).
+- **frozen 목록**(에이전트 변경/참조 금지): `prepare.py`, `pretrain/`, `models/encoder-v1.pt`. 후보가
+  `models/encoder-v1.pt`·`pretrain/`을 참조하면 가드가 실행 전 무효 처리한다(program.md 절대 제약).
 
 ## Repository Map (non-obvious parts)
 
 - `docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md` — **THE** active 설계 spec
   (brainstorming 6문항 + Perplexity grounded positioning + 4-엔티티 ERD). non-trivial 변경 전 필독.
+- `docs/superpowers/specs/2026-07-02-frozen-encoder-representation-redesign-design.md` — v2 재설계 spec.
 - `PRD.md` — 제품 요구 + ERD + 리포 구조 single source.
 - `INTENT.md` — Why/What/Not/Learnings (status: exploring). 피벗 이전 6 Learnings 는 archived 하위 섹션에 보존.
 - `prepare.py` / `train.py` — 현재 `raise NotImplementedError("skeleton: 구현 plan 승인 후 작성")` placeholder.
@@ -141,6 +146,8 @@ novelty 축의 산출물이므로 결과 정리·커밋 전에 항상 포함한�
 4. **맹목적 자율 금지** — 객관적 게이트(median + T1) 없이 main 자율 머지 금지. 자율 자동 승격이 목표이나
    auto-gate 미구현 동안은 Operator가 게이트 리포트 확인 후 머지(2026-06-08 재피벗 — 구 "Operator authority" 대체).
 5. 본 프로젝트는 **AutoResearch surrogate 모델 학습의 자동 연구**이지, parameter sweep 단독(ORFS-agent 영역)이 아니다.
+6. **frozen 자산 존중** — `prepare.py`·`pretrain/`·`models/encoder-v1.pt`는 에이전트 변형/참조 금지
+   (Code Conventions frozen 목록 참조).
 
 ## LLM Wiki 활용 규칙
 

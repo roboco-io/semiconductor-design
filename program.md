@@ -21,17 +21,24 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
 **설계-분리**(GroupShuffleSplit)라 `val_mae`는 *학습에서 안 본 설계*에 대한 예측 성능 — 즉 selection
 지표 자체가 교차설계 일반화를 측정한다. 승격 전 별도 LODO 게이트가 일반화 후퇴를 한 번 더 차단한다.
 
+**v2 (2026-07-02~)**: 각 행에 frozen encoder 임베딩 `emb_00`…`emb_31`(32차원 float)이 병기된다.
+임베딩은 합성 netlist의 endpoint 중심 그래프를 self-supervised graph autoencoder로 인코딩한 것 —
+설계-불변 구조 신호를 담으려는 시도다. 활용(그대로/선택/결합/무시)은 전적으로 너의 선택.
+
 ## 변형 허용 범위 (이 안에서 자유롭게)
 - 모델 종류: sklearn 내 교체 (HistGradientBoostingRegressor / RandomForest / ExtraTrees /
   GradientBoosting / MLPRegressor 등).
 - 하이퍼파라미터, feature 엔지니어링/선택/인코딩, train/val split 전략.
+- 임베딩 활용 전략: emb_* 컬럼 선택·결합·차원 축소, torch 기반 head(MLP 등) 자유.
 
 ## 절대 제약 (위반 시 후보 무효)
-- `train.py` **단일 파일**만. 신규 의존성 금지 — `sklearn`, `numpy`, `joblib`, `click`,
-  stdlib만 import.
+- `train.py` **단일 파일**만. 신규 의존성 *설치* 금지 — `sklearn`, `numpy`, `joblib`, `click`,
+  `torch`(사전 설치), stdlib만 import.
 - stdout 출력 계약: `{"val_mae": <float>}` 한 줄. `--out <dir>/model.joblib` 저장.
 - CLI `--data`/`--out`/`--seed` 시그니처 불변. 8 FEATURE_NAMES 불변.
-- 고정 CPU 학습 예산 (분 단위). GPU·딥러닝 프레임워크 금지.
+- 고정 CPU 학습 예산 (분 단위). GPU 금지. torch는 CPU 한정 허용.
+- **frozen encoder 접근 금지**: models/encoder-v1.pt·pretrain/ 참조 시 후보 즉시 무효(가드가 실행 전
+  차단). 임베딩은 이미 dataset에 있다 — encoder를 다시 부를 이유가 없다.
 
 ## 전략 힌트
 - conservative: baseline에 가까운 소폭 튜닝.
@@ -55,6 +62,9 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
   직접 신호다. 어떤 방향이 일반화를 살릴지는 *열린 질문*이며 전적으로 너의 선택이다 — 가능성의 한 예일
   뿐(요구되는 레시피 아님)로 "in-loop val split 과적합을 피하는 표현"이나 "절대 스케일 의존을 줄이는
   feature·설계-불변 신호"를 떠올려볼 수 있고, 정반대 접근도 자유다.
+- gen-002~008 (7세대, v1 표형식): in-loop `val_mae`는 3.7→0.53까지 내려갔지만 교차설계 T1은 7세대
+  연속 `indistinguishable` — in-loop 지표 개선을 맹신하지 말 것. v2 임베딩은 이 벽(설계-불변 표현
+  부재 가설)에 대한 질적 전환 시도다. B0(현행 표형식 winner) 대비 `distinguishable`이 판정 질문.
 
 ## Operator 감독
 winner 승격은 **자동 게이트(median + LODO 교차설계 + T1 통계 검증 + Codex 승격 심사관)** 가 판정한다.

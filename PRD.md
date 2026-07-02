@@ -93,7 +93,7 @@ erDiagram
 
 | 엔티티 | 핵심 속성 | 역할 |
 |---|---|---|
-| **DATASET** | id, source_design, feature_set, label_metric, s3_uri, **flow_lockfile_sha** | flow 1회로 생성된 고정 라벨셋. `flow_lockfile_sha`가 재현성 앵커 (FR-1). |
+| **DATASET** | id, source_design, feature_set, label_metric, s3_uri, **flow_lockfile_sha**, **encoder_sha**, **corpus_manifest_sha** | flow 1회로 생성된 고정 라벨셋. `flow_lockfile_sha`+`encoder_sha`+`corpus_manifest_sha`가 재현성 앵커 (FR-1, v2 spec §5). |
 | **GENERATION** | id, gen_no, baseline_ref, status, winner_candidate_id | 진화 1세대 (FR-4). |
 | **CANDIDATE** | id, gen_id(FK), strategy, **patch_ref**, parent_id(FK self), is_winner, artifact_uri, git_tag | 변형된 학습 스크립트 1개 = reversible patch (FR-2). winner artifact 흡수. |
 | **JOB** | id, candidate_id(FK), spot_status, **val_metric**, train_time, cost, log_uri | Spot 실행 1회 (회수 시 candidate당 1:N) (FR-3). RESULT 흡수. |
