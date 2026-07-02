@@ -78,8 +78,13 @@ CircuitNet 전이는 폐기가 아니라 **2차 probe로 연기** — 본 사이
   (a) Yosys 합성 exit code ≠ 0, (b) 추출 endpoint 수 < 10. 그 외 사유의 사후 임의 제외 금지 —
   코퍼스 구성이 사후 튜닝 노브가 되는 것을 차단한다. 제외 발생 시 manifest에 사유를 append해
   커밋(조용한 누락 금지).
-- **그래프 변환**: netlist → endpoint 중심 그래프(셀 타입, 팬인/팬아웃 연결, 타이밍 아크 통계).
-  결정성 보장: 동일 netlist → 동일 그래프 (테스트로 강제).
+- **그래프 변환**: netlist → endpoint 중심 그래프(셀 타입, 팬인/팬아웃 연결, **구조 통계 —
+  fanin/fanout/depth**). 결정성 보장: 동일 netlist → 동일 그래프 (테스트로 강제).
+  *(2026-07-02 amendment, plan 단계: 초안의 "타이밍 아크 통계"를 구조 통계로 대체 — ① 합성 시점
+  타이밍(slack·arrival·stage delay)은 이미 구 표형식 8 feature로 같은 행에 병기되므로 임베딩이
+  중복 담당할 필요 없음, ② 임베딩은 표형식이 못 담는 *구조* 신호 전담이 설계-불변 표현 가설에
+  더 정합, ③ 코퍼스 설계별 SDC/STA 파이프라인 추가 비용 회피. 타이밍 주석 임베딩은 2차 probe
+  옵션으로 연기.)*
 - **라벨 데이터셋**: 기존 4설계 7194행 자산 재사용. prepare.py가 endpoint별로 구 표형식
   feature와 frozen encoder 임베딩을 **병기** 추출 — 같은 행·같은 라벨에서 표현만 다른
   직접 비교(B0 vs 새 후보)를 가능케 한다.
@@ -152,6 +157,11 @@ CircuitNet 전이는 폐기가 아니라 **2차 probe로 연기** — 본 사이
   시작 차단.
 - 임베딩 NaN/inf는 기존 harness `inf→null` 가드 패턴 재사용.
 - 합성 실패 설계: manifest에 사유 기록 후 제외.
+- **임베딩 병기 coverage fail-fast** *(2026-07-02 amendment, plan 단계 추가)*: prepare v2에서
+  라벨 행의 endpoint ↔ netlist 그래프 매칭률이 **0.95 미만**이면 데이터셋 생성을 중단한다
+  (동일 이미지 재합성인데도 이름 드리프트 → 조용한 행 누락은 데이터 구성의 사후 튜닝 노브가
+  되므로 금지). 매칭 실패·non-finite 임베딩 행은 drop하되 매칭률을 manifest `emb_coverage`로
+  기록해 사후 검사 가능해야 한다.
 
 **테스트**
 - 기존 123 tests 전부 유지(게이트 체인 불변).
