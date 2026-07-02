@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import torch
 
 from pretrain_lib.model import GraphAutoencoder, graph_tensors, recon_loss
@@ -91,6 +93,11 @@ def train_encoder(graphs_by_design, encoder_val_designs, seed=0, max_epochs=200,
             best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
         else:
             since_best += 1
+        print(  # 장시간 학습 가시성 (stderr — stdout JSON 계약 불침범)
+            f"epoch {epoch}/{max_epochs} train={train_curve[-1]:.4f} val={vl:.4f} "
+            f"best={best:.4f} since_best={since_best}",
+            file=sys.stderr, flush=True,
+        )
         if since_best >= patience:  # spec §6.2: patience=10 (호출자가 전달)
             break
     if best_state is not None:
