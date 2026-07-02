@@ -21,6 +21,10 @@ pipeline = [
 ml = [
     "scikit-learn>=1.4",
 ]
+pretrain = [
+    # spec §6 — 사람 소유 사전학습 전용 격리. PyG는 미채택(plan Global Constraints 편차 노트).
+    "torch>=2.3",
+]
 
 # NOTE: 피벗 직후 skeleton 상태. [project.scripts] / wheel package target은
 # src/pipeline·src/sagemaker 구현이 들어오면 구현 plan 단계에서 추가한다.
