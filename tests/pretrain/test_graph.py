@@ -42,3 +42,37 @@ def test_determinism():
 def test_max_nodes_cap():
     graphs = build_endpoint_graphs(_netlist(), max_nodes=2)
     assert len(graphs["_ff1_"].nodes) == 2
+
+
+def test_top_module_prefers_top_attribute():
+    # flatten 후 미참조 모듈 정의가 남아도 yosys top 속성 모듈을 택한다 (microwatt 실측)
+    nl = {
+        "modules": {
+            "leftover": {"ports": {}, "cells": {
+                "_x_": {"type": "sky130_fd_sc_hd__inv_2", "connections": {"A": [2], "Y": [3]}}}},
+            "real_top": {
+                "attributes": {"top": "00000000000000000000000000000001"},
+                "ports": {},
+                "cells": {
+                    "_ff_": {"type": "sky130_fd_sc_hd__dfxtp_1",
+                             "connections": {"D": [4], "Q": [5]}}},
+            },
+        }
+    }
+    graphs = build_endpoint_graphs(nl)
+    assert list(graphs) == ["_ff_"]
+
+
+def test_top_module_ambiguous_without_attribute_raises():
+    nl = {
+        "modules": {
+            "a": {"ports": {}, "cells": {
+                "_x_": {"type": "sky130_fd_sc_hd__inv_2", "connections": {"A": [2], "Y": [3]}}}},
+            "b": {"ports": {}, "cells": {
+                "_y_": {"type": "sky130_fd_sc_hd__inv_2", "connections": {"A": [4], "Y": [5]}}}},
+        }
+    }
+    import pytest
+
+    with pytest.raises(ValueError, match="top"):
+        build_endpoint_graphs(nl)

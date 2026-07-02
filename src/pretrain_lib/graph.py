@@ -31,10 +31,16 @@ def is_ff(cell_norm: str) -> bool:
 
 def _top_module(netlist: dict) -> dict:
     mods = netlist["modules"]
-    # 셀을 가진 모듈이 top (write_json 후 hierarchy -auto-top 전제로 1개).
+    # 1순위: yosys hierarchy -auto-top이 남긴 top 속성 (flatten 후 미참조 정의 잔존 대응).
+    tops = [m for m in mods.values() if m.get("attributes", {}).get("top") and m.get("cells")]
+    if len(tops) == 1:
+        return tops[0]
+    # fallback: 셀을 가진 모듈이 유일하면 그 모듈.
     withcells = [m for m in mods.values() if m.get("cells")]
     if len(withcells) != 1:
-        raise ValueError(f"top 모듈 판별 실패: cells 보유 모듈 {len(withcells)}개")
+        raise ValueError(
+            f"top 모듈 판별 실패: cells 보유 모듈 {len(withcells)}개, top 속성 {len(tops)}개"
+        )
     return withcells[0]
 
 
