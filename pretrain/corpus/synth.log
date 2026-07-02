@@ -1,0 +1,33 @@
+{"design": "aes", "ok": true, "reason": ""}
+{"design": "ibex", "ok": true, "reason": ""}
+{"design": "jpeg", "ok": true, "reason": ""}
+{"design": "riscv32i", "ok": true, "reason": ""}
+{"design": "chameleon", "ok": true, "reason": ""}
+Traceback (most recent call last):
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/pretrain/synth_corpus.py", line 72, in <module>
+    main()
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/.venv/lib/python3.12/site-packages/click/core.py", line 1524, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/.venv/lib/python3.12/site-packages/click/core.py", line 1445, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/.venv/lib/python3.12/site-packages/click/core.py", line 1308, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/.venv/lib/python3.12/site-packages/click/core.py", line 877, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/pretrain/synth_corpus.py", line 63, in main
+    r = synth_one(d, image, Path(out_dir))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/pretrain/synth_corpus.py", line 45, in synth_one
+    n_ep = len(build_endpoint_graphs(json.loads(nl.read_text(encoding="utf-8"))))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/src/pretrain_lib/graph.py", line 98, in build_endpoint_graphs
+    mod = _top_module(netlist)
+          ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/dohyunjung/Workspace/roboco-io/research/semiconductor-design/src/pretrain_lib/graph.py", line 37, in _top_module
+    raise ValueError(f"top 모듈 판별 실패: cells 보유 모듈 {len(withcells)}개")
+ValueError: top 모듈 판별 실패: cells 보유 모듈 51개
+{"design": "microwatt", "ok": true, "reason": ""}
