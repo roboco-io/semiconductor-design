@@ -42,6 +42,31 @@ def _epoch_loss(model, graphs, vocab, rng=None) -> float:
     return total / max(count, 1)
 
 
+def _train_epoch(model, opt, items, vocab, rng, batch_size=64) -> float:
+    """mini-batch 학습 epoch — 배치 평균 loss로 step.
+
+    2026-07-03 재설계: full-batch(epoch당 1 step)가 patience 발동까지 28 step에 그쳐
+    과소학습 → 게이트 기각. 배치 단위 step으로 갱신 횟수를 확보한다(Operator 승인).
+    셔플·마스크 모두 seeded rng — 동일 seed → 동일 곡선(재현성 invariant).
+    """
+    perm = torch.randperm(len(items), generator=rng).tolist()
+    total = 0.0
+    for start in range(0, len(perm), batch_size):
+        idx = perm[start:start + batch_size]
+        opt.zero_grad()
+        batch_loss = None
+        for j in idx:
+            g = items[j]
+            mask = _mask_indices(len(g.nodes), rng)
+            logits, deg = model(g, vocab, mask)
+            loss = recon_loss(logits, deg, g, vocab, mask)
+            batch_loss = loss if batch_loss is None else batch_loss + loss
+            total += float(loss.detach())
+        (batch_loss / len(idx)).backward()
+        opt.step()
+    return total / max(len(perm), 1)
+
+
 def naive_baseline_loss(train_graphs, val_graphs, vocab) -> float:
     """encoder-train 노드 feature 평균(type 빈도분포·degree 평균)으로 일괄 예측한 val loss."""
     freq = torch.zeros(len(vocab))
@@ -66,7 +91,8 @@ def naive_baseline_loss(train_graphs, val_graphs, vocab) -> float:
 
 
 def train_encoder(graphs_by_design, encoder_val_designs, seed=0, max_epochs=200,
-                  patience=10, device="cpu", hidden=64, emb_dim=32, n_layers=3):
+                  patience=10, device="cpu", hidden=64, emb_dim=32, n_layers=3,
+                  batch_size=64):
     torch.manual_seed(seed)
     train_g = {d: g for d, g in graphs_by_design.items() if d not in encoder_val_designs}
     val_g = {d: g for d, g in graphs_by_design.items() if d in encoder_val_designs}
@@ -76,14 +102,13 @@ def train_encoder(graphs_by_design, encoder_val_designs, seed=0, max_epochs=200,
     model.to(device)
     opt = torch.optim.Adam(model.parameters(), lr=1e-3)
     rng = torch.Generator().manual_seed(seed)
+    items = [g for d in sorted(train_g) for _ep, g in sorted(train_g[d].items()) if g.nodes]
 
     best, best_state, since_best = float("inf"), None, 0
     train_curve, val_curve = [], []
     for epoch in range(1, max_epochs + 1):
         model.train()
-        opt.zero_grad()
-        train_curve.append(_epoch_loss(model, train_g, vocab, rng))
-        opt.step()
+        train_curve.append(_train_epoch(model, opt, items, vocab, rng, batch_size=batch_size))
         model.eval()
         with torch.no_grad():
             vl = _epoch_loss(model, val_g, vocab)

@@ -47,3 +47,11 @@ def test_naive_baseline_is_finite():
     vocab = build_vocab(corpus)
     nb = naive_baseline_loss({"d1": corpus["d1"]}, {"dval": corpus["dval"]}, vocab)
     assert nb > 0
+
+
+def test_train_encoder_minibatch_deterministic_same_seed():
+    # mini-batch 전환(2026-07-03) 후에도 동일 seed → 동일 곡선 (재현성 invariant)
+    corpus = _corpus()
+    _, _, ra = train_encoder(corpus, ["dval"], seed=0, max_epochs=3, patience=5, batch_size=1)
+    _, _, rb = train_encoder(corpus, ["dval"], seed=0, max_epochs=3, patience=5, batch_size=1)
+    assert ra["val_curve"] == rb["val_curve"] and len(ra["val_curve"]) == 3
