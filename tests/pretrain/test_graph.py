@@ -76,3 +76,23 @@ def test_top_module_ambiguous_without_attribute_raises():
 
     with pytest.raises(ValueError, match="top"):
         build_endpoint_graphs(nl)
+
+
+def test_multibit_output_port_endpoints_are_per_bit():
+    # STA는 벡터 출력 포트를 비트 단위 endpoint(resp_msg[10])로 낸다 — 라벨 매칭 계약
+    nl = {
+        "modules": {
+            "top": {
+                "attributes": {"top": 1},
+                "ports": {"o2": {"direction": "output", "bits": [5, 6]}},
+                "cells": {
+                    "_a_": {"type": "sky130_fd_sc_hd__inv_2", "connections": {"A": [2], "Y": [5]}},
+                    "_b_": {"type": "sky130_fd_sc_hd__inv_2", "connections": {"A": [3], "Y": [6]}},
+                },
+            }
+        }
+    }
+    graphs = build_endpoint_graphs(nl)
+    assert "o2[0]" in graphs and "o2[1]" in graphs and "o2" not in graphs
+    assert graphs["o2[0]"].nodes[0][0] == "_a_"
+    assert graphs["o2[1]"].nodes[0][0] == "_b_"

@@ -114,10 +114,14 @@ def build_endpoint_graphs(
         port = mod["ports"][pname]
         if port["direction"] != "output":
             continue
-        drivers = sorted({driver_of[b] for b in port["bits"]
-                          if isinstance(b, int) and b in driver_of})
-        if drivers:
-            nodes, edges = _cone(drivers, driver_of, fanin_bits, fanout, cells,
+        # STA는 벡터 포트를 비트 단위 endpoint(name[idx])로 낸다 — 라벨 매칭 계약.
+        bits = port["bits"]
+        multi = len(bits) > 1
+        for i, b in enumerate(bits):
+            if not isinstance(b, int) or b not in driver_of:
+                continue
+            key = f"{pname}[{i}]" if multi else pname
+            nodes, edges = _cone([driver_of[b]], driver_of, fanin_bits, fanout, cells,
                                  max_depth - 1, max_nodes)
-            graphs[pname] = EndpointGraph(pname, nodes, edges)
+            graphs[key] = EndpointGraph(key, nodes, edges)
     return graphs
