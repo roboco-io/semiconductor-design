@@ -136,7 +136,7 @@ CircuitNet 전이는 폐기가 아니라 **2차 probe로 연기** — 본 사이
   - 교차설계 T1: `src/pipeline/validation.py` `run_crossdesign_validation_gate` —
     scheme `repeated_design_lodo`, `repeats=10`(fold 수 = 설계 수 D×10; D=4 → 40 fold),
     `base_seed=0`, `n_boot=10000`, `alpha=0.05`. winner/baseline이 한 fold라도 실패(inf)하면
-    보수적으로 `verdict='worse'`.
+    보수적으로 `verdict_vs_baseline='worse'`.
   - verdict 기준: 같은 파일 `verdict()` — `distinguishable` = Wilcoxon p < 0.05 **AND**
     bootstrap 95% CI 전체 < 0. `worse` = p < 0.05 AND CI 전체 > 0. 그 외 `indistinguishable`.
   - yes → 질적 전환이 벽을 넘음(H-A′ 지지).
