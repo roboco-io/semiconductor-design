@@ -11,6 +11,7 @@ import click
 
 from pipeline import operator_gate
 from pipeline.candidate_gen import generate_candidates
+from pipeline.guard import check_candidate_source, verify_frozen
 from pipeline.promotion_reviewer import review_promotion
 from pipeline.report import render_generation_report
 from pipeline.runner import run_all
@@ -39,14 +40,27 @@ def run_generation(
     lodo_gate_fn=None,
     reviewer_fn=None,
     do_git=True,
+    encoder_path=None,
+    encoder_sha=None,
 ):
+    if encoder_path is not None and encoder_sha is not None:
+        verify_frozen(encoder_path, encoder_sha)  # spec §8: 세대 시작 fail-fast
+
     gdir = Path(out_root) / f"gen-{gen_no:03d}"
     cdir = gdir / "candidates"
     cdir.mkdir(parents=True, exist_ok=True)
     baseline_src = Path(baseline_train_py).read_text(encoding="utf-8")
 
     cands = generate_candidates(baseline_src, program_md, cdir, n, gen_fn)
-    results = run_all(cands, Path(dataset), cdir, seeds=seeds)
+    blocked, runnable = [], []
+    for c in cands:
+        violations = check_candidate_source(Path(c.src_path).read_text(encoding="utf-8"))
+        (blocked if violations else runnable).append((c, violations))
+    results = run_all([c for c, _v in runnable], Path(dataset), cdir, seeds=seeds)
+    # 가드 위반 후보는 실행 없이 무효(inf) — program.md "위반 시 후보 무효" 계약.
+    results += [(c, float("inf"), []) for c, _v in blocked]
+    if encoder_path is not None and encoder_sha is not None:
+        verify_frozen(encoder_path, encoder_sha)  # 후보 subprocess 변조 탐지
     winner, val, ranking = select_winner(results)
 
     with (gdir / "results.tsv").open("w", newline="") as fh:
@@ -183,6 +197,20 @@ def main(gen_no, dataset, n, out_root, program_md, auto):
     from pipeline.sdk import claude_codex_gen_fn  # 실제 CLI 호출(구독 사용량) — Operator 실행 시에만
 
     baseline = Path(__file__).resolve().parents[2] / "train.py"
+
+    manifest_path = Path(dataset).parent / "manifest.json"
+    encoder_path = encoder_sha = None
+    if manifest_path.exists():
+        m = json.loads(manifest_path.read_text())
+        if "encoder_sha" in m:
+            encoder_path = Path(__file__).resolve().parents[2] / "models" / "encoder-v1.pt"
+            encoder_sha = m["encoder_sha"]
+            # spec §8 fail-fast: 임베딩 차원 일치 — dataset 첫 행의 emb_* 개수 == manifest emb_dim
+            first = json.loads(Path(dataset).read_text().splitlines()[0])
+            n_emb = sum(1 for k in first if k.startswith("emb_"))
+            if n_emb != m["emb_dim"]:
+                raise SystemExit(f"임베딩 차원 불일치: dataset {n_emb} != manifest {m['emb_dim']}")
+
     res = run_generation(
         gen_no,
         dataset,
@@ -192,6 +220,8 @@ def main(gen_no, dataset, n, out_root, program_md, auto):
         claude_codex_gen_fn,
         out_root,
         auto=auto,
+        encoder_path=encoder_path,
+        encoder_sha=encoder_sha,
     )
     click.echo(json.dumps(res, indent=2))
     if auto:
