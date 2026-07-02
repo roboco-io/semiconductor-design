@@ -41,6 +41,16 @@ def test_masked_recon_loss_decreases():
         loss = recon_loss(logits, deg, g, VOCAB, mask_idx)
         loss.backward()
         opt.step()
-        first = first if first is not None else float(loss)
-        last = float(loss)
+        lv = float(loss.detach())
+        first = first if first is not None else lv
+        last = lv
     assert last < first
+
+
+def test_recon_loss_uses_logits_device():
+    torch.manual_seed(0)
+    m = GraphAutoencoder(vocab_size=len(VOCAB), hidden=32, emb_dim=16, n_layers=2)
+    g = _graph()
+    logits, deg = m(g, VOCAB, [1])
+    loss = recon_loss(logits, deg, g, VOCAB, [1])
+    assert loss.device == logits.device and torch.isfinite(loss)

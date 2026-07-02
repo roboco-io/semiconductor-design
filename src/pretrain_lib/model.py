@@ -66,6 +66,8 @@ class GraphAutoencoder(nn.Module):
 
 def recon_loss(logits, deg_pred, g: EndpointGraph, vocab, mask_idx) -> torch.Tensor:
     type_ids, numeric, _ = graph_tensors(g, vocab)
+    type_ids = type_ids.to(logits.device)
+    numeric = numeric.to(deg_pred.device)
     ce = nn.functional.cross_entropy(logits, type_ids[list(mask_idx)])
     mse = nn.functional.mse_loss(deg_pred, numeric[:, :2])
     return ce + 0.1 * mse
