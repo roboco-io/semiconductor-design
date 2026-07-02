@@ -53,3 +53,29 @@ def test_combine_rejects_duplicate_group_key(tmp_path):
     b = _jsonl(tmp_path, "b.jsonl", [_row("gcd", 1)])
     with pytest.raises(ValueError):
         combine_datasets([a, b])
+
+
+def _row_emb(gk, i, dims=(0, 1)):
+    return {**_row(gk, i), **{f"emb_{d:02d}": 0.5 for d in dims}}
+
+
+def test_combine_accepts_uniform_emb_keys(tmp_path):
+    a = _jsonl(tmp_path, "a.jsonl", [_row_emb("gcd", 0), _row_emb("gcd", 1)])
+    b = _jsonl(tmp_path, "b.jsonl", [_row_emb("aes", 0)])
+    rows = combine_datasets([a, b])
+    assert len(rows) == 3 and all("emb_00" in r and "emb_01" in r for r in rows)
+
+
+def test_combine_rejects_mismatched_emb_dims(tmp_path):
+    a = _jsonl(tmp_path, "a.jsonl", [_row_emb("gcd", 0, dims=(0,))])
+    b = _jsonl(tmp_path, "b.jsonl", [_row_emb("aes", 0, dims=(0, 1))])
+    with pytest.raises(ValueError, match="emb"):
+        combine_datasets([a, b])
+
+
+def test_combine_rejects_non_emb_extra_key(tmp_path):
+    bad_row = {**_row("aes", 0), "sneaky": 1.0}
+    a = _jsonl(tmp_path, "a.jsonl", [_row("gcd", 0)])
+    b = _jsonl(tmp_path, "b.jsonl", [bad_row])
+    with pytest.raises(ValueError, match="스키마"):
+        combine_datasets([a, b])

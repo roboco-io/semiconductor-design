@@ -25,8 +25,23 @@ from prepare_lib.dataset import build_dataset, write_dataset  # noqa: E402
 @click.option("--lockfile", required=True, type=click.Path(exists=True), help="flow lockfile (sha 앵커)")
 @click.option("--design-id", required=True, help="source design 식별자")
 @click.option("--out-dir", required=True, type=click.Path(), help="dataset.jsonl + manifest.json 출력 디렉터리")
-def main(synth: str, route: str, lockfile: str, design_id: str, out_dir: str) -> None:
-    rows, manifest = build_dataset(synth, route, lockfile, design_id)
+@click.option("--netlist", type=click.Path(exists=True), default=None, help="netlist.json (v2: 임베딩 병기)")
+@click.option("--encoder", type=click.Path(exists=True), default=None, help="frozen encoder .pt (v2)")
+@click.option("--corpus-manifest", type=click.Path(exists=True), default=None,
+              help="corpus_manifest.yaml (v2 sha 앵커)")
+def main(synth: str, route: str, lockfile: str, design_id: str, out_dir: str,
+         netlist: str | None, encoder: str | None, corpus_manifest: str | None) -> None:
+    v2_opts = (netlist, encoder, corpus_manifest)
+    if any(v2_opts) and not all(v2_opts):
+        raise click.UsageError("--netlist/--encoder/--corpus-manifest는 셋 다 필요 (v2 모드)")
+    if all(v2_opts):
+        from prepare_lib.dataset import build_dataset_v2
+
+        rows, manifest = build_dataset_v2(
+            synth, route, lockfile, design_id, netlist, encoder, corpus_manifest
+        )
+    else:
+        rows, manifest = build_dataset(synth, route, lockfile, design_id)
     write_dataset(rows, manifest, out_dir)
     click.echo(f"{manifest['n_samples']} samples → {out_dir} (sha {manifest['flow_lockfile_sha'][:12]})")
 

@@ -37,6 +37,49 @@ def build_dataset(
     return rows, manifest
 
 
+def build_dataset_v2(
+    synth_report: str | Path,
+    route_report: str | Path,
+    lockfile: str | Path,
+    design_id: str,
+    netlist_json: str | Path,
+    encoder_path: str | Path,
+    corpus_manifest_path: str | Path,
+    min_coverage: float = 0.95,  # spec §8 amendment 복사 인용 — 재정의 금지
+) -> tuple[list[dict], dict]:
+    """v1 행에 frozen encoder 임베딩을 병기 — 같은 행·같은 라벨에서 표현만 다른 비교 (spec §5)."""
+    import math
+
+    from pretrain_lib.embed import embed_endpoints, load_encoder, sha256_file
+
+    rows, manifest = build_dataset(synth_report, route_report, lockfile, design_id)
+    model, vocab, config = load_encoder(encoder_path)
+    embs = embed_endpoints(
+        json.loads(Path(netlist_json).read_text(encoding="utf-8")), model, vocab, config
+    )
+    matched = []
+    for r in rows:
+        e = embs.get(r["endpoint"])
+        # spec §8 NaN/inf 가드 — non-finite 임베딩 endpoint는 미매칭과 동일하게 drop(coverage 반영)
+        if e is None or not all(math.isfinite(v) for v in e):
+            continue
+        matched.append({**r, **{f"emb_{i:02d}": v for i, v in enumerate(e)}})
+    coverage = len(matched) / len(rows) if rows else 0.0
+    if coverage < min_coverage:
+        raise ValueError(
+            f"emb coverage {coverage:.3f} < {min_coverage} — netlist/STA endpoint 이름 불일치 의심"
+        )
+    manifest = {
+        **manifest,
+        "n_samples": len(matched),
+        "emb_dim": config["emb_dim"],
+        "emb_coverage": round(coverage, 4),
+        "encoder_sha": sha256_file(encoder_path),
+        "corpus_manifest_sha": sha256_file(corpus_manifest_path),
+    }
+    return matched, manifest
+
+
 def write_dataset(rows: list[dict], manifest: dict, out_dir: str | Path) -> None:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 _KEYS = frozenset(
@@ -27,17 +28,27 @@ _KEYS = frozenset(
 )
 
 
+_EMB_RE = re.compile(r"^emb_\d{2}$")
+
+
 def combine_datasets(paths: list[Path]) -> list[dict]:
-    """여러 설계 dataset.jsonl을 입력 순서대로 concat. 스키마·group_key 분리 검증."""
+    """여러 설계 dataset.jsonl을 입력 순서대로 concat. 스키마·group_key 분리·emb 키 일치 검증."""
     out, seen_groups = [], set()
+    emb_keys: frozenset[str] | None = None  # 첫 파일 기준 — 설계 간 emb_dim 불일치 차단
     for path in paths:
         rows = [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
         if not rows:
             raise ValueError(f"빈 dataset: {path}")
         file_groups = {r.get("group_key") for r in rows}
         for r in rows:
-            if frozenset(r.keys()) != _KEYS:
+            keys = frozenset(r.keys())
+            extra = keys - _KEYS
+            if not _KEYS <= keys or any(not _EMB_RE.match(k) for k in extra):
                 raise ValueError(f"스키마 불일치 {path}: {sorted(r.keys())}")
+            if emb_keys is None:
+                emb_keys = frozenset(extra)
+            elif frozenset(extra) != emb_keys:
+                raise ValueError(f"emb 키 불일치 {path}: {sorted(extra)}")
         if len(file_groups) != 1:
             raise ValueError(f"한 파일은 단일 설계여야 함 {path}: {file_groups}")
         g = next(iter(file_groups))
