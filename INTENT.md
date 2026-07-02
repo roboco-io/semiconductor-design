@@ -59,7 +59,7 @@
 **기술 제약**:
 - Python 3.12, uv. ruff 100 char, target-version py312.
 - 에이전트는 `train.py` 단일 파일만 변형, 신규 의존성 *설치* 금지(허용 import 목록에 사전 설치된 torch 추가 — 2026-07-02 v2), 고정 학습 예산 (AutoResearch 제약 계승).
-- 사전학습 의존성(PyTorch+PyG)은 `pyproject.toml` optional-deps `pretrain` 그룹으로 격리 — 사람 소유 사전학습 전용, 루프 기본 환경 오염 금지. *(2026-07-02 v2.)*
+- 사전학습 의존성(PyTorch — PyG 미채택, plan 편차 기록)은 `pyproject.toml` optional-deps `pretrain` 그룹으로 격리 — 사람 소유 사전학습 전용, 루프 기본 환경 오염 금지. *(2026-07-02 v2.)*
 - Direct commit to `main` (현재 워크플로).
 
 **범위 밖**:
