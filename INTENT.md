@@ -1,8 +1,8 @@
 # INTENT — semiconductor-design (AutoResearch for EDA Surrogate Models)
 
 > status: exploring  (2026-06-08 재피벗: Operator authority → 비전문가 empowerment + 이해가능성)
-> created: 2026-05-10 · pivoted: 2026-05-29 · 시스템 빌드+gen-001 실증: 2026-06-06 · 재피벗: 2026-06-08
-> 설계: [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md) · [`PRD.md`](PRD.md)
+> created: 2026-05-10 · pivoted: 2026-05-29 · 시스템 빌드+gen-001 실증: 2026-06-06 · 재피벗: 2026-06-08 · v2 표현 재설계: 2026-07-02
+> 설계: [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md) · [v2: `2026-07-02-frozen-encoder-representation-redesign-design.md`](docs/superpowers/specs/2026-07-02-frozen-encoder-representation-redesign-design.md) · [`PRD.md`](PRD.md)
 > 이전 의도(통합 프로그램 3-layer, clarified)는 `archive/integrated-program-3layer` 브랜치에 보존.
 
 ## Why
@@ -32,6 +32,7 @@
 - [x] **자율 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → **객관적 자동 게이트로 자동 승격** → git tag(`gen-NNN-best`). per-winner 사람 승인 없음. *(gen-001~008 실행.)*
 - [x] **자동 품질 게이트**: 자율 승격을 신뢰가능하게 만드는 4단 권력분립(median → LODO → 교차설계 T1 → Codex). *맹목적 자율* 방지의 핵심 — 전 단계 통과만 승격. *(gen-002~006 거치며 스스로 진화.)*
 - [x] **방향·이해 인터페이스**: Operator는 `program.md`로 *방향*을 잡고, **튜토리얼식 리포트로 큰 흐름을 이해**한다. (개입은 방향 수준, per-winner 아님.) *(세대별 `experiments/gen-NNN/README.md`.)*
+- [ ] **(v2) frozen encoder 표현 층**(`pretrain/`): ORFS sky130 ~20설계 합성-only 코퍼스 → self-supervised graph autoencoder 사전학습 → `models/encoder-v1.pt`(SHA 앵커, 사람 1회 학습 후 frozen). 루프는 (구 표형식 feature ‖ 임베딩) 위 head만 탐색. 채택은 spec의 사전 고정 게이트(재구성·붕괴 진단·선형 probe) 통과 시. 판정 질문: 새 winner가 교차설계 T1에서 **B0 대비 `distinguishable`** 인가 — yes/no 어느 쪽이든 판정 자체가 산출물. *(2026-07-02 v2 spec.)*
 - [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 이해가능성을 강화하는 2차 세대.
 
 **사용자 흐름**:
@@ -53,10 +54,12 @@
 - 상용 EDA 도구. 오픈소스만 (OpenROAD/Yosys 등).
 - functional correctness를 surrogate 예측으로 주장 (surrogate는 근사 예측).
 - `prepare.py`(데이터·평가 프로토콜) 변경을 에이전트에 허용 (frozen environment — 공정 비교 보장).
+- **encoder frozen — 에이전트 변형 금지**: `models/encoder-v1.pt` 가중치 변경·재학습(unfreeze)을 에이전트에 허용 금지. prepare.py와 같은 frozen 자산(공정 비교 보장의 경계 확장). encoder 교체는 세대 내 변형이 아니라 새 사이클(v2, v3…). *(2026-07-02 v2.)*
 
 **기술 제약**:
 - Python 3.12, uv. ruff 100 char, target-version py312.
-- 에이전트는 `train.py` 단일 파일만 변형, 신규 의존성 금지, 고정 학습 예산 (AutoResearch 제약 계승).
+- 에이전트는 `train.py` 단일 파일만 변형, 신규 의존성 *설치* 금지(허용 import 목록에 사전 설치된 torch 추가 — 2026-07-02 v2), 고정 학습 예산 (AutoResearch 제약 계승).
+- 사전학습 의존성(PyTorch+PyG)은 `pyproject.toml` optional-deps `pretrain` 그룹으로 격리 — 사람 소유 사전학습 전용, 루프 기본 환경 오염 금지. *(2026-07-02 v2.)*
 - Direct commit to `main` (현재 워크플로).
 
 **범위 밖**:
@@ -81,6 +84,24 @@
 - (연기) reasoning trace 복원 가능.
 
 ## Learnings
+
+- **2026-07-02** (surrogate v2 — frozen encoder 표현 재설계 spec 확정) — 7세대 연속
+  `indistinguishable`의 "벽"에 대한 질적 전환 실행 설계를 브레인스토밍(Q&A 6문항) → grounded 조사 →
+  Codex 검토 게이트(block 4건 반영 후 approve)로 확정
+  ([spec](docs/superpowers/specs/2026-07-02-frozen-encoder-representation-redesign-design.md)).
+  **(1) grounded 조사가 당초 결정을 반증**: 브레인스토밍서 택한 "CircuitNet 2.0 하이브리드"가
+  조사 결과 라벨 불일치(net delay ≠ endpoint slack)·단면 불일치(post-placement ≠ 합성 직후)·
+  도메인 갭 미검증(AdaTimer가 naive 전이 실패 실증)으로 기각 → **자가생성 self-supervised graph
+  autoencoder 사전학습**(PreRoutGNN 근거)으로 수정 — "지식 기반 우선" 원칙이 설계 오류를 착수 전에
+  잡은 사례. **(2) frozen 경계의 확장**: prepare.py에 더해 encoder(사람 1회 학습, SHA 앵커)도
+  frozen 자산 — 루프는 head만 탐색, 공정 비교 보장 논리 동일. **(3) 판정 지향 성공 정의**:
+  사전 고정 게이트로 "새 winner가 B0 대비 교차설계 T1 `distinguishable`인가"를 판정 — yes면 질적
+  전환이 벽을 넘음(H-A′ 지지), no면 "표현 전환으로도 못 넘는 벽"이라는 더 강한 negative result.
+  어느 쪽이든 성공(2026-06-24 negative-result 프레이밍의 직접 연장). **(4) 리포 유지 + 무손실 보존**:
+  main은 삭제가 아니라 증축(v1 기록이 B0 비교 대상), 재설계 직전 상태는
+  `archive/surrogate-v1-8gen` 브랜치로 보존. **co-evolution**: "발견으로의 수렴"(2026-06-24)이
+  다음 사이클의 실험 설계 자체를 판정 지향으로 변형 — 의도의 성공 정의 재정의가 spec 구조
+  (§7 판정 질문 사전 고정)로 물질화. status `exploring` 유지.
 
 - **2026-06-24** (프레이밍 확정 — '달성'을 H-A positive에서 negative result로 재정의) — 리뷰 결과
   gen-002~008 **7세대 연속 reject**로 교차설계 H-A는 미달이나, 이는 본 프로젝트의 진단(in-loop
