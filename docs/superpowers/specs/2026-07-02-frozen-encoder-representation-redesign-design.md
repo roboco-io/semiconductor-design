@@ -71,16 +71,22 @@ CircuitNet 전이는 폐기가 아니라 **2차 probe로 연기** — 본 사이
 
 ## 5. 데이터 파이프라인
 
-- **코퍼스**: ORFS 동봉 sky130 호환 설계 목록(plan 단계에서 ORFS 리포 조사로 확정, 목표 ~20개)을
-  Yosys 합성까지만 실행. 합성 실패 설계는 제외하되 **목록·사유를 코퍼스 manifest에 기록**
-  (조용한 누락 금지).
+- **코퍼스 manifest 선커밋 (사전 고정)**: encoder 학습·probe 실행 **전에**
+  `pretrain/corpus_manifest.yaml`을 커밋한다 — ① 설계 목록(ORFS 동봉 sky130 호환 설계,
+  목표 ~20개; 목록 확정은 plan 단계의 ORFS 리포 조사로 하되 *확정본이 먼저 커밋*되어야 학습 시작
+  가능), ② encoder-val 설계 지정(§6), ③ 제외 규칙. 제외 규칙은 다음 둘로 사전 고정:
+  (a) Yosys 합성 exit code ≠ 0, (b) 추출 endpoint 수 < 10. 그 외 사유의 사후 임의 제외 금지 —
+  코퍼스 구성이 사후 튜닝 노브가 되는 것을 차단한다. 제외 발생 시 manifest에 사유를 append해
+  커밋(조용한 누락 금지).
 - **그래프 변환**: netlist → endpoint 중심 그래프(셀 타입, 팬인/팬아웃 연결, 타이밍 아크 통계).
   결정성 보장: 동일 netlist → 동일 그래프 (테스트로 강제).
 - **라벨 데이터셋**: 기존 4설계 7194행 자산 재사용. prepare.py가 endpoint별로 구 표형식
   feature와 frozen encoder 임베딩을 **병기** 추출 — 같은 행·같은 라벨에서 표현만 다른
   직접 비교(B0 vs 새 후보)를 가능케 한다.
-- **재현성 앵커**: `DATASET`에 `encoder_sha`·`corpus_manifest` 속성 추가(신규 엔티티 없음,
-  PRD §4 경량 확장). 코퍼스 설계 목록 + 합성 lockfile SHA + encoder 가중치 SHA 기록.
+- **재현성 앵커**: `DATASET` 엔티티(PRD **§7 데이터 모델**의 속성 표: id, source_design,
+  feature_set, label_metric, s3_uri, flow_lockfile_sha)에 두 필드를 추가한다 —
+  `encoder_sha`(models/encoder-v1.pt의 SHA-256), `corpus_manifest_sha`(corpus_manifest.yaml의
+  SHA-256). 신규 엔티티 없음(경량 확장).
 
 ## 6. Encoder 사전학습
 
@@ -89,12 +95,23 @@ CircuitNet 전이는 폐기가 아니라 **2차 probe로 연기** — 본 사이
 - **의존성**: PyTorch(+PyG)를 `pyproject.toml` optional-deps 그룹 `pretrain`으로 격리 추가.
 - **컴퓨트**: 로컬 Mac(MPS) 우선(비용 0). 부족 시에만 SageMaker Spot GPU 1회 —
   실 과금이므로 실행 전 Operator 동의(기존 D4 비용 게이트 관례).
-- **encoder 채택 게이트 (사전 고정, 학습 전 커밋)**:
-  1. reconstruction loss 수렴(발산·붕괴 없음).
-  2. **선형 probe**: 라벨 4설계 데이터셋에서 "임베딩만 → 선형 회귀"의 5-seed median val MAE가
-     "구 표형식 feature만 → 선형 회귀"의 동일 프로토콜 값 **이하**일 것
-     (split·seed 프로토콜은 기존 harness 것을 복사 인용 — 재정의 금지).
-  - 미달 시 encoder를 루프에 투입하지 않고 사전학습 단계에서 반복/중단 판단.
+- **encoder 채택 게이트 (사전 고정 — 본 spec이 임계값의 single source, 학습 전 커밋)**:
+  1. **코퍼스 분리**: corpus_manifest.yaml이 지정한 encoder-val 설계 2개는 사전학습에서 제외하고
+     검증 전용으로 사용(설계 단위 분리 — 라벨 4설계와도 겹치지 않아야 함).
+  2. **reconstruction 수렴**: encoder-val loss가 10 epoch 연속 개선 없으면(patience=10) 학습 종료.
+     채택 조건: 최종 encoder-val reconstruction loss < **naive 상수 재구성 baseline**(encoder-train
+     노드 feature 평균으로 일괄 예측했을 때의 loss). 미달 = 기각.
+  3. **붕괴 진단**: encoder-val 임베딩에서 ① 차원별 표준편차의 중앙값 > 1e-6, ② 무작위 endpoint
+     쌍 1000개의 평균 pairwise cosine similarity < 0.99. 하나라도 위반 = 기각(모든 입력이 같은
+     벡터로 붕괴하는 trivial 해 차단).
+  4. **선형 probe**: 라벨 4설계 데이터셋에서 "임베딩만 → 선형 회귀"의 **5-seed(0,1,2,3,4) median
+     val MAE**가 "구 표형식 feature만 → 선형 회귀"의 동일 프로토콜 값 **이하**일 것. seed 집합은
+     기존 harness의 평가 seed(`src/pipeline/runner.py` `run_candidate_multiseed` 기본값
+     `(0,1,2,3,4)`)를 그대로 사용하고, split은 train.py 계약의 seed 기반 내부 split 방식을 따른다
+     (복사 인용 — 재정의 금지).
+  5. **판정 artifact 커밋**: loss curve·진단 수치·probe 결과를 `models/encoder-v1.report.json`으로
+     커밋 — 판정 근거가 사후 검사 가능해야 한다.
+  - 1–4 중 하나라도 미달이면 encoder를 루프에 투입하지 않는다(사전학습 반복/중단은 Operator 결정).
 - **버전 관리**: `models/encoder-v1.pt` + SHA. encoder 교체는 세대 내 변형이 아니라
   **새 사이클(v2, v3…)** — 세대 간 비교 가능성 보존.
 
@@ -110,9 +127,18 @@ CircuitNet 전이는 폐기가 아니라 **2차 probe로 연기** — 본 사이
   - **B0 (역사 baseline)** — 현행 표형식 baseline(gen-001 promoted winner; gen-002~008 무승격으로
     유지). "벽" 그 자체.
   - **B1 (새 표현 naive)** — 임베딩 + 사람이 1회 작성한 단순 head. 임베딩 기본 기여도 측정.
-- **판정 질문 (사전 고정)**: 새 루프 winner가 교차설계 T1(repeated leave-one-design-out,
-  기존 게이트 코드의 fold 스킴·verdict 기준을 그대로 사용 — 복사 인용, 재정의 금지)에서
-  **B0 대비 `distinguishable`** 인가.
+- **판정 질문 (사전 고정)**: 새 루프 winner가 교차설계 T1에서 **B0 대비 `distinguishable`** 인가.
+  게이트 프로토콜은 기존 코드가 single source이며 본 spec은 **복사 인용만** 한다(재정의 금지):
+  - median 선발: 후보별 5-seed `(0,1,2,3,4)` median val_mae 최저
+    (`src/pipeline/runner.py` `run_candidate_multiseed`/`run_all` 기본값).
+  - LODO probe: `src/pipeline/validation.py` `run_crossdesign_gate` — 방향성 probe,
+    `n_valid < n_designs`면 orchestrator가 `rejected_lodo`로 차단.
+  - 교차설계 T1: `src/pipeline/validation.py` `run_crossdesign_validation_gate` —
+    scheme `repeated_design_lodo`, `repeats=10`(fold 수 = 설계 수 D×10; D=4 → 40 fold),
+    `base_seed=0`, `n_boot=10000`, `alpha=0.05`. winner/baseline이 한 fold라도 실패(inf)하면
+    보수적으로 `verdict='worse'`.
+  - verdict 기준: 같은 파일 `verdict()` — `distinguishable` = Wilcoxon p < 0.05 **AND**
+    bootstrap 95% CI 전체 < 0. `worse` = p < 0.05 AND CI 전체 > 0. 그 외 `indistinguishable`.
   - yes → 질적 전환이 벽을 넘음(H-A′ 지지).
   - no → "표현 전환으로도 못 넘는 벽" — 더 강한 negative result.
   - 어느 쪽이든 판정 지향 성공 기준 충족. B1 대비 결과는 보조 진단(임베딩 vs head 기여 분리).
