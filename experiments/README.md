@@ -36,3 +36,4 @@ process novelty(reasoning trace·decision·finding)의 부착점.
 | [gen-006](gen-006/README.md) | LODO 통과↔혼합 T1 충돌 → T1을 교차설계로 수정 | 미승격(rejected_t1) |
 | [gen-007](gen-007/README.md) | LODO(방향성)와 교차설계 T1(통계 유의)의 역할 분담 | 미승격(rejected_t1) |
 | [gen-008](gen-008/README.md) | 4설계(+jpeg)에서도 "val_mae 개선 ≠ 일반화 우위" 확정 | 미승격(rejected_t1) |
+| [v2-encoder-gate](v2-encoder-gate/README.md) | v2 frozen encoder 사전학습 2회 — 선형 probe 사전 고정 기준 미달 | 기각(encoder 미채택, negative result) |
