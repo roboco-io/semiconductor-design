@@ -29,7 +29,7 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
 - 모델 종류: sklearn 내 교체 (HistGradientBoostingRegressor / RandomForest / ExtraTrees /
   GradientBoosting / MLPRegressor 등).
 - 하이퍼파라미터, feature 엔지니어링/선택/인코딩, train/val split 전략.
-- 임베딩 활용 전략: emb_* 컬럼 선택·결합·차원 축소, torch 기반 head(MLP 등) 자유.
+- (v2 활성 시) 임베딩 활용 전략: emb_* 컬럼 선택·결합·차원 축소, torch 기반 head(MLP 등) 자유.
 
 ## 절대 제약 (위반 시 후보 무효)
 - `train.py` **단일 파일**만. 신규 의존성 *설치* 금지 — `sklearn`, `numpy`, `joblib`, `click`,
@@ -38,7 +38,7 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
 - CLI `--data`/`--out`/`--seed` 시그니처 불변. 8 FEATURE_NAMES 불변.
 - 고정 CPU 학습 예산 (분 단위). GPU 금지. torch는 CPU 한정 허용.
 - **frozen encoder 접근 금지**: models/encoder-v1.pt·pretrain/ 참조 시 후보 즉시 무효(가드가 실행 전
-  차단). 임베딩은 이미 dataset에 있다 — encoder를 다시 부를 이유가 없다.
+  차단). (v2 활성 시) 임베딩은 이미 dataset에 있다 — encoder를 다시 부를 이유가 없다.
 
 ## 전략 힌트
 - conservative: baseline에 가까운 소폭 튜닝.
