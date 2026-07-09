@@ -21,7 +21,7 @@ dataset은 **다설계 혼합**일 수 있다(`group_key`로 설계 구분). 그
 **설계-분리**(GroupShuffleSplit)라 `val_mae`는 *학습에서 안 본 설계*에 대한 예측 성능 — 즉 selection
 지표 자체가 교차설계 일반화를 측정한다. 승격 전 별도 LODO 게이트가 일반화 후퇴를 한 번 더 차단한다.
 
-**v2 (2026-07-02~)**: 각 행에 frozen encoder 임베딩 `emb_00`…`emb_31`(32차원 float)이 병기된다.
+**v2 (보류 — 2026-07-10 encoder 채택 게이트 기각)**: encoder가 사전 고정 게이트를 통과하면 각 행에 frozen encoder 임베딩 `emb_00`…`emb_31`(32차원 float)이 병기된다. 현재 encoder-v1은 선형 probe 미달로 기각 — 임베딩 컬럼 없는 v1 dataset이 유효 계약이다(`experiments/v2-encoder-gate/README.md`).
 임베딩은 합성 netlist의 endpoint 중심 그래프를 self-supervised graph autoencoder로 인코딩한 것 —
 설계-불변 구조 신호를 담으려는 시도다. 활용(그대로/선택/결합/무시)은 전적으로 너의 선택.
 

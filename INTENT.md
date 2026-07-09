@@ -32,7 +32,7 @@
 - [x] **자율 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → **객관적 자동 게이트로 자동 승격** → git tag(`gen-NNN-best`). per-winner 사람 승인 없음. *(gen-001~008 실행.)*
 - [x] **자동 품질 게이트**: 자율 승격을 신뢰가능하게 만드는 4단 권력분립(median → LODO → 교차설계 T1 → Codex). *맹목적 자율* 방지의 핵심 — 전 단계 통과만 승격. *(gen-002~006 거치며 스스로 진화.)*
 - [x] **방향·이해 인터페이스**: Operator는 `program.md`로 *방향*을 잡고, **튜토리얼식 리포트로 큰 흐름을 이해**한다. (개입은 방향 수준, per-winner 아님.) *(세대별 `experiments/gen-NNN/README.md`.)*
-- [ ] **(v2) frozen encoder 표현 층**(`pretrain/`): ORFS sky130 ~20설계 합성-only 코퍼스 → self-supervised graph autoencoder 사전학습 → `models/encoder-v1.pt`(SHA 앵커, 사람 1회 학습 후 frozen). 루프는 (구 표형식 feature ‖ 임베딩) 위 head만 탐색. 채택은 spec의 사전 고정 게이트(재구성·붕괴 진단·선형 probe) 통과 시. 판정 질문: 새 winner가 교차설계 T1에서 **B0 대비 `distinguishable`** 인가 — yes/no 어느 쪽이든 판정 자체가 산출물. *(2026-07-02 v2 spec.)*
+- [ ] **(v2) frozen encoder 표현 층**(`pretrain/`): ORFS sky130 ~20설계 합성-only 코퍼스 → self-supervised graph autoencoder 사전학습 → `models/encoder-v1.pt`(SHA 앵커, 사람 1회 학습 후 frozen). 루프는 (구 표형식 feature ‖ 임베딩) 위 head만 탐색. 채택은 spec의 사전 고정 게이트(재구성·붕괴 진단·선형 probe) 통과 시. 판정 질문: 새 winner가 교차설계 T1에서 **B0 대비 `distinguishable`** 인가 — yes/no 어느 쪽이든 판정 자체가 산출물. *(2026-07-02 v2 spec.)* **→ 2026-07-10 채택 게이트 2회 기각으로 미충족 종결(Learnings) — 코드·코퍼스·게이트 인프라는 완비, encoder만 미채택. 재도전은 새 spec(ablation형 probe)으로.**
 - [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 이해가능성을 강화하는 2차 세대.
 
 **사용자 흐름**:
@@ -84,6 +84,22 @@
 - (연기) reasoning trace 복원 가능.
 
 ## Learnings
+
+- **2026-07-10** (v2 encoder 채택 게이트 2회 기각 — 사전 고정 기준이 표현 한계를 노출, 사이클 종결) —
+  7설계 코퍼스(18,804 endpoints, 제외 0건)로 graph autoencoder를 2회 사전학습(1차 full-batch,
+  2차 mini-batch — Operator 승인 수정)했으나 **선형 probe 게이트(§6.4) 미달로 모두 기각**
+  (임베딩만 MAE 1.229→1.157 vs 표형식만 0.418; 재구성·붕괴 진단은 2회 모두 통과).
+  **(1) 게이트 정상 작동의 실증**: 결과를 본 뒤 기준을 만지지 않고 기각을 수용 — "약한 표현의
+  루프 투입"을 세대 예산 소모 전에 차단. 근거 artifact(`models/encoder-v1.report.json`) 커밋으로
+  사후 검사 가능. **(2) 발견**: 라벨(post-route slack)과 준직결인 `synth_slack_ns`가 표형식에
+  있는 한, *구조-only* 임베딩이 "임베딩만 ≤ 표형식만" 선형 비교를 이기는 것은 구조적으로 어렵다
+  — spec §5 amendment(타이밍 제외)와 §6.4 기준의 조합이 만든 예정된 긴장이며, 올바른 다음 질문은
+  단독 성능이 아니라 **한계 효용(표형식+임베딩 ≥ 표형식 단독)**이다. 단 기준 변경은 새 spec의
+  사전 고정으로만(사후 튜닝 금지). **(3) 운영 학습**: full-batch(epoch당 1 step)는 patience까지
+  28 step — 코퍼스 규모와 무관하게 과소학습(Task 5 리뷰가 예고). 실측 마찰 3건(1_2_yosys.v 경로·
+  keep_hierarchy flatten·**출력 포트 per-bit endpoint 명명** — coverage 0.70→1.00)은 전부 합성
+  fixture로는 못 잡는 종류였다. **co-evolution**: encoder 기각으로 What의 v2 층은 미충족으로
+  남고, 다음 사이클(ablation형 probe)은 brainstorming→Codex 게이트부터 다시. status `exploring` 유지.
 
 - **2026-07-02** (surrogate v2 — frozen encoder 표현 재설계 spec 확정) — 7세대 연속
   `indistinguishable`의 "벽"에 대한 질적 전환 실행 설계를 브레인스토밍(Q&A 6문항) → grounded 조사 →

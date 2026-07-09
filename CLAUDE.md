@@ -60,7 +60,7 @@ Researcher/Developer 역할은 에이전트가 수행하고, **winner 승격은 
 | `prepare.py` 구현 | EDA flow 1회 → feature+label 데이터셋 (frozen, 사람 유지) | ✅ v1 + v2(임베딩 병기) 구현 |
 | `train.py` 구현 | surrogate 학습 (에이전트 변형 단일 파일) | ✅ gen-001 promoted winner = B0 |
 | 진화 루프 (src/pipeline) | orchestrator · candidate_gen · runner · selection · validation · guard | ✅ gen-001~008 실행 |
-| pretrain/ encoder 층 (v2) | 코퍼스 manifest·graph AE·채택 게이트·v2 dataset | ✅ 코드 완료 (Task 1~12) / ⏳ 실행(코퍼스·학습·판정) 대기 |
+| pretrain/ encoder 층 (v2) | 코퍼스 manifest·graph AE·채택 게이트·v2 dataset | ✅ 코드·코퍼스 완비 / ❌ encoder 2회 기각(선형 probe, 2026-07-10) — negative result 종결, 루프는 v1 dataset 유지 |
 | (연기) reasoning trace | reasoning_trace·decision·finding 증거 평면 | 2차 세대 |
 
 ## Commands
