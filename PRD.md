@@ -1,5 +1,12 @@
 # PRD — AutoResearch 기반 EDA Surrogate 모델 자동 연구
 
+> ⚠️ **2026-07-13 피벗 — 본 PRD는 사례 연구 1(EDA surrogate) 기록으로 지위 변경**: 프로젝트
+> 헤드라인은 **"자율 에이전트 산출물 자동 승격 거버넌스의 도메인-불문 일반성 실증"**으로 이동
+> ([spec](docs/superpowers/specs/2026-07-13-agent-promotion-governance-pivot-design.md) ·
+> [INTENT.md](INTENT.md) Learnings 2026-07-13). §4의 4-엔티티 ERD와 리포 구조 원칙은 도메인-중립이라
+> 새 사이클(도메인 A: `domains/algo-opt/`)에도 유효하며, DATASET 개념은 "도메인 벤치 스위트"로
+> 일반화해 읽는다. 본문의 EDA-특정 요구·surrogate 서술은 완결된 사례 연구 1의 맥락으로 읽을 것.
+
 > status: draft (2026-06-04, INTENT 기반 재작성) · 결정 수준: **요구사항 레벨** (기술 결정 3종은 §10 Open Decisions로 격리)
 > 근거: [`INTENT.md`](INTENT.md) (status: exploring) — 본 PRD의 모든 요구는 INTENT `Why·What·Not`에서 파생.
 >

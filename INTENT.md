@@ -1,89 +1,108 @@
-# INTENT — semiconductor-design (AutoResearch for EDA Surrogate Models)
+# INTENT — 자율 에이전트 산출물 자동 승격 거버넌스 (repo: semiconductor-design)
 
-> status: exploring  (2026-06-08 재피벗: Operator authority → 비전문가 empowerment + 이해가능성)
-> created: 2026-05-10 · pivoted: 2026-05-29 · 시스템 빌드+gen-001 실증: 2026-06-06 · 재피벗: 2026-06-08 · v2 표현 재설계: 2026-07-02
-> 설계: [`docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md`](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md) · [v2: `2026-07-02-frozen-encoder-representation-redesign-design.md`](docs/superpowers/specs/2026-07-02-frozen-encoder-representation-redesign-design.md) · [`PRD.md`](PRD.md)
+> status: exploring  (2026-07-13 피벗: EDA surrogate 자동 연구 → 4단 게이트 거버넌스의 도메인-불문 일반성 실증)
+> created: 2026-05-10 · pivoted: 2026-05-29(EDA surrogate) · 재피벗: 2026-06-08 · v2 재설계: 2026-07-02 · **피벗: 2026-07-13(거버넌스 일반화)**
+> 설계: [`docs/superpowers/specs/2026-07-13-agent-promotion-governance-pivot-design.md`](docs/superpowers/specs/2026-07-13-agent-promotion-governance-pivot-design.md) (THE active spec)
+> 사례 연구 1(EDA surrogate 8세대 + v2) lineage: [2026-05-29 spec](docs/superpowers/specs/2026-05-29-autoresearch-eda-surrogate-pivot-design.md) · [2026-07-02 spec](docs/superpowers/specs/2026-07-02-frozen-encoder-representation-redesign-design.md) · [`PRD.md`](PRD.md)
 > 이전 의도(통합 프로그램 3-layer, clarified)는 `archive/integrated-program-3layer` 브랜치에 보존.
 
 ## Why
 
-**메타 목적 (피벗 후에도 유지)**: (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution.
+**메타 목적 (세 번째 피벗 후에도 유지)**: (1) 의도공학(intent engineering) 패러다임 우수성의 사례 연구, (2) Operator 학습 ↔ 프로젝트 진화의 co-evolution. 피벗 3회의 본 문서 이력 자체가 증거 평면.
 
-**헤드라인 목표 (2026-06-08 재피벗)**: **비전문가가 전문영역(EDA)에서 자율 에이전트를 *방향만 잡아* 의미있는 성과를 내는 것.** 자율 진행이 기본 동력이고, 사람은 *권한자(approver)가 아니라 방향타이자 학습자*다.
+**헤드라인 목표 (2026-07-13 피벗)**: ***자율 에이전트가 생성한 산출물을 사람 개입 없이 언제 믿고 승격할 수 있는가*** — EDA 사례에서 실증된 **4단 게이트 권력분립**(median 선발 → LOGO 일반화 probe → 사전 고정 paired 통계 검정 → 독립 엔진 의미 심사)이 **도메인-불문 거버넌스 패턴임을 실증**한다. 튜토리얼식 이해가능성은 "신뢰가능한 자율"의 구성 요소로 유지(자율을 신뢰하려면 사람이 큰 흐름을 검사 가능해야 함).
 
 **문제**:
-- EDA surrogate 모델(합성 직후 feature → 최종 PPA/routability 예측)은 *성숙한* 분야다 — CircuitNet 2.0(20K+ 샘플, routability·IR-drop·timing), RouteNet(조기 DRV 예측), Net2(post-placement wirelength), MasterRTL/SNS(pre-synthesis PPA), "Circuit as Set of Points"(NeurIPS 2023). 그러나 모델 구조·하이퍼파라미터·feature 설계의 *탐색 루프는 여전히 사람이 수작업*한다. 이 루프 자체는 기계적이다.
-- karpathy [AutoResearch](https://github.com/karpathy/autoresearch)는 "research를 search로 환원"해 이 루프를 에이전트에 위임했으나 대상은 *LLM 학습*이고, **EDA surrogate 학습에 적용된 사례 없음**.
-- AutoResearch와 그 형식화 [AutoResearch-RL](https://arxiv.org/abs/2603.07300)(PPO 메타정책)의 명시적 전제는 *no human in the loop* — "human might be asleep, you are autonomous". 우리도 **자율 진행을 기본으로 채택**하되, 차별점은 *전문가의 감독*이 아니라 **비전문가가 큰 흐름을 이해·조종(comprehensibility·steerability)** 하면서도 자율 루프가 의미있는 전문영역 성과를 내게 하는 것 — 이 사례는 부재.
+- 에이전트 진화 루프는 산출물을 스스로 승격해야 하지만, in-loop 지표는 위양성·gaming에 구조적으로 취약하다. 본 리포의 사례 연구 1(EDA surrogate)이 실증: 단일 seed 위양성(gen-002), 검증셋 선택 gaming(gen-003 — T1 통계 게이트를 구조적으로 속임), 교차설계 일반화 착시(gen-004~008 5세대). 그러나 이 실증은 **단일 도메인 한정** — 게이트가 EDA 데이터 구조에 우연히 맞았을 가능성을 배제 못 한다.
+- grounded 조사(2026-07-12, citation 31건 — spec §3·부록 A): champion/challenger 승격 게이트(MLflow·Vertex)는 통계 검정 없는 단순 비교, "생성≠심사 엔진" 원칙은 평가 실무에 확립됐으나 *자동 머지 게이트의 구조적 거부권*으로 정식화된 사례 없음, reward hacking 탐지(METR·TRACE·RHB)는 벤치마크 단계. **"사전 고정 paired 통계 + 교차그룹(LOGO) 관문 + 독립 엔진 의미 심사"의 3중 직렬 결합은 본 조사 범위 내에서 학술·오픈소스·상용 어디에도 조립돼 있지 않다**(가장 가까운 것: AlphaEvolve evaluation cascade, MLE-bench 사후 감사).
+- 정직성 요건: LLM 심사자의 gaming 탐지율은 ~63%(TRACE) — 게이트 체인은 "완벽한 방어"가 아니라 **위양성 비용을 낮추는 다층 방어**로만 주장한다.
 
-**가설**:
-- **H-A** — AutoResearch의 population-based evolution 루프([serverless-autoresearch](https://github.com/roboco-io/serverless-autoresearch) HUGI 패턴)를 EDA surrogate 모델 학습에 적용하면, 사람-수작업 탐색보다 더 나은 surrogate(낮은 val 지표)를 적은 노력으로 얻는다. (gen-001서 엄밀 paired 통계로 확증 — Learnings 2026-06-08.) **단 이 확증은 within-design 한정이며, gen-002~008 교차설계 T1에선 7세대 연속 `indistinguishable` — 교차설계 우위는 미달이고, 이 간극 자체가 본 프로젝트의 핵심 negative-result 발견이다(2026-06-24 프레이밍).**
-- **H-B (재정의)** — 비전문가 Operator가 **per-winner 승인 없이** 방향(`program.md`)·큰 흐름만으로 자율 루프를 *조종·이해*할 수 있고, 그 산출이 의미있는 전문영역 성과다. 신뢰가능한 자율을 가능케 하는 것은 **객관적 자동 게이트**(median selection + T1 검증)와 **튜토리얼식 이해가능성**이다. (자율이 기본 동력, 사람은 전략적 방향타이자 학습자.)
+**가설 (판정 지향 — yes/no 어느 쪽이든 산출물, 2026-06-24 negative-result 프레이밍 계승)**:
+- **H-G1 (게이트 일반성)** — 같은 4단 게이트가 지표 의미가 전혀 다른 도메인(실행시간, eval 점수)에서도 위양성 승격을 차단하고 정당 승격만 통과시킨다.
+- **H-G2 (발견의 일반성)** — "in-loop 지표 개선 ≠ 교차그룹 일반화"(EDA 5세대 재현 발견)가 에이전트 진화 루프의 일반 패턴인가 — 재현되면 일반 발견으로 격상, 안 되면 "도메인 조건부"라는 더 정밀한 발견.
 
-**확인 방법**:
-- 기존 EDA flow 1회로 생성한 고정 데이터셋 위에서, 루프가 만든 surrogate winner의 val 지표를 사람-수작업 baseline과 **엄밀 통계(T1 게이트)** 로 비교 (유의하게 낮으면 H-A 지지).
-- 자율 자동 승격 구성이 *맹목적*이지 않음을 보장: 비전문가가 큰 흐름을 따라 의미있는 방향 결정을 내릴 수 있었는지(이해가능성)·산출이 전문영역서 유효했는지 세대 로그·리포트로 확인.
-- (?) 정확한 비교 baseline·지표 임계값은 데이터셋 확정 후.
+**확인 방법** (판정 기준은 spec §5에 사전 고정 — 본 문서는 *복사 인용*만):
+- 도메인 A(알고리즘 성능 최적화)에 어댑터 4콜백으로 게이트 이식 → **컨트롤 후보 2종**(known-good 승격돼야 함 / known-bad 차단돼야 함, 사전 커밋)으로 민감도 판정 → 자율 5세대 → **사전 등록 사후 감사**(sealed 워크로드 패밀리 포함)로 H-G1 판정, 세대별 괴리 기록으로 H-G2 판정.
+- 도메인 A 판정 완료 후 도메인 B(LLM 프롬프트 진화)는 별도 spec으로.
+- 구 가설(H-A·H-B)의 판정 결과는 사례 연구 1로 종결 — Learnings 2026-06-24·07-10 참조.
 
 ## What
 
-**핵심 기능** (gen-008까지 작동 — 상태는 [`README.md`](README.md) "지금까지" 표):
-- [x] **데이터셋 자가생성**(`prepare.py`): EDA flow 1회 → feature(합성 직후) + label(최종 PPA/routability) 쌍. CircuitNet 류 태스크 참조. `DATASET.flow_lockfile_sha`로 재현성 앵커. *(4설계 7194행 확보.)*
-- [x] **자율 진화 루프**: 세대당 N후보 변형(`train.py`) → 병렬 Spot 학습 → **객관적 자동 게이트로 자동 승격** → git tag(`gen-NNN-best`). per-winner 사람 승인 없음. *(gen-001~008 실행.)*
-- [x] **자동 품질 게이트**: 자율 승격을 신뢰가능하게 만드는 4단 권력분립(median → LODO → 교차설계 T1 → Codex). *맹목적 자율* 방지의 핵심 — 전 단계 통과만 승격. *(gen-002~006 거치며 스스로 진화.)*
-- [x] **방향·이해 인터페이스**: Operator는 `program.md`로 *방향*을 잡고, **튜토리얼식 리포트로 큰 흐름을 이해**한다. (개입은 방향 수준, per-winner 아님.) *(세대별 `experiments/gen-NNN/README.md`.)*
-- [ ] **(v2) frozen encoder 표현 층**(`pretrain/`): ORFS sky130 ~20설계 합성-only 코퍼스 → self-supervised graph autoencoder 사전학습 → `models/encoder-v1.pt`(SHA 앵커, 사람 1회 학습 후 frozen). 루프는 (구 표형식 feature ‖ 임베딩) 위 head만 탐색. 채택은 spec의 사전 고정 게이트(재구성·붕괴 진단·선형 probe) 통과 시. 판정 질문: 새 winner가 교차설계 T1에서 **B0 대비 `distinguishable`** 인가 — yes/no 어느 쪽이든 판정 자체가 산출물. *(2026-07-02 v2 spec.)* **→ 2026-07-10 채택 게이트 2회 기각으로 미충족 종결(Learnings) — 코드·코퍼스·게이트 인프라는 완비, encoder만 미채택. 재도전은 새 spec(ablation형 probe)으로.**
-- [ ] **(연기) reasoning trace 증거 평면**: 후보별 hypothesis/observed effect 누적 — 이해가능성을 강화하는 2차 세대.
+**핵심 기능 (새 사이클 — 도메인 A 실증, spec §4~§5)**:
+- [ ] **어댑터 층**: 게이트 체인에 도메인 주입점 4콜백(`parse_metric`·`reference_metric`·`extract_group`·`run_candidate` — 타임아웃·에러 계약 포함). 기존 `src/pipeline` 통계 코어는 무변경.
+- [ ] **도메인 A 루프**(`domains/algo-opt/`): 에이전트가 `solver.py` 단일 파일 변형, 지표=벤치 실행시간(정합성 테스트 통과 전제), 그룹=워크로드 패밀리(dev/holdout≥3/sealed 1 분할), LOGO="선발·생성 피드백에 안 쓰인 패밀리"로 재정의. 로컬 실행, AWS 비용 0. (태스크 선정: issue 009.)
+- [ ] **컨트롤 후보 2종 사전 등록**: known-good(승격돼야)·known-bad(차단돼야) — 게이트 민감도 판정, 공허 성공(reject-all 퇴화) 차단.
+- [ ] **자율 5세대 + 사전 등록 사후 감사**: sealed 패밀리 paired 검정 포함 체크리스트 감사 → H-G1·H-G2 판정. 세대·감사마다 튜토리얼 README 필수.
+- [ ] **(후속, 별도 spec)** 도메인 B(LLM 프롬프트 진화) 실증 → 두 실증 후 라이브러리 추출 검토.
 
-**사용자 흐름**:
-1. Operator가 `program.md`(방향·지시문)·`config.yaml`(예산·세대수) 설정.
-2. 에이전트가 `train.py` 변형 후보 N개 생성·병렬 학습.
-3. 루프가 자동 게이트(median + T1)로 winner를 **자동 승격**하고 튜토리얼식 리포트를 남긴다.
-4. Operator는 *큰 흐름*을 이해하고 다음 *방향*을 조정한다(per-winner 승인 아님).
+**사례 연구 1 (EDA surrogate — 완결, frozen 보존)**:
+- [x] 데이터셋 자가생성(`prepare.py`, 4설계 7,194행) · 자율 진화 루프 gen-001~008 · 4단 게이트(median→LODO→교차설계 T1→Codex, gen-002~006 거치며 자가 진화) · 튜토리얼식 세대 리포트.
+- [x] v2 frozen encoder 사이클 — 채택 게이트 2회 기각으로 negative result 종결(Learnings 2026-07-10).
+- 산출: within-design H-A 확증 + "in-loop val_mae↓ ≠ 교차설계 일반화" 5세대 재현 + 위양성·gaming 차단 6건+ — **새 사이클 가설의 원천 증거**.
+
+**사용자 흐름 (새 사이클)**:
+1. Operator가 태스크 서술(program.md 아날로그)·세대 수·패밀리 분할을 spec대로 고정.
+2. 컨트롤 후보 2종을 게이트에 투입해 민감도 판정 기록.
+3. 에이전트가 `solver.py` 변형 후보 N개 생성 → 게이트 체인이 자동 승격/기각 + 튜토리얼 리포트.
+4. 5세대 후 사전 등록 감사 → H-G1·H-G2 판정 → Operator는 판정을 *열람*하고 다음 방향(도메인 B/추출/논문화)을 결정.
 
 **엣지 케이스**:
-- Spot 회수 시 job 재시도 (CANDIDATE 1:N JOB).
-- 후보가 데이터 누수/과적합으로 val 지표만 좋은 경우 → **T1 자동 게이트가 `indistinguishable`/`worse`로 차단**(사람 거절 대신 통계 게이트).
-- (?) surrogate 지표가 복수일 때(slack vs area vs routability) 단일화 방법.
-- (?) 방향성 개입과 완전 자율의 경계 — 어느 결정이 "방향"이고 어느 게 "per-winner"인지.
+- 후보가 dev 벤치에 과적합/gaming → holdout LOGO·T1 또는 Codex 의미 심사가 차단 (어느 관문이 잡는지 자체가 데이터).
+- 정합성 테스트 실패·타임아웃·크래시 → `valid=false, metric=inf` 도태(게이트 진입 불가).
+- 승격 0건 → H-G1은 컨트롤 민감도 항목으로 판정 유지, H-G2는 모수 0이면 `unverifiable` 기록.
+- (?) 실행시간 측정 noise의 로컬 환경 변동(CPU 부하) — 반복 측정·paired 설계로 흡수하되 구현 plan에서 고정 절차 확정.
 
 ## Not
 
-**절대 금지**:
-- **맹목적 자율** — 사람이 큰 흐름을 이해할 수 없는 불투명 진행. 자율 자동 승격은 허용하되, *객관적 게이트(median + T1) 없이* 또는 *튜토리얼식 이해가능성 없이* 진행하는 것은 금지. (2026-06-08 재피벗: 기존 "자율 무인 머지 절대 금지"를 대체 — 무인 머지는 허용, 단 신뢰가능 게이트 + 이해가능성이 조건.)
-- 상용 EDA 도구. 오픈소스만 (OpenROAD/Yosys 등).
-- functional correctness를 surrogate 예측으로 주장 (surrogate는 근사 예측).
-- `prepare.py`(데이터·평가 프로토콜) 변경을 에이전트에 허용 (frozen environment — 공정 비교 보장).
-- **encoder frozen — 에이전트 변형 금지**: `models/encoder-v1.pt` 가중치 변경·재학습(unfreeze)을 에이전트에 허용 금지. prepare.py와 같은 frozen 자산(공정 비교 보장의 경계 확장). encoder 교체는 세대 내 변형이 아니라 새 사이클(v2, v3…). *(2026-07-02 v2.)*
+**절대 금지** (2026-07-13 피벗 spec §6 — 본 문서는 복사 인용):
+- **맹목적 자율 금지** (유지): 객관적 게이트 + 튜토리얼식 이해가능성 없는 자율 진행 금지.
+- **사후 기준 변경 금지** (v2 교훈 격상): 판정 질문·임계값·감사 기준은 결과 확인 전 spec에 사전 고정. 변경은 새 spec의 brainstorming→Codex 게이트로만.
+- **생성 엔진 = 심사 엔진 금지**: 의미 심사는 반드시 생성자와 다른 엔진 (self-preference bias — spec 부록 A [17][21]).
+- **frozen 자산 에이전트 변경 금지**: 도메인 A 벤치마크 스위트·측정 하니스·컨트롤 후보·sealed 패밀리 정의. 사례 연구 1 자산(`train.py` B0·`prepare.py`·`pretrain/`·`models/encoder-v1.pt`·커밋된 dataset)도 전량 read-only 유지.
+- **정합성 우회 금지**: 정합성 테스트 미통과 후보의 성능 수치는 무효 (오답 빠른 코드는 도태).
 
 **기술 제약**:
 - Python 3.12, uv. ruff 100 char, target-version py312.
-- 에이전트는 `train.py` 단일 파일만 변형, 신규 의존성 *설치* 금지(허용 import 목록에 사전 설치된 torch 추가 — 2026-07-02 v2), 고정 학습 예산 (AutoResearch 제약 계승).
-- 사전학습 의존성(PyTorch — PyG 미채택, plan 편차 기록)은 `pyproject.toml` optional-deps `pretrain` 그룹으로 격리 — 사람 소유 사전학습 전용, 루프 기본 환경 오염 금지. *(2026-07-02 v2.)*
+- 에이전트는 도메인당 단일 파일만 변형(도메인 A: `solver.py`), 신규 의존성 설치 금지, 고정 예산 (AutoResearch 제약 계승).
+- 루프 LLM 호출은 구독 CLI(claude/codex)만 — metered API 금지.
 - Direct commit to `main` (현재 워크플로).
 
 **범위 밖**:
-- 전체 RTL→GDSII 공정 운영 (`archive/integrated-program-3layer`로 분리).
-- Parameter sweep 단독 (ORFS-agent 영역) — 본 프로젝트는 surrogate *모델 학습*의 자동 연구.
-- 모바일·웹 UI, 다중 사용자.
-- (1차) process novelty 증거 평면 — 2차 연기.
+- **라이브러리 추출·패키징** — 두 도메인 실증 완료 전 착수 금지 ("실증 먼저" 결정의 코드화).
+- **도메인 B 착수** — 도메인 A 판정 완료 전 금지 (순차 실행).
+- **RHB/reward-hacking 벤치마크 ablation** — A·B 이후 후보로만 기록.
+- **EDA gen-009** — 종결된 v1 사이클 재개 안 함 (별도 Operator 결정 없이는).
+- **SOTA 알고리즘 성능 주장** — 목표는 거버넌스 실증이지 빠른 알고리즘이 아님.
+- 전체 RTL→GDSII 공정 운영 (`archive/integrated-program-3layer`) · 모바일/웹 UI · 다중 사용자.
 
-**품질 기준**:
-- (within-design) surrogate winner val 지표 < 사람-수작업 baseline, **T1 게이트 verdict `distinguishable`** — gen-001서 충족, 그러나 *교차설계 일반화의 충분조건은 아님*(gen-004~008).
-  - **(negative-result 성공 기준)** '달성'은 *교차설계서 baseline을 이긴 surrogate*(H-A positive)가
-    아니라, 다음 셋을 **모두** 충족할 때로 정의한다 (2026-06-28 확정 — 논문 contribution claim과 정렬):
-    - **(방어)** 객관적 4단 게이트(median→LODO→교차설계 T1→Codex)가 in-loop 최저 후보의 부당 승격을
-      차단하고 baseline 무결성을 유지 — gen-002~008 5세대 실증.
-    - **(발견)** "in-loop `val_mae`↓ ≠ 교차설계 일반화 우위"가 서로 다른 후보·지렛대의 복수 세대에서
-      일관 재현되고, 그 판정이 *사전 고정된* 객관적 게이트로 내려짐.
-    - **(접근성)** 비전문가 Operator가 per-winner 승인 없이 방향(`program.md`)만으로 진행하고, 각 세대
-      승격/기각을 *튜토리얼식 산출물만으로* 따라갈 수 있음(이해가능성).
-- 자율 자동 승격은 객관적 게이트(median + T1)를 통과한 winner만 (맹목적 자율 방지).
-- **이해가능성**: 비전문가가 각 세대의 큰 흐름·방향을 튜토리얼식 산출물로 따라갈 수 있어야 함.
-- 세대 간 결과 재현 (동일 데이터셋·lockfile_sha).
-- (연기) reasoning trace 복원 가능.
+**품질 기준** (spec §5·§8 복사 인용):
+- **실험 완주 성공** = 민감도(컨트롤)·H-G1·H-G2 판정이 *사전 고정 기준대로* 내려지고, 근거 artifact(generation.json·T1 리포트·Codex verdict·감사 README)와 튜토리얼이 커밋됨. **가설 지지 여부는 결과이지 성공 조건이 아님.**
+- 자율 자동 승격은 게이트 체인 전 단계 통과 winner만.
+- **이해가능성**: 비전문 독자가 각 세대·감사의 큰 흐름을 튜토리얼식 산출물로 따라갈 수 있어야 함.
+- 사례 연구 1의 negative-result 성공 기준(방어·발견·접근성 3항, 2026-06-28)은 충족된 채 종결 — Learnings 2026-06-24 참조.
 
 ## Learnings
+
+- **2026-07-13** (피벗 3 — EDA surrogate → 게이트 거버넌스 일반화, "프로덕션 가치" 질문이 의도를 재변형) —
+  v2 종결 직후 Operator가 "이 프로젝트가 실제 프로덕션 레벨 가치를 제공하는가"를 물었고, 정직한
+  평가 결과 *EDA surrogate 자체는 프로덕션 가치 없음*(교차설계 7세대 기각, 4설계 규모) / *실질
+  가치는 4단 게이트가 위양성·gaming 승격 6건+을 차단한 거버넌스 작동 사례*라는 결론에 도달 →
+  Operator가 decision brief(issue 008) 4선택지 중 **A(거버넌스 일반화)** 선택. 브레인스토밍
+  Q&A 5문항(실증 먼저·복수 도메인 순차·리포 증축·empowerment→신뢰가능한 자율 교체·최소 어댑터)
+  + grounded positioning 조사(citation 31건 — 3중 결합의 조립 부재 확인, 단 조사 범위 한정 헤지)
+  로 spec 확정. **(1) Codex 게이트가 spec의 도메인 전제를 적발**: 1차 심사 block 8건 중 핵심은
+  "solver 루프에 LOGO가 무정의"(학습이 없는 도메인에선 fold 격리를 *정보 노출* 기준으로 재정의
+  해야 함)와 "승격 0건이어도 통과하는 공허 성공 루프홀"(컨트롤 후보 known-good/known-bad 사전
+  등록으로 해소) — 도메인을 옮기자마자 게이트의 숨은 전제가 드러난 것 자체가 일반화 실증이
+  필요하다는 피벗 가설의 방증. **(2) 기존 자산의 지위 변경은 삭제가 아니라 재해석**: EDA 8세대
+  +v2는 "실패한 목표"에서 "사례 연구 1 = 새 가설의 원천 증거"로 — 코드(통계 코어 100% 중립,
+  Explore 실측)·기록·Learnings 전량 보존. **(3) co-evolution**: "성공 재정의"(2026-06-24) →
+  "negative result 종결"(07-10) → "그래서 진짜 가치는 무엇인가"(07-12)로 이어진 질문 연쇄가
+  의도의 헤드라인 자체를 세 번째로 재변형 — 운영 결과가 아니라 *가치 질문*이 피벗을 촉발한 첫
+  사례. status `exploring` 유지. spec:
+  [2026-07-13-agent-promotion-governance-pivot-design.md](docs/superpowers/specs/2026-07-13-agent-promotion-governance-pivot-design.md).
+
+### Learnings (사례 연구 1 — EDA surrogate, 2026-05-29 ~ 2026-07-10)
 
 - **2026-07-10** (v2 encoder 채택 게이트 2회 기각 — 사전 고정 기준이 표현 한계를 노출, 사이클 종결) —
   7설계 코퍼스(18,804 endpoints, 제외 0건)로 graph autoencoder를 2회 사전학습(1차 full-batch,
