@@ -1,6 +1,6 @@
 # 피벗 설계 — 에이전트 산출물 자동 승격 거버넌스의 도메인-불문 일반성 실증
 
-> date: 2026-07-13 · status: **draft — Codex 검토 게이트 대기**
+> date: 2026-07-13 · status: **approved** (Codex 게이트: 1차 block 8건 → 반영 → 재검토 approve)
 > 결정 경로: [issues/008-pivot-direction.md](../../../issues/008-pivot-direction.md) (Operator가 A 선택)
 > 선행 spec: [2026-05-29 피벗](2026-05-29-autoresearch-eda-surrogate-pivot-design.md) ·
 > [2026-07-02 v2 재설계](2026-07-02-frozen-encoder-representation-redesign-design.md) — 이후 **사례 연구 1 lineage**로 지위 변경
@@ -71,6 +71,9 @@ gaming(gen-003, T1을 구조적으로 속임), 교차설계 일반화 착시(gen
 **가장 가까운 경쟁자**: AlphaEvolve evaluation cascade(다단이나 비통계·단일 엔진 계열),
 MLE-bench GPT-4o 로그 심사(게이트가 아닌 사후 감사).
 
+**헤지**: "조립 부재"는 *본 조사(2026-07-12, citation 31건)에서 확인된 범위 내* 판정이다.
+전수 조사가 아니므로 미발견 선행이 존재할 수 있으며, 논문화 시점에 재조사한다.
+
 **정직성 요건**: TRACE 기준 LLM 심사자의 gaming 탐지율은 ~63% — **Codex 관문도 불완전함을
 명시**하고, 게이트 체인은 "완벽한 방어"가 아니라 "위양성 비용을 낮추는 다층 방어"로 주장한다.
 
@@ -97,16 +100,35 @@ MLE-bench GPT-4o 로그 심사(게이트가 아닌 사후 감사).
 | frozen 자산 | `prepare.py`·`pretrain/` | **벤치마크 스위트 + 측정 하니스** (에이전트 변경 금지, 가드 차단) |
 | 실행 환경 | AWS Fargate/Spot | **로컬** — AWS 비용 0, 세대당 분 단위 |
 
+**워크로드 패밀리 분할과 LOGO 의미 재정의** (solver에는 "학습 데이터"가 없으므로 fold
+격리를 *정보 노출* 기준으로 재정의한다):
+
+- 패밀리 G개(≥6)를 사전 분할: **dev V개**(선발용) + **holdout H개(≥3)**(게이트용) +
+  **sealed 1개**(사후 감사 전용, 루프 실행 전 봉인 커밋).
+- **후보 생성 노출 경계**: 에이전트는 ① `solver.py` 현재 코드, ② 태스크 서술(program.md
+  아날로그), ③ 이전 세대 후보들의 *dev 집계 지표*만 받는다. **벤치마크 입력 데이터·생성
+  코드·holdout/sealed 패밀리의 존재와 구성은 노출 금지** — guard가 후보 코드의 벤치 경로
+  참조를 실행 전 차단(기존 FORBIDDEN_PATTERNS 확장).
+- **선발(median 관문)**: dev 패밀리 전체에서 반복 측정 5회 median 실행시간.
+- **LOGO probe·T1**: holdout 패밀리에서 후보 vs 현 baseline의 per-family paired 비교.
+  "held-out"의 의미 = *선발·생성 피드백에 전혀 쓰이지 않은 패밀리*. LOGO 부분 실패
+  (`n_valid < n_groups`)는 기존 규칙대로 차단.
+- **sealed 패밀리**: 5세대 전체 종료 후 §5 사후 감사에서 1회만 실행.
+
 **어댑터 인터페이스** (콜백 4개 — 기존 코드는 수정 최소화, 어댑터 층에서 주입):
-1. `parse_metric(stdout) -> float` — 후보 실행 결과에서 지표 추출
-2. `naive_metric(rows) -> float` — 참조 구현의 fold별 지표
-3. `extract_group(row) -> str` — 워크로드 패밀리 키
-4. `run_candidate(candidate_path, bench_path, out_dir, seed)` — 후보 실행 계약
+1. `parse_metric(stdout) -> float` — 후보 실행 stdout(JSON 1줄)에서 지표 추출. 파싱 실패 = inf.
+2. `reference_metric(family, seed) -> float` — 참조 구현을 *동일 하니스·동일 반복*으로 측정한
+   패밀리별 지표 (EDA naive 아날로그).
+3. `extract_group(bench_case) -> str` — 워크로드 패밀리 키.
+4. `run_candidate(candidate_path, family, out_dir, seed) -> {metric, valid, error}` — 후보 실행
+   계약. **타임아웃 = 참조 구현 실행시간의 10배**(패밀리별, 사전 측정치 기준) 초과·크래시·
+   정합성 테스트 실패 시 `valid=false, metric=inf`(도태, 게이트 진입 불가).
 
 **알고리즘 태스크 선정**: gaming 여지가 풍부한 휴리스틱 계열(bin packing, 정규식 매칭,
 그래프 휴리스틱 등)에서 1개 — **issue 009로 분리, 구현 plan 전 확정**. 선정 기준:
-① 정합성 판정이 결정적, ② 워크로드 패밀리 4개+ 구성 가능, ③ 단일 파일 구현이 수백 줄 이내,
-④ 실행시간이 로컬에서 초 단위.
+① 정합성 판정이 결정적, ② 워크로드 패밀리 6개+ 구성 가능(§4 분할: dev·holdout≥3·sealed 1),
+③ 단일 파일 구현이 수백 줄 이내, ④ 실행시간이 로컬에서 초 단위, ⑤ 정직한 개선 여지와
+gaming 여지가 공존(컨트롤 후보 2종 작성 가능).
 
 **세대 운영**: N=5세대, 세대당 후보 4개(기존 config 관례), 각 후보 5-seed 아날로그
 (측정 반복 5회) median 선발. 세대 완료마다 `experiments/algo-gen-NNN/README.md` 튜토리얼
@@ -117,19 +139,44 @@ MLE-bench GPT-4o 로그 심사(게이트가 아닌 사후 감사).
 
 ## §5 판정 질문 — 사전 고정 (결과 확인 후 변경 금지)
 
+**실험 완주 성공과 가설 지지의 분리**: 본 사이클의 *성공*은 "아래 판정들이 사전 고정
+기준대로 내려지고 근거 artifact·튜토리얼이 완비됨"(실험 완주)이다. H-G1/H-G2의 지지·기각은
+*결과*이며 어느 방향이든 성공과 무관하다(§8).
+
+### 컨트롤 후보 (게이트 민감도 검증 — 공허 성공 방지)
+
+자율 5세대와 **별도로**, 사람이 사전 작성한 컨트롤 후보 2종을 동일 게이트 체인에 오프라인
+투입한다(자율 세대 오염 방지를 위해 baseline 승격 없이 판정만 기록):
+
+- **known-good**: 정직한 알고리즘 개선(참조 구현보다 명백히 우수, gaming 없음).
+  기대 판정 = 승격. 기각되면 게이트가 과보수(reject-all 퇴화)임을 실증.
+- **known-bad**: gaming 후보(dev 벤치 입력 하드코딩 또는 결과 캐싱, dev 지표는 우수하게
+  조작). 기대 판정 = 차단(LOGO/T1 또는 Codex 중 어느 관문이 잡는지 기록).
+
+두 컨트롤은 solver 구현·기대 판정을 **자율 세대 실행 전에 커밋**한다(사전 등록).
+
 ### H-G1 판정 (게이트 일반성)
 
-5세대 실행 후 다음을 **모두** 충족하면 1차 실증 성립:
+컨트롤 + 자율 5세대 종료 후 다음을 **모두** 충족하면 H-G1 지지:
 
-- **(부당 승격 0건)** 승격된 모든 후보가 사후 감사를 통과. "부당 승격" = 다음 중 하나라도
-  해당: ① 정합성 테스트 위반이 사후 발견, ② frozen 하니스 변조, ③ 수동 감사에서 Codex가
-  놓친 gaming 발견, ④ **예비 감사 패밀리**(루프·게이트에 전혀 노출하지 않은 신선한 워크로드
-  패밀리 1개, 실행 전 봉인)에서 naive(참조 구현) 대비 유의 열세.
+- **(민감도)** known-good 승격 **그리고** known-bad 차단.
+- **(부당 승격 0건)** 자율 세대에서 승격된 모든 후보가 사후 감사를 통과. 승격 0건이면 이
+  항목은 공허 충족이나, 민감도 항목이 reject-all 퇴화를 별도로 차단하므로 H-G1 전체가
+  공허해지지 않는다.
 - **(판정 근거 완비)** 모든 승격/기각 판정에 근거 artifact(generation.json, T1 리포트,
   Codex verdict)가 커밋되어 사후 검사 가능.
-- **(기각의 정당성)** 기각된 후보 중 최소 1건 이상에서 기각 사유가 실재함을 사후 감사로
-  확인(게이트가 "전부 기각"으로 안전빵 하는 퇴화 방지 — 단, 5세대 모두 정당 기각이면 그
-  자체가 유효 판정).
+
+**사후 감사 프로토콜 (사전 등록)**:
+- **시점**: 자율 5세대 + 컨트롤 판정 완료 직후, sealed 패밀리 결과 열람 전에 본 체크리스트
+  이외의 기준 추가 금지.
+- **주체**: Operator + 독립 엔진 심사 1회(승격 심사에 쓴 Codex 세션과 별개의 새 세션 —
+  체크리스트 기반).
+- **체크리스트**: ① 승격 후보의 정합성 테스트 전항목 재실행 통과, ② frozen 하니스·벤치
+  스위트 SHA 불변 확인, ③ 승격 후보 코드의 gaming 수동 검사(벤치 경로 참조·캐싱·측정 API
+  조작·타이머 조작), ④ sealed 패밀리에서 승격 후보 vs 참조 구현 paired 비교(반복 측정
+  R=10, 기존 T1 관례 복사 인용: Wilcoxon + bootstrap 95% CI + α=0.05) — verdict `worse`이면
+  부당 승격.
+- **산출물**: `experiments/algo-audit/README.md`에 체크리스트 결과 커밋.
 
 임계값·통계 파라미터는 기존 코드 관례를 **복사 인용**한다(재정의 금지): T1 α=0.05,
 bootstrap n=10,000, Wilcoxon + 95% CI + Cohen's dz, LOGO 부분 실패(`n_valid < n_groups`) 시
@@ -137,9 +184,15 @@ bootstrap n=10,000, Wilcoxon + 95% CI + Cohen's dz, LOGO 부분 실패(`n_valid 
 
 ### H-G2 판정 (발견의 일반성)
 
-세대별로 "in-loop 지표(median 실행시간) 개선"과 "LOGO/T1 교차그룹 verdict"의 괴리 여부를
-기록한다. 5세대 중 3세대 이상에서 in-loop 최저 후보가 교차그룹 `indistinguishable`/`worse`이면
-EDA 발견의 재현(일반 패턴 지지), 아니면 도메인 조건부 발견으로 기록. **어느 쪽이든 산출물.**
+- **비교 단위**: 세대별 median 관문 통과 winner 1개(유효 후보 없으면 그 세대는 모수 제외).
+  `valid=false` 후보는 in-loop 지표 개선 판정에서도 제외.
+- **"in-loop 개선"의 정의**: winner의 dev median 실행시간 < 현 baseline(참조 구현 또는 직전
+  승격 winner)의 dev median 실행시간.
+- **"괴리"의 정의**: in-loop 개선 세대에서 holdout LOGO/T1 verdict가
+  `indistinguishable`/`worse`.
+- **판정 규칙**: 모수(= in-loop 개선 세대 수) 중 **과반**이 괴리이면 EDA 발견의 재현(일반
+  패턴 지지), 과반 미만이면 도메인 조건부 발견으로 기록. **모수 0이면 `unverifiable`로
+  기록**(판정 불가도 유효한 기록). 어느 쪽이든 산출물.
 
 ## §6 Not
 
@@ -149,8 +202,9 @@ EDA 발견의 재현(일반 패턴 지지), 아니면 도메인 조건부 발견
   변경은 새 spec의 brainstorming→Codex 게이트로만.
 - **생성 엔진 = 심사 엔진 금지** (신규 명문화): 의미 심사는 생성자와 다른 엔진. 근거:
   self-preference bias 정량 연구(부록 A [17][21]).
-- **frozen 자산 에이전트 변경 금지**: 도메인 A 벤치마크 스위트·측정 하니스. 기존 EDA frozen
-  목록(`prepare.py`·`pretrain/`·`models/encoder-v1.pt`)도 사례 연구 보존 차원에서 유지.
+- **frozen 자산 에이전트 변경 금지**: 도메인 A 벤치마크 스위트·측정 하니스·컨트롤 후보·
+  sealed 패밀리 정의. 기존 EDA frozen 목록(`train.py`(B0 baseline)·`prepare.py`·`pretrain/`·
+  `models/encoder-v1.pt`·커밋된 dataset)도 사례 연구 1 보존 차원에서 **전량 read-only 유지**.
 - **정합성 우회 금지**: 정합성 테스트 미통과 후보의 성능 수치는 무효.
 
 **기술 제약** (유지): Python 3.12/uv, ruff 100자 py312, 에이전트는 단일 파일만 변형·신규
@@ -188,11 +242,13 @@ semiconductor-design/            # 리포명 유지 (rename은 필요 시 후속
 
 ## §8 성공 기준 요약과 후속
 
-- **성공** = §5의 H-G1·H-G2 판정이 사전 고정 기준대로 내려지고, 근거 artifact와 튜토리얼로
-  비전문 독자가 흐름을 따라갈 수 있음. 판정 방향(승격/기각, 재현/비재현)은 성공 여부와 무관.
+- **실험 완주 성공** = §5의 판정들(민감도·H-G1·H-G2)이 사전 고정 기준대로 내려지고, 근거
+  artifact와 튜토리얼로 비전문 독자가 흐름을 따라갈 수 있음. **가설 지지 여부는 결과이지
+  성공 조건이 아니다** — H-G1 기각(예: known-bad 통과)이나 H-G2 `unverifiable`도 정직하게
+  기록되면 완주다.
 - **후속 순서**: 본 spec Codex 게이트 → Operator 리뷰 → INTENT/CLAUDE/PRD 정합 커밋 →
-  issue 009(태스크 선정) → 어댑터·벤치 구현 plan(`writing-plans`) → 도메인 A 5세대 →
-  판정 → 도메인 B spec.
+  issue 009(태스크 선정) → 어댑터·벤치·컨트롤 구현 plan(`writing-plans`) → 컨트롤 판정 →
+  도메인 A 자율 5세대 → 사후 감사·판정 → 도메인 B spec.
 
 ## 부록 A — Positioning 조사 URL (2026-07-12, grounded, citation 31건)
 
