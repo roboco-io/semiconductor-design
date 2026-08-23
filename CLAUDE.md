@@ -142,9 +142,10 @@ optional-deps `pipeline`(boto3/pydantic). 구 `semi_design_runner` wheel/entry p
 - **추측 vs grep 검증**: 정합 작업(link 검증·citation 정합) 전 *반드시 grep으로 사실 확인*. 추측을 advisory에 기록 금지.
 - **INTENT 권한 vs spec 권한 분리**: `INTENT.md` / 신규 plan 은 설계 spec 의 정량 임계값을 *복사 인용*만,
   *재정의 금지*. 위반 시 plan 즉시 reject. (현재 surrogate 지표 임계값은 데이터셋 확정 후 spec에 nail down 예정.)
-- **AI 도구 grounding 검증**: `*research*` 모델(Perplexity Sonar Deep Research 등)이 web search empty 시
-  학습 distribution에서 confabulate. **응답 수신 직후 first check = citation 개수**.
-  citation 0 → 응답 *전체 거부* + `*search*` 도구로 재조회. `*search*` 도구는 grounded가 기본.
+- **AI 도구 grounding 검증**: 웹 조사는 **exa MCP**(`web_search_exa` / `web_fetch_exa`)를 사용한다
+  (Perplexity는 2026-08-22부로 제거 — 사용 금지). 어떤 도구든 research형 응답이 web search empty 시
+  학습 distribution에서 confabulate할 수 있으므로 **응답 수신 직후 first check = citation/URL 개수**.
+  citation 0 → 응답 *전체 거부* + 검색 도구로 재조회.
 
 ## Before Non-Trivial Work
 
