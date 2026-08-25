@@ -3,7 +3,7 @@
 # 이전 사이클 자산을 근거로 사용 금지
 
 project:
-  title: "반도체 설계에 유용한 SW/모델의 바이브 코딩 개발 — 대상 선정"
+  title: "반도체 설계에 유용한 SW/모델의 바이브 코딩 개발 — 4트랙 병렬 (A:실험추적+QoR, B:STA분석기, C:플로우닥터, D:IR drop 모델)"
   domain: "EDA 실용 소프트웨어/모델 개발 (vibe coding)"
   started: "2026-08-25"
   status: active
@@ -66,15 +66,15 @@ hypotheses:
       "하드웨어판 MLflow"의 부재가 도구 전수 비교로 확인된 공백(HBS 논문·ORFS 문서),
       수작업 사례(OR #7482, endraws 블로그) 존재. 도그푸딩 경로가 자연스럽고
       C4(QoR 예측기)의 데이터 인프라를 겸한다. WOSET/JOSS 진입 요건과 정합.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "권고 APPROVE(주축). 순수 SW·로컬. 유용성 기준은 protocol에서 사전 고정."
+      verdict: approved    # Operator 2026-08-25: A/B/C/D 전 트랙 병렬 승인
+      rationale: "순수 SW·로컬. 유용성 기준은 protocol에서 사전 고정."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: ["H1.1"]
@@ -89,15 +89,15 @@ hypotheses:
     motivation: >
       tabular QoR 조기 예측은 표준 스플릿·리더보드·GBDT 공개 구현이 없는 무주공산.
       상용(DSO.ai·Cerebrus)이 파는 가치의 오픈소스 공백. CPU 수 분 학습.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "권고 APPROVE(H1 후속). '소프트웨어+모델' 의도를 한 로드맵으로 충족."
+      verdict: approved    # Operator 2026-08-25 (H1 Phase 2)
+      rationale: "'소프트웨어+모델' 의도를 한 로드맵으로 충족."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
@@ -111,15 +111,15 @@ hypotheses:
     motivation: >
       수요 근거 최다(OR #1759·#10020·#9371·#4633 + openroad-mcp #96 "Impact: High").
       AI 타이밍 클로저의 전제 부품. 단 OpenROAD 코어팀이 직접 구현할 리스크.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "권고 APPROVE(차선 또는 H1 병행 후보). 검증이 가장 결정적(golden diff)."
+      verdict: approved    # Operator 2026-08-25: 병렬 트랙 B
+      rationale: "검증이 가장 결정적(golden diff)."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
@@ -133,15 +133,15 @@ hypotheses:
     motivation: >
       "거의 모두가 겪는" 최대 페인포인트(OpenLane #1183) + 메인테이너 명시 요청(OR #7482).
       단 진단 지식 코퍼스 구축 비용과 적중률 검증의 난도가 높음.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "권고 APPROVE하되 후순위 — 실패 사례 코퍼스 수집이 선행 투자."
+      verdict: approved    # Operator 2026-08-25: 병렬 트랙 C
+      rationale: "실패 사례 코퍼스 수집이 선행 투자 — 트랙 내 1단계로 편입."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
@@ -161,8 +161,8 @@ hypotheses:
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "권고 DEFER — 수요는 실하나 주축 대비 차별 우위가 약함."
+      verdict: null        # DEFERRED — 병렬 4트랙(A/B/C/D=H5) 확정으로 보류 유지
+      rationale: "DEFER: 수요는 실하나 신생 경쟁·차별 우위 약함. 후속 사이클 재입장 후보."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
@@ -175,15 +175,15 @@ hypotheses:
     motivation: >
       채점에 모델 크기·런타임 포함 — 소형 모델에 구조적으로 유리한 유일한 공개 리더보드.
       순수 '모델' 트랙 대표. 단 도구화(실무 통합) 경로가 약함.
-    status: pending
+    status: approved
     judgment:
       novelty: false          # 리더보드 기존 참가작 다수 — 경량화 각도만 신규
       importance: medium
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "권고 DEFER — 객관 비교는 최상이나 '유용한 도구' 의도와의 정합이 간접적."
+      verdict: approved    # Operator 2026-08-25: 병렬 트랙 D (모델 트랙 대표로 격상)
+      rationale: "공개 리더보드 객관 비교 + 포트폴리오 균형(도구 3 + 모델 1)."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []

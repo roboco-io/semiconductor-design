@@ -1,6 +1,6 @@
 # issue 001: 개발 대상 선정 브리프 — 무엇을 만들 것인가
 
-날짜: 2026-08-25 · 상태: OPEN (Operator 결정 대기)
+날짜: 2026-08-25 · 상태: **RESOLVED** — Operator가 A/B/C/D 전 트랙 병렬 승인 (2026-08-25). D는 IR drop 모델(H5)로 구체화, H4는 DEFER. 계획서: [`plans/`](../plans/README.md)
 근거: [`literature/survey.md`](../literature/survey.md) (후보 9개 통합 목록 포함) · 가설 전문: [`research-tree.yaml`](../research-tree.yaml)
 
 ## 전제 (Operator 의도)
