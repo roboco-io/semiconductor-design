@@ -1,0 +1,192 @@
+# Research Tree — 반도체 설계 × 바이브 코딩
+# 중앙 상태 저장소 (meta-research 스킬). INTENT.md의 가설을 판정 가능한 트리로 정식화.
+
+project:
+  title: "반도체 설계 × 바이브 코딩 — 학습과 설계의 단일 진화 사이클"
+  domain: "AI-assisted digital chip design (RTL→GDSII, open-source EDA) × human-AI co-learning"
+  started: "2026-08-22"
+  status: active
+
+field_understanding:
+  # 출처: issues/011 grounded 조사 (exa, citation 18건, 2026-08-22)
+  sota_summary: >
+    LLM-RTL 설계의 성공 측정은 테스트벤치 기능 정합 pass@k가 표준(VerilogEval→CVDP,
+    SOTA pass@1 ≤34%, Si2 LBC-bench 공개 리더보드). 물리 품질은 METRICS2.1(단계별
+    PPA/DRC JSON, 커밋 고정 재현). 실무 인정 기준은 OpenTitan V1→V3(커버리지 90→100%
+    + silicon-proven). 인간 학습 측정은 pre/post 개념 검사(DLCI)가 표준이며, AI 보조는
+    성과를 올려도 학습은 못 올리는 "성과-학습 해리"(TUM RCT)가 보고됨. 단 개념 질문형
+    상호작용 패턴은 학습을 보존(Anthropic RCT).
+  key_papers:
+    - id: "verilogeval"
+      title: "VerilogEval (ICCAD 2023) / v2 (2024)"
+      relevance: "기능 정합 pass@k 측정 표준 — 설계 축 게이트의 방법론 출처"
+    - id: "cvdp"
+      title: "NVIDIA CVDP (2025) + Si2 LBC-bench (2026)"
+      relevance: "에이전트형 평가 지원, 업계 표준화 진행 — 외부 비교 가능성"
+    - id: "metrics21"
+      title: "IEEE CEDA DATC METRICS2.1 (ICCAD 2021)"
+      relevance: "PPA/sign-off 지표의 재현 가능 보고 표준 — 사전 고정 판정과 동형"
+    - id: "opentitan-stages"
+      title: "OpenTitan development stages (V1-V3) + checklist"
+      relevance: "'실무 사용 가능 IP'의 공개 기준 — 임계값 출처"
+    - id: "tum-rct"
+      title: "TUM CS1 RCT (N=275) — 성과-학습 해리"
+      relevance: "설계 성과와 학습을 분리 측정해야 하는 근거"
+    - id: "anthropic-rct"
+      title: "Anthropic RCT (N=52) — 상호작용 패턴별 학습 보존"
+      relevance: "패턴 로그를 학습 축 보조 지표로 쓰는 근거"
+    - id: "dlci"
+      title: "Digital Logic Concept Inventory (DLCI)"
+      relevance: "하드웨어 개념 이해도의 심리측정 검증 pre/post 도구"
+    - id: "llm-tt-edu"
+      title: "LLM+Tiny Tapeout 교육 (Krupp·Venn·Wehn, 2026)"
+      relevance: "'학습 곡선 정량화 = future work' 명시 — 본 연구의 novelty 공백"
+  open_problems:
+    - "AI 보조 하드웨어 설계에서 사용자 학습 곡선의 정량화 (선행 논문이 future work로 명시)"
+    - "설계 산출물의 객관 게이트 × 설계자 학습 측정을 하나의 진화 사이클로 묶은 연구 부재"
+    - "개인 제작 IP가 실무 인정을 받는 조건의 불명확성 (커버리지+silicon-proven으로 추정만)"
+  underexplored_areas:
+    - "비전문가+AI 에이전트 조합의 설계 난이도 상한 (어디서 무너지는가)"
+    - "서술형 퀴즈 채점의 객관화 (사전 고정 루브릭 + 생성≠채점 엔진 분리)"
+
+hypotheses:
+  - id: "H1"
+    statement: >
+      비전문가 SW 개발자 1인 + AI 에이전트는 소프트웨어 검증만으로(시뮬레이션 기능
+      정합 + 로컬 sign-off clean: DRC·LVS 위반 0, STA 타이밍 만족) 난이도 사다리에서
+      최소 3칸(조합 논리 → 상태기계 → 버스 주변장치)의 TT 제약(1타일 ≈1,000게이트)
+      설계를 산출할 수 있다.
+    parent: null
+    motivation: >
+      "어디까지 가능한가"의 설계 축 본체. Chip-Chat(2023)은 인간 전문가 개입·단일
+      설계였고, 사다리형 도달 범위 측정은 미보고. 실패 시 마지막 통과 칸이 한계
+      지도가 되어 negative result도 산출물.
+    status: approved
+    judgment:
+      novelty: true          # 사다리형 도달 범위 측정 + 무전문가 + SW-only 검증 조합은 미보고
+      importance: high
+      feasibility: true      # 로컬 무료 (LibreLane/ORFS), 사례 연구 1 flow 경험 재사용
+      falsifiability: true   # null: 3칸 미달. 2연속 게이트 실패 = 그 칸에서 반증
+      already_solved: false  # Chip-Chat은 전문가 개입·단일 설계 — 도달 범위 질문은 열려 있음
+      verdict: approved
+      rationale: "5기준 통과. 최저비용 반증 테스트 = H1.1 스모크 (실패 시 H1 즉시 기각 가능)"
+    experiment: {design_summary: "", protocol_path: "experiments/H1-ladder/protocol.md", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: "experiments/H1-ladder/results/"}
+    children: ["H1.1"]
+
+  - id: "H1.1"
+    statement: >
+      가장 단순한 설계(조합 논리 1개)로 RTL 작성 → 테스트벤치 기능 정합 → 합성 →
+      P&R → sign-off clean GDSII(SKY130 또는 IHP, TT 템플릿 제약)까지 로컬 파이프라인을
+      1주 이내 완주할 수 있다.
+    parent: "H1"
+    motivation: >
+      INTENT의 "확인하고 싶은 것"(파이프라인 스모크 테스트). 모든 후속 가설의 공통
+      전제 — 가장 싸게 실패할 수 있는 지점.
+    status: approved
+    judgment:
+      novelty: false         # 단순 설계의 파이프라인 완주 자체는 선행 다수 (LLM+TT 교육 등)
+      importance: high       # 모든 후속 가설의 전제 조건
+      feasibility: true
+      falsifiability: true   # null: 1주 내 sign-off clean 미달
+      already_solved: false  # "이 환경·이 Operator"에서의 완주는 미확인
+      verdict: approved
+      rationale: "novelty는 낮으나 연구 주장이 아닌 enabling test — H1의 최저비용 반증 테스트로 승인"
+    experiment:
+      design_summary: >
+        4-bit ripple-carry adder를 LibreLane+SKY130A+TT 템플릿으로 RTL→GDSII 완주.
+        판정 4항목(테스트벤치 256/256·flow 완주·sign-off clean·7일 이내) 사전 고정.
+        학습 축 파일럿(튜토리얼+서술형 퀴즈 1회, Codex 채점) 동시 수행.
+      protocol_path: "experiments/H1.1-smoke/protocol.md"
+      status: locked
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: "experiments/H1.1-smoke/results/"}
+    children: []
+
+  - id: "H2"
+    statement: >
+      설계 사이클에 튜토리얼 학습 + 서술형 퀴즈(사전 고정 루브릭, 생성 엔진과 분리된
+      채점)를 내장하면, Operator의 개념 이해도(DLCI pre/post gain + 사이클별 퀴즈
+      점수)가 사이클 진행에 따라 단조 상승한다.
+    parent: null
+    motivation: >
+      가설의 학습 축 본체. TUM RCT는 AI 보조가 학습을 올리지 못함을 보였으나 구조화
+      개입(튜토리얼·퀴즈 게이트) 조건은 미검증 — LLM+TT 교육 논문이 학습 곡선
+      정량화를 future work로 남긴 공백.
+    status: approved
+    judgment:
+      novelty: true          # 구조화 개입(튜토리얼+퀴즈 게이트) 조건의 학습 곡선은 미검증 공백
+      importance: high       # 학습 축 = 본 가설의 novelty 절반
+      feasibility: true      # 단 DLCI 문항 입수 확인 필요 — 최저비용 테스트에 포함
+      falsifiability: true   # null: DLCI gain 없음 또는 퀴즈 점수 비단조
+      already_solved: false
+      verdict: approved
+      rationale: "5기준 통과. N=1 한계는 범위 한정('본 Operator에게서')으로 정직하게 처리. 최저비용 테스트 = DLCI 입수 + pre 측정 + 퀴즈 루브릭 1회 파일럿"
+    experiment: {design_summary: "", protocol_path: "experiments/H2-learning/protocol.md", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: "experiments/H2-learning/results/"}
+    children: ["H2.1"]
+
+  - id: "H2.1"
+    statement: >
+      설계 성과(게이트 통과)와 학습 지표(퀴즈·DLCI)는 분리되어 움직이는 구간이
+      존재한다 — 즉 게이트를 통과했지만 퀴즈에 실패하는 사이클이 전체의 20% 이상
+      관찰된다 (성과-학습 해리의 N=1 재현).
+    parent: "H2"
+    motivation: >
+      해리가 본 설정에서도 재현되면 "학습 게이트 없는 바이브 코딩은 학습을 보장하지
+      않는다"는 부정적 증거로, 학습 게이트의 존재 이유가 데이터로 정당화됨.
+    status: approved
+    judgment:
+      novelty: true          # 해리의 하드웨어 설계 도메인 + 종단 N=1 재현은 미보고
+      importance: medium     # H2의 보조 — 학습 게이트의 존재 이유를 데이터로 정당화
+      feasibility: true      # H1/H2와 같은 사이클 데이터에서 관찰 — 추가 비용 0
+      falsifiability: true   # null: 해리 사이클 <20% (임계 사전 고정)
+      already_solved: false
+      verdict: approved
+      rationale: "H2 데이터에 무임승차하는 관찰 가설 — 추가 비용 없이 정보 가치"
+    experiment: {design_summary: "", protocol_path: "experiments/H2.1-dissociation/protocol.md", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: "experiments/H2.1-dissociation/results/"}
+    children: []
+
+  - id: "H3"
+    statement: >
+      Operator 이해도 상승은 후속 사이클의 설계 효율을 개선한다 — 퀴즈 점수가 높았던
+      사이클 직후의 사이클은 낮았던 직후 대비 첫 시도 게이트 통과율이 높거나 재작업
+      반복 수가 적다 (학습→설계 환류의 관측).
+    parent: null
+    motivation: >
+      "학습과 설계를 하나의 사이클로 계속 진화"의 결합 축 — 두 축이 실제로 서로를
+      강화하는지가 INTENT 가설의 핵심 차별점 (human-AI co-learning 프레임의 도메인 실증).
+    status: pending          # DEFERRED — 아래 rationale
+    judgment:
+      novelty: true          # 학습→설계 환류의 정량 관측은 co-learning 문헌에도 공백
+      importance: high       # INTENT "하나의 사이클로 계속 진화"의 핵심 검증
+      feasibility: false     # 현시점 불가: 사이클 수 부족 + 난이도 상승과 교락(사다리 오를수록 통과율 자연 하락)
+      falsifiability: true
+      already_solved: false
+      verdict: null          # DEFERRED — H1/H2 사이클 데이터 축적 후 교락 통제 설계와 함께 재평가
+      rationale: "가설 자체는 우수하나 지금 판정하면 교락 미통제. 사이클 5개 이상 축적 시 재입장"
+    experiment: {design_summary: "", protocol_path: "experiments/H3-coevolution/protocol.md", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: "experiments/H3-coevolution/results/"}
+    children: []
+
+  - id: "H4"
+    statement: >
+      난이도 사다리를 통과한 설계 중 최소 1개는 Tiny Tapeout 제출 자동 검사(형식·DRC,
+      GitHub Actions)를 통과한다 — 실무성 판정점은 제출 승인이며 실칩 제작·수령은
+      판정에 포함하지 않는다 (Not: 소프트웨어 검증 우선).
+    parent: null
+    motivation: >
+      "실무에서 사용 가능"의 외부 판정 마일스톤. 판정점을 제출 승인으로 당겨 피드백
+      지연(6-12개월)을 제거하면서 외부 객관성 유지.
+    status: approved
+    judgment:
+      novelty: false         # AI 설계의 TT 제출 자체는 선행 다수 (2,000+ 설계 제출 이력)
+      importance: medium     # 연구 주장이 아니라 실무성 마일스톤 — INTENT의 외부 판정점
+      feasibility: true      # €70, 마감 2026-09-21(IHP)/2026-12(SKY130)
+      falsifiability: true   # null: 제출 자동 검사 불통과
+      already_solved: false  # "게이트 통과 설계가 제출 검사를 통과하는가"는 본 프로젝트 고유 질문
+      verdict: approved
+      rationale: "novelty 낮음을 인정하되 연구 가설이 아닌 마일스톤으로 재분류해 승인 — 논문 주장에는 사용하지 않음"
+    experiment: {design_summary: "", protocol_path: "experiments/H4-tt-submit/protocol.md", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: "experiments/H4-tt-submit/results/"}
+    children: []
