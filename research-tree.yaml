@@ -66,7 +66,7 @@ hypotheses:
       "하드웨어판 MLflow"의 부재가 도구 전수 비교로 확인된 공백(HBS 논문·ORFS 문서),
       수작업 사례(OR #7482, endraws 블로그) 존재. 도그푸딩 경로가 자연스럽고
       C4(QoR 예측기)의 데이터 인프라를 겸한다. WOSET/JOSS 진입 요건과 정합.
-    status: approved
+    status: completed
     judgment:
       novelty: true
       importance: high
@@ -81,8 +81,17 @@ hypotheses:
         K1 전수 원문 토큰 정합(독립 오라클), K2 시간 절감 ≥50%(자동 계측·도구 불리 보수 규칙),
         K4 외부 사용 증거(Release 앵커+60일 창). 2단계 판정, 14일 창.
       protocol_path: "experiments/A-run-tracker/protocol.md"
-      status: locked          # 2026-08-25 Codex 게이트 5차 approve
-    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+      status: done            # 1차 판정 완료 2026-08-25
+    results:
+      summary: >
+        K1 통과(8,837키 불일치 0·21/21 완주)·K3 통과(Codex 3차 왕복). K2 실패:
+        절감 24% < 50% — AI 에이전트가 양 조건 수행자라 baseline이 극도로 빠르고
+        scan 고정비가 지배. 트리 §6-2 refuted. 상세: experiments/A-run-tracker/results.md
+      outcome: refuted
+      key_metrics:
+        - {metric: "K2 time saving", value: 0.24, baseline_value: 0.50, delta: -0.26}
+        - {metric: "K1 token mismatches", value: 0, baseline_value: 0, delta: 0}
+      artifacts_path: "semiconductor-design-tracks/A-run-tracker/results/"
     children: ["H1.1"]
 
   - id: "H1.1"
