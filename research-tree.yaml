@@ -139,7 +139,7 @@ hypotheses:
     motivation: >
       "거의 모두가 겪는" 최대 페인포인트(OpenLane #1183) + 메인테이너 명시 요청(OR #7482).
       단 진단 지식 코퍼스 구축 비용과 적중률 검증의 난도가 높음.
-    status: approved
+    status: completed
     judgment:
       novelty: true
       importance: high
@@ -154,8 +154,17 @@ hypotheses:
         홀드아웃 입력은 기계 추출(코드펜스 연결). 판정: hits ≥ ceil(0.60N) supported /
         ceil(0.40N)-경계 inconclusive / 미만 refuted (N ≥ 10 필수). 교차 오염 감사 N′ 병기. 14일 창.
       protocol_path: "experiments/C-flow-doctor/protocol.md"
-      status: locked          # 2026-08-25 Codex 게이트 3차 approve
-    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+      status: done            # 백테스트 완료 2026-08-25
+    results:
+      summary: >
+        hits 0/11 (기계 miss 9 + Codex 심사 miss 2). 재대입 32/32 대비 홀드아웃 0% —
+        룰 DB의 전형적 과적합. unknown 정직 출력으로 오진 0. N′=10에서도 0.
+        상세: experiments/C-flow-doctor/results.md
+      outcome: refuted
+      key_metrics:
+        - {metric: "holdout top-1 hit rate", value: 0.0, baseline_value: 0.60, delta: -0.60}
+        - {metric: "dev refit hit rate (exploratory)", value: 1.0, baseline_value: null, delta: null}
+      artifacts_path: "semiconductor-design-tracks/C-flow-doctor/data/backtest/"
     children: []
 
   - id: "H4"
