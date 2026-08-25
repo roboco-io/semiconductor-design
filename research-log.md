@@ -9,3 +9,5 @@
 | 5 | 2026-08-25 | Judgment | Operator 결정: **A/B/C/D 4트랙 전부 승인, 병렬 구현·검증 방침**. H1·H1.1·H2·H3·H5 approved, H4 DEFERRED(신생 경쟁 관찰). D는 IR drop 경량 모델(H5)로 구체화 — 포트폴리오 균형(도구 3+모델 1). |
 | 6 | 2026-08-25 | Experiment Design (계획) | 4트랙 계획서 작성: `plans/README.md`(총괄·공통 방법론·의존성 그래프) + A/B/C/D 트랙별 계획서(스코프·판정 기준 초안·태스크 그래프·리스크). 착수 우선순위 A ≥ D > B > C. 다음: 트랙별 protocol LOCK(Codex 게이트) 후 구현. |
 | 7 | 2026-08-25 | Execution 착수 | Operator "진행" 지시. 로컬 환경 확인(Docker ✓·brew ✓·EDA 툴 전무·10코어/32GB) 후 병렬 착수: **INFRA-0**(LibreLane+PDK+시뮬레이터 구축·스모크), **D1**(ICCAD'23 IR drop 데이터 정찰), **C1**(실패 사례 코퍼스 수집 ≥30건). 전부 pre-LOCK 단계 작업(구현 아님). 트랙 작업 공간: `../semiconductor-design-tracks/`. |
+| 8 | 2026-08-25 | Execution | **INFRA-0 완료** (전 항목 성공): LibreLane 3.0.11 dockerized + SKY130 + 스모크 80/80 + SPM 완주(DRC 0·LVS 0). A·B·C 선행 의존성 해소. **D1 완료**: 데이터 접근 리스크 해소(hidden 정답 공개·점수표 확보). **C1 완료**: 46건 코퍼스(9단계, 해결책 93%). |
+| 9 | 2026-08-25 | Experiment Design | **트랙 D protocol LOCKED v6** — Codex 게이트 6차 왕복(request_changes 5회 → approve). 핵심 규율: fold별 전처리 통계(누출 차단), 절차적 홀드아웃 명시, 비교자 SHA 고정(Alpha-Chip@f41862cd), 전 레시피 동결, 예산 32h/28h + 하드스톱, 결정 트리 전수 포괄. |

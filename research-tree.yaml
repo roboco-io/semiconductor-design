@@ -184,6 +184,12 @@ hypotheses:
       already_solved: false
       verdict: approved    # Operator 2026-08-25: 병렬 트랙 D (모델 트랙 대표로 격상)
       rationale: "공개 리더보드 객관 비교 + 포트폴리오 균형(도구 3 + 모델 1)."
-    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    experiment:
+      design_summary: >
+        ICCAD'23 공식 hidden 10 절차적 홀드아웃, V1(LightGBM tile-tabular)·V2(소형 U-Net ≤1M)
+        고정 그리드 40구성, 5-fold CV 선택, 판정=상위 5팀 값(MAE ≤3.649e-4, F1 ≥0.2589)
+        + Alpha-Chip@f41862cd 대비 동일 하드웨어 경량 우위(크기 1/5·시간 1/2). 예산 60h(32/28).
+      protocol_path: "experiments/D-irdrop/protocol.md"
+      status: locked          # 2026-08-25 Codex 게이트 6차 approve
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
