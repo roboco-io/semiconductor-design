@@ -4,32 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Context
 
-**2026-08-22 완전 피벗(원점 재시작)** — 이전 프로젝트(EDA surrogate 사례 연구 1 + 거버넌스
-일반화)는 전부 내려놓고 의도 정의부터 다시 시작했다.
+**2026-08-25 완전 제로베이스 재피벗** — 구 사이클(바이브 코딩 INTENT + H1.1 스모크)을 전량
+제거하고 EDA 영역 literature survey부터 재시작했다.
 
-새 프로젝트: **반도체 설계 × 바이브 코딩** —
-"AI를 활용해 비전문가 소프트웨어 개발자가 학습과 반도체 설계를 하나의 사이클로 계속
-진화시켜 나갈 수 있는가"를 실험. 결과는 객관적으로 검증·측정 가능하고 실무 사용 가능해야 한다.
+현 프로젝트: **범용 코딩 에이전트의 EDA 하네스 설계 연구** —
+FluxBench(2026)가 실증한 "하네스 아키텍처 86% 성능 격차"의 설계 원리 공백을 공략.
 
-- **[`INTENT.md`](INTENT.md)가 유일한 방향 문서** (status: exploring). Why는 확정,
-  확인 방법은 이중 축으로 결정(2026-08-22, [`issues/011`](issues/011-intent-verify-method-selection.md)):
-  - 설계 축: 기능 정합(pass@k·형식 등가성) + METRICS2.1 기반 PPA/sign-off 게이트
-  - 학습 축: DLCI pre/post + AI 상호작용 패턴 로그 (성과-학습 해리 대응, 분리 측정)
-  - 실무성 마일스톤: Tiny Tapeout 실리콘 실증
-- What(난이도 사다리 + 한계 지도, 사이클 = 설계→튜토리얼→서술형 퀴즈→이중 축 게이트,
-  [`issues/012`](issues/012-intent-what-candidates.md))·Not(소프트웨어 검증 우선) 작성 완료.
-  열린 `(?)`: 서술형 퀴즈 채점의 객관성 확보 방식. 배경 지식: sign-off/tapeout 프라이머
-  [`issues/010-appendix-a`](issues/010-appendix-a-signoff-tapeout-primer.md).
-- 가설 정식화 도구: `.claude/skills/meta-research/` (vendored, 검증 이력
-  [`issues/013`](issues/013-hypothesis-skill-selection.md)) — `/meta-research`로 호출.
+- **방향 문서**: [`research-tree.yaml`](research-tree.yaml) (가설 트리) +
+  [`research-log.md`](research-log.md) (타임라인)이 프로젝트 상태의 원천.
+- **Survey**: [`literature/survey.md`](literature/survey.md) (5축 46편, raw는 `literature/raw/`).
+- **가설**: H1 하네스 설계(주축, **protocol LOCKED** —
+  [`experiments/H1-harness/protocol.md`](experiments/H1-harness/protocol.md)),
+  H1.1 Token ROI(부속), H2 교차 엔진 검증·H4 sign-off 해리(순차 대기),
+  H5 학습 축 N=1(경량 병행), H3 REVISE, H6 DEFER. 결정 이력:
+  [`issues/001`](issues/001-hypothesis-judgment-brief.md).
+- **H1 실행 규율**: pre-flight(환경·태스크·채점기·하네스 커밋)는 기한 미기산.
+  **7일 기한은 "실행 개시" 커밋(첫 에이전트 세션 직전)부터.** 개시 커밋 전 실험 조건의
+  RTL/결과물 생성 금지 — git 순서가 사전등록 증명. plan 커밋과 results 커밋 절대 병합 금지.
+- 가설 정식화 도구: `.claude/skills/meta-research/` — `/meta-research`로 호출.
 
 ## 이전 사이클 참조 (main에 없음)
 
 | 자산 | 위치 |
 |---|---|
-| 피벗 직전 전체 스냅샷 (사례 연구 1 코드·spec·wiki·experiments 리포트) | git tag `archive/pre-vibe-pivot-2026-08-23` |
+| 직전 사이클(바이브 코딩 INTENT·H1.1 스모크 protocol) | git tag `archive/pre-eda-zerobase-pivot-2026-08-25` |
+| EDA surrogate 사례 연구 1 스냅샷 | git tag `archive/pre-vibe-pivot-2026-08-23` |
 | 3-layer 시절 자산 | branch `archive/integrated-program-3layer` |
-| 이전 INTENT (3회 피벗 Learnings 이력) | `docs/INTENT-archive-2026-08-22.md` |
 | git 미추적 실험 아티팩트 1.9GB | `~/Backups/semiconductor-design-experiments-2026-08-23.tar.gz` |
 
 이전 사이클 자산을 새 작업의 근거로 삼지 않는다. 필요 시 참조만.
