@@ -8,3 +8,4 @@
 | 4 | 2026-08-25 | Survey → Hypothesis Gen | 후보를 가설 5루트+1서브로 정식화 (H1 실험추적 도구→H1.1 QoR 예측기, H2 STA 분석기, H3 log doctor, H4 검증 관리, H5 IR drop 모델). 결정 브리프 issue 001 작성 — Operator 선택 대기. 권고: A(H1→H1.1). |
 | 5 | 2026-08-25 | Judgment | Operator 결정: **A/B/C/D 4트랙 전부 승인, 병렬 구현·검증 방침**. H1·H1.1·H2·H3·H5 approved, H4 DEFERRED(신생 경쟁 관찰). D는 IR drop 경량 모델(H5)로 구체화 — 포트폴리오 균형(도구 3+모델 1). |
 | 6 | 2026-08-25 | Experiment Design (계획) | 4트랙 계획서 작성: `plans/README.md`(총괄·공통 방법론·의존성 그래프) + A/B/C/D 트랙별 계획서(스코프·판정 기준 초안·태스크 그래프·리스크). 착수 우선순위 A ≥ D > B > C. 다음: 트랙별 protocol LOCK(Codex 게이트) 후 구현. |
+| 7 | 2026-08-25 | Execution 착수 | Operator "진행" 지시. 로컬 환경 확인(Docker ✓·brew ✓·EDA 툴 전무·10코어/32GB) 후 병렬 착수: **INFRA-0**(LibreLane+PDK+시뮬레이터 구축·스모크), **D1**(ICCAD'23 IR drop 데이터 정찰), **C1**(실패 사례 코퍼스 수집 ≥30건). 전부 pre-LOCK 단계 작업(구현 아님). 트랙 작업 공간: `../semiconductor-design-tracks/`. |
