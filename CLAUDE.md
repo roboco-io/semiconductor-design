@@ -16,8 +16,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - 설계 축: 기능 정합(pass@k·형식 등가성) + METRICS2.1 기반 PPA/sign-off 게이트
   - 학습 축: DLCI pre/post + AI 상호작용 패턴 로그 (성과-학습 해리 대응, 분리 측정)
   - 실무성 마일스톤: Tiny Tapeout 실리콘 실증
-- What/Not은 작성 중 (workflow:intent 스킬 흐름). 배경 지식: sign-off/tapeout 프라이머
+- What(난이도 사다리 + 한계 지도, 사이클 = 설계→튜토리얼→서술형 퀴즈→이중 축 게이트,
+  [`issues/012`](issues/012-intent-what-candidates.md))·Not(소프트웨어 검증 우선) 작성 완료.
+  열린 `(?)`: 서술형 퀴즈 채점의 객관성 확보 방식. 배경 지식: sign-off/tapeout 프라이머
   [`issues/010-appendix-a`](issues/010-appendix-a-signoff-tapeout-primer.md).
+- 가설 정식화 도구: `.claude/skills/meta-research/` (vendored, 검증 이력
+  [`issues/013`](issues/013-hypothesis-skill-selection.md)) — `/meta-research`로 호출.
 
 ## 이전 사이클 참조 (main에 없음)
 
@@ -29,6 +33,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | git 미추적 실험 아티팩트 1.9GB | `~/Backups/semiconductor-design-experiments-2026-08-23.tar.gz` |
 
 이전 사이클 자산을 새 작업의 근거로 삼지 않는다. 필요 시 참조만.
+
+## Intent Constraints (INTENT.md Not 연동 — 2026-08-25)
+
+- **검증은 소프트웨어 우선**: 판정은 시뮬레이션·형식 등가성·로컬 sign-off로 한다.
+  실칩 제작(Tiny Tapeout)은 최종 실무성 마일스톤 1회에 한정 — 사이클 게이트에
+  하드웨어 제작·비용 지출을 넣지 않는다.
 
 ## Code Conventions
 
