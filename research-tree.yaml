@@ -1,0 +1,189 @@
+# Research Tree — 사이클 3 (2026-08-25 오후 시작)
+# 이전: tag archive/eda-harness-cycle-2026-08-25 (하네스 연구), archive/pre-eda-zerobase-pivot-2026-08-25 (구 바이브코딩 INTENT)
+# 이전 사이클 자산을 근거로 사용 금지
+
+project:
+  title: "반도체 설계에 유용한 SW/모델의 바이브 코딩 개발 — 대상 선정"
+  domain: "EDA 실용 소프트웨어/모델 개발 (vibe coding)"
+  started: "2026-08-25"
+  status: active
+
+# Operator가 고정한 의도 (2026-08-25):
+# "핵심은 반도체 설계에 있어서 유용한 소프트웨어 또는 모델을 바이브 코딩 기법으로 개발하는 것"
+# → 연구 산출물 = 설계 현장에 실제 쓸모 있는 소프트웨어/모델. 바이브 코딩은 개발 방법.
+
+field_understanding:
+  sota_summary: >
+    오픈소스 EDA는 엔진 계층(OpenROAD/LibreLane/Verilator/cocotb)은 성숙했으나
+    해석(타이밍 리포트·실패 로그)·검증 관리(커버리지 통합·회귀 triage)·실험 관리
+    (run 추적 — "하드웨어판 MLflow" 부재) 계층이 공백. 소형 ML 모델은 공개 데이터셋
+    (CircuitNet·EDA-Schema·ICCAD'23 IR)이 성숙했고 tabular QoR 조기 예측은 무주공산.
+    바이브 코딩 방법론은 Normal Computing(1인+AI 43일 580K줄 검증 스택)·Meta CoreSmith
+    등으로 실증 단계 — 품질 담보는 기계적 게이트(외부 벤치마크·형식검증·sign-off).
+    유용성의 객관 검증 경로(외부 벤치마크 > 채택 증거 > 시간 절감 표)와 학술 진입로
+    (WOSET/JOSS/ICCAD tool paper)가 명확히 존재. 상세: literature/survey.md
+  key_papers:
+    - id: "normal-circt-2026"
+      title: "Building an open-source Verilog simulator with AI (580K lines in 43 days)"
+      year: 2026
+      relevance: "1인+AI 게이트 기반 개발의 실증 선례 — 본 프로젝트 방법론의 직접 근거"
+    - id: "surfer-cav-2025"
+      title: "Surfer waveform viewer (CAV 2025)"
+      year: 2025
+      relevance: "1인 시작 도구의 채택 성공 공식: 기존 포맷 + 나은 UX + 임베드 가능"
+    - id: "metrics21-autotuner"
+      title: "METRICS2.1 + AutoTuner (ICCAD 2021)"
+      year: 2021
+      relevance: "표준 메트릭 포맷 존재 — C1 실험 추적 도구·C4 예측기의 데이터 기반"
+    - id: "eda-schema-v2"
+      title: "EDA-Schema-V2 (OpenROAD+오픈 PDK, 7,776 인스턴스)"
+      year: 2026
+      relevance: "C4 QoR 예측기의 공개 베이스라인·비교 프로토콜"
+    - id: "woset-joss"
+      title: "WOSET / JOSS 심사 기준"
+      year: 2024
+      relevance: "도구의 학술 인정 경로 — repo 공개·CI·impact 증거 요건"
+  open_problems:
+    - "타이밍 리포트·실패 로그의 해석 계층 부재 (OR #1759, OpenLane #1183, mcp#96)"
+    - "run 추적·비교 도구 부재 — METRICS2.1 포맷은 있으나 하드웨어판 MLflow 없음"
+    - "커버리지 이원화(cocotb/Verilator)로 merge·시각화 불가 — cocotb 설문 최다 불만"
+    - "tabular QoR 조기 예측의 공개 베이스라인·리더보드 부재 (무주공산)"
+    - "sby 반례 재실행 불가 (sby #300), 회귀 실패 triage 수작업"
+  underexplored_areas:
+    - "C1 실험 추적 도구 (공백 전수 확인, 도그푸딩 경로)"
+    - "C4 QoR 조기 예측기 (CPU 학습, EDA-Schema 비교 프로토콜 존재)"
+    - "C2 STA 리포트 분석기 (수요 근거 최다, 코어팀 리스크 있음)"
+    - "C3 플로우 실패 진단기 / C5 회귀 triage / C6 커버리지 통합 / C7 sby 브리지 / C8 IR drop 모델 / C9 tt-doctor"
+
+hypotheses:
+  - id: "H1"
+    statement: >
+      게이트 기반 바이브 코딩으로 개발한 RTL-to-GDS 실험 추적·비교 도구(METRICS2.1
+      수집→run 디프·파라미터-결과 상관 대시보드)는, 사전 고정 유용성 기준(메트릭 수집
+      정합성 + 수작업 대비 run 비교 시간 절감 + 외부 사용 증거)을 충족한다.
+    parent: null
+    motivation: >
+      "하드웨어판 MLflow"의 부재가 도구 전수 비교로 확인된 공백(HBS 논문·ORFS 문서),
+      수작업 사례(OR #7482, endraws 블로그) 존재. 도그푸딩 경로가 자연스럽고
+      C4(QoR 예측기)의 데이터 인프라를 겸한다. WOSET/JOSS 진입 요건과 정합.
+    status: pending
+    judgment:
+      novelty: true
+      importance: high
+      feasibility: true
+      falsifiability: true
+      already_solved: false
+      verdict: null
+      rationale: "권고 APPROVE(주축). 순수 SW·로컬. 유용성 기준은 protocol에서 사전 고정."
+    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+    children: ["H1.1"]
+
+  - id: "H1.1"
+    statement: >
+      H1 도구가 수집한 METRICS2.1 데이터로 학습한 tabular QoR 조기 예측기
+      (XGBoost/LightGBM)는 leave-one-design-out 스플릿에서 OpenROAD 자체 stage별
+      추정치(EDA-Schema 베이스라인) 대비 post-route 예측 MAE를 유의하게 낮추고,
+      AutoTuner 탐색에 조기중단 추천으로 통합 시 총 탐색 시간을 단축한다.
+    parent: "H1"
+    motivation: >
+      tabular QoR 조기 예측은 표준 스플릿·리더보드·GBDT 공개 구현이 없는 무주공산.
+      상용(DSO.ai·Cerebrus)이 파는 가치의 오픈소스 공백. CPU 수 분 학습.
+    status: pending
+    judgment:
+      novelty: true
+      importance: high
+      feasibility: true
+      falsifiability: true
+      already_solved: false
+      verdict: null
+      rationale: "권고 APPROVE(H1 후속). '소프트웨어+모델' 의도를 한 로드맵으로 충족."
+    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+    children: []
+
+  - id: "H2"
+    statement: >
+      STA 리포트 분석기(report_checks→구조화 JSON+HTML 시각화, CLI+MCP)는 ORFS 예제
+      전수에서 원본 리포트와 100% 수치 정합(golden diff)을 달성하고, 공개 후 외부
+      사용 증거를 확보한다.
+    parent: null
+    motivation: >
+      수요 근거 최다(OR #1759·#10020·#9371·#4633 + openroad-mcp #96 "Impact: High").
+      AI 타이밍 클로저의 전제 부품. 단 OpenROAD 코어팀이 직접 구현할 리스크.
+    status: pending
+    judgment:
+      novelty: true
+      importance: high
+      feasibility: true
+      falsifiability: true
+      already_solved: false
+      verdict: null
+      rationale: "권고 APPROVE(차선 또는 H1 병행 후보). 검증이 가장 결정적(golden diff)."
+    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+    children: []
+
+  - id: "H3"
+    statement: >
+      플로우 실패 진단기(log doctor: LibreLane/ORFS 런 디렉토리→실패 시그니처 매칭→
+      원인·수정 제안)는 공개 실패 사례 코퍼스 백테스트에서 사전 고정 적중률 기준을
+      충족한다.
+    parent: null
+    motivation: >
+      "거의 모두가 겪는" 최대 페인포인트(OpenLane #1183) + 메인테이너 명시 요청(OR #7482).
+      단 진단 지식 코퍼스 구축 비용과 적중률 검증의 난도가 높음.
+    status: pending
+    judgment:
+      novelty: true
+      importance: high
+      feasibility: true
+      falsifiability: true
+      already_solved: false
+      verdict: null
+      rationale: "권고 APPROVE하되 후순위 — 실패 사례 코퍼스 수집이 선행 투자."
+    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+    children: []
+
+  - id: "H4"
+    statement: >
+      검증 관리 도구(회귀 실패 triage 또는 커버리지 통합 리포트)는 공개 프로젝트 적용에서
+      사전 고정 기준(triage 시간 단축 / merge 정확성)을 충족한다.
+    parent: null
+    motivation: >
+      cocotb 설문 최다 불만(커버리지) + xevdb·TraceWeave 등장(수요 신호). 단 triage는
+      신생 경쟁 존재, 커버리지는 UCIS 표준 학습 비용.
+    status: pending
+    judgment:
+      novelty: true
+      importance: medium
+      feasibility: true
+      falsifiability: true
+      already_solved: false
+      verdict: null
+      rationale: "권고 DEFER — 수요는 실하나 주축 대비 차별 우위가 약함."
+    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+    children: []
+
+  - id: "H5"
+    statement: >
+      ICCAD'23 IR drop 공개 리더보드에서 경량 모델(소형 U-Net 또는 tile-tabular GBDT)은
+      공개 최종 점수표 대비 경쟁력 있는 MAE/F1을 모델 크기·런타임 우위와 함께 달성한다.
+    parent: null
+    motivation: >
+      채점에 모델 크기·런타임 포함 — 소형 모델에 구조적으로 유리한 유일한 공개 리더보드.
+      순수 '모델' 트랙 대표. 단 도구화(실무 통합) 경로가 약함.
+    status: pending
+    judgment:
+      novelty: false          # 리더보드 기존 참가작 다수 — 경량화 각도만 신규
+      importance: medium
+      feasibility: true
+      falsifiability: true
+      already_solved: false
+      verdict: null
+      rationale: "권고 DEFER — 객관 비교는 최상이나 '유용한 도구' 의도와의 정합이 간접적."
+    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
+    children: []
