@@ -80,13 +80,13 @@ hypotheses:
         spm 단일 설계 21-run 코퍼스(밀도PCT×클럭 격자) + ORFS 정적 코퍼스.
         K1 전수 원문 토큰 정합(독립 오라클), K2 시간 절감 ≥50%(자동 계측·도구 불리 보수 규칙),
         K4 외부 사용 증거(Release 앵커+60일 창). 2단계 판정, 14일 창.
-      protocol_path: "experiments/A-run-tracker/protocol.md"
+      protocol_path: "tracks/A-run-tracker/protocol.md"
       status: done            # 1차 판정 완료 2026-08-25
     results:
       summary: >
         K1 통과(8,837키 불일치 0·21/21 완주)·K3 통과(Codex 3차 왕복). K2 실패:
         절감 24% < 50% — AI 에이전트가 양 조건 수행자라 baseline이 극도로 빠르고
-        scan 고정비가 지배. 트리 §6-2 refuted. 상세: experiments/A-run-tracker/results.md
+        scan 고정비가 지배. 트리 §6-2 refuted. 상세: tracks/A-run-tracker/results.md
       outcome: refuted
       key_metrics:
         - {metric: "K2 time saving", value: 0.24, baseline_value: 0.50, delta: -0.26}
@@ -162,13 +162,13 @@ hypotheses:
         코퍼스 46건(개발 32/홀드아웃 14 사전등록 분할). 룰 DB는 개발용만으로 별도 에이전트가 구축,
         홀드아웃 입력은 기계 추출(코드펜스 연결). 판정: hits ≥ ceil(0.60N) supported /
         ceil(0.40N)-경계 inconclusive / 미만 refuted (N ≥ 10 필수). 교차 오염 감사 N′ 병기. 14일 창.
-      protocol_path: "experiments/C-flow-doctor/protocol.md"
+      protocol_path: "tracks/C-flow-doctor/protocol.md"
       status: done            # 백테스트 완료 2026-08-25
     results:
       summary: >
         hits 0/11 (기계 miss 9 + Codex 심사 miss 2). 재대입 32/32 대비 홀드아웃 0% —
         룰 DB의 전형적 과적합. unknown 정직 출력으로 오진 0. N′=10에서도 0.
-        상세: experiments/C-flow-doctor/results.md
+        상세: tracks/C-flow-doctor/results.md
       outcome: refuted
       key_metrics:
         - {metric: "holdout top-1 hit rate", value: 0.0, baseline_value: 0.60, delta: -0.60}
@@ -219,7 +219,7 @@ hypotheses:
         ICCAD'23 공식 hidden 10 절차적 홀드아웃, V1(LightGBM tile-tabular)·V2(소형 U-Net ≤1M)
         고정 그리드 40구성, 5-fold CV 선택, 판정=상위 5팀 값(MAE ≤3.649e-4, F1 ≥0.2589)
         + Alpha-Chip@f41862cd 대비 동일 하드웨어 경량 우위(크기 1/5·시간 1/2). 예산 60h(32/28).
-      protocol_path: "experiments/D-irdrop/protocol.md"
+      protocol_path: "tracks/D-irdrop/protocol.md"
       status: locked          # 2026-08-25 Codex 게이트 6차 approve
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []

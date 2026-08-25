@@ -1,7 +1,7 @@
 # 트랙 D 실험 프로토콜 — IR drop 경량 예측 모델 (H5)
 
 상태: **LOCKED v6** (2026-08-25, Codex 게이트 6차 심사 approve) — 이탈은 EXPLORATORY 라벨 필수
-날짜: 2026-08-25 · 가설: [`research-tree.yaml`](../../research-tree.yaml) H5 · 계획: [`plans/D-irdrop-model.md`](../../plans/D-irdrop-model.md) · 데이터 정찰: [`D1-data-recon.md`](D1-data-recon.md)
+날짜: 2026-08-25 · 가설: [`research-tree.yaml`](../../research-tree.yaml) H5 · 계획: [`plan.md`](plan.md) · 데이터 정찰: [`D1-data-recon.md`](D1-data-recon.md)
 
 ## 1. 가설 (전사 — 재수정 금지)
 

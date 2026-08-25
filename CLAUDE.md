@@ -10,13 +10,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 트랙 | 산출물 | 가설 | 계획서 |
 |---|---|---|---|
-| A | RTL-to-GDS 실험 추적 도구 → QoR 조기 예측기 | H1/H1.1 | [`plans/A`](plans/A-run-tracker.md) |
-| B | STA 리포트 분석기 | H2 | [`plans/B`](plans/B-sta-analyzer.md) |
-| C | 플로우 실패 진단기 | H3 | [`plans/C`](plans/C-flow-doctor.md) |
-| D | IR drop 경량 예측 모델 | H5 | [`plans/D`](plans/D-irdrop-model.md) |
+| A | RTL-to-GDS 실험 추적 도구 → QoR 조기 예측기 | H1/H1.1 **refuted** | [`tracks/A-run-tracker/`](tracks/A-run-tracker/) |
+| B | STA 리포트 분석기 | H2 (대기) | [`tracks/B-sta-analyzer/`](tracks/B-sta-analyzer/) |
+| C | 플로우 실패 진단기 | H3 **refuted** | [`tracks/C-flow-doctor/`](tracks/C-flow-doctor/) |
+| D | IR drop 경량 예측 모델 | H5 (진행) | [`tracks/D-irdrop/`](tracks/D-irdrop/) |
 
 - 상태의 원천: [`research-tree.yaml`](research-tree.yaml) + [`research-log.md`](research-log.md). 조사 근거: [`literature/survey.md`](literature/survey.md).
-- 착수 우선순위 A ≥ D > B > C. 공유 선행 태스크: INFRA-0(로컬 EDA 환경). 총괄: [`plans/README.md`](plans/README.md).
+- **트랙 폴더 통합(2026-08-26)**: 각 트랙의 계획·protocol·결과·튜토리얼은 `tracks/<트랙>/`에 한곳에. 총괄: [`tracks/README.md`](tracks/README.md). 구 `plans/`·`experiments/`는 폐지.
+- **튜토리얼 규율(2026-08-26)**: 판정·주요 마일스톤 커밋 시 해당 `tracks/<트랙>/tutorial.md`의 "실험 일지"를 같은 작업 흐름에서 갱신(12살 눈높이 서술형 + 주관식 퀴즈, 모범답안은 `<details>`). 커밋 prefix `docs(tutorial):` — results 커밋과 분리. 상세 규칙: tracks/README.md.
 - **트랙 착수 규율**: 구현 시작 전 해당 트랙의 유용성 판정 기준을 protocol로 LOCK(Codex 게이트 심사) 후 이 리포에 커밋. plan 커밋과 results 커밋 절대 병합 금지.
 - 트랙 구현은 독립 public repo(Apache-2.0), 이 리포는 연구 관리(계획·프로토콜·결과·로그) 전용.
 - 가설 정식화 도구: `.claude/skills/meta-research/` — `/meta-research`.

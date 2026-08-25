@@ -1,7 +1,7 @@
 # 트랙 C 실험 프로토콜 — 플로우 실패 진단기 (H3)
 
 상태: **LOCKED v3** (2026-08-25, Codex 게이트 3차 심사 approve) — 이탈은 EXPLORATORY 라벨 필수
-날짜: 2026-08-25 · 가설: [`research-tree.yaml`](../../research-tree.yaml) H3 · 계획: [`plans/C-flow-doctor.md`](../../plans/C-flow-doctor.md)
+날짜: 2026-08-25 · 가설: [`research-tree.yaml`](../../research-tree.yaml) H3 · 계획: [`plan.md`](plan.md)
 데이터: [`corpus-raw.md`](corpus-raw.md) 46건 · 분할: [`split-manifest.md`](split-manifest.md) (개발 32 / 홀드아웃 14, 시드 42 — **이미 커밋으로 사전등록됨**)
 제약(불변): 구독 CLI만, 로컬 컴퓨트만, plan/results 커밋 분리.
 

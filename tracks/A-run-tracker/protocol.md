@@ -1,7 +1,7 @@
 # 트랙 A 실험 프로토콜 — RTL-to-GDS 실험 추적 도구 (H1)
 
 상태: **LOCKED v5** (2026-08-25, Codex 게이트 5차 심사 approve) — 이탈은 EXPLORATORY 라벨 필수
-날짜: 2026-08-25 · 가설: [`research-tree.yaml`](../../research-tree.yaml) H1 · 계획: [`plans/A-run-tracker.md`](../../plans/A-run-tracker.md) · 환경: [`experiments/INFRA-0/environment.md`](../INFRA-0/environment.md)
+날짜: 2026-08-25 · 가설: [`research-tree.yaml`](../../research-tree.yaml) H1 · 계획: [`plan.md`](plan.md) · 환경: [`tracks/INFRA-0/environment.md`](../INFRA-0/environment.md)
 주의: H1(도구)만 다룸 — H1.1(QoR 예측기)은 별도 프로토콜. 제약(불변): 구독 CLI만(metered 금지), 로컬 컴퓨트만, plan/results 커밋 분리.
 
 ## 1. 가설 (전사 — 재수정 금지)
