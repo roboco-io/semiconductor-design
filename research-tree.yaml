@@ -75,7 +75,13 @@ hypotheses:
       already_solved: false
       verdict: approved    # Operator 2026-08-25: A/B/C/D 전 트랙 병렬 승인
       rationale: "순수 SW·로컬. 유용성 기준은 protocol에서 사전 고정."
-    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    experiment:
+      design_summary: >
+        spm 단일 설계 21-run 코퍼스(밀도PCT×클럭 격자) + ORFS 정적 코퍼스.
+        K1 전수 원문 토큰 정합(독립 오라클), K2 시간 절감 ≥50%(자동 계측·도구 불리 보수 규칙),
+        K4 외부 사용 증거(Release 앵커+60일 창). 2단계 판정, 14일 창.
+      protocol_path: "experiments/A-run-tracker/protocol.md"
+      status: locked          # 2026-08-25 Codex 게이트 5차 approve
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: ["H1.1"]
 
