@@ -2,7 +2,7 @@
 # 이전 사이클: tag archive/pre-eda-zerobase-pivot-2026-08-25 참조 (근거로 사용 금지)
 
 project:
-  title: "EDA 영역 연구 주제 발굴 (제로베이스)"   # 주 가설 확정 후 갱신
+  title: "범용 코딩 에이전트의 EDA 하네스 설계 연구 (H1 주축)"
   domain: "Electronic Design Automation (EDA)"
   started: "2026-08-25"
   status: active
@@ -71,19 +71,22 @@ hypotheses:
       FluxBench가 하네스 아키텍처로 86% 성능 격차·범용 CLI 8.4배 열세를 실증했으나
       "하네스를 어떻게 설계해야 하는가"는 미연구 공백. 비교 지표(완주율·QoR·Token ROI)가
       공개돼 있어 1인 연구로 측정 가능한 기여.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null          # Operator 승인 대기
+      verdict: approved      # Operator 승인 2026-08-25 (issue 001)
       rationale: "FluxBench 명시 공백. 로컬 ORFS+구독 CLI로 실행 가능. baseline 대비 실패 시 refuted 판정 가능."
     experiment:
-      design_summary: ""
-      protocol_path: ""
-      status: not_started
+      design_summary: >
+        Phase A 스모크(3태스크×조건당 3시행=18세션, B0 baseline vs T1 하네스,
+        SKY130+LibreLane 로컬): 4-way 게이트(환경/headroom/방향/무신호).
+        H1 정식 판정(≥2배+Fisher, N≥15)은 Phase B — 규칙은 지금 고정.
+      protocol_path: "experiments/H1-harness/protocol.md"
+      status: locked          # 2026-08-25 Codex 게이트 4차 approve
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: ["H1.1"]
 
@@ -93,14 +96,14 @@ hypotheses:
       QoR 개선)가 2배 이상 달라지며, 구독 요금제 기준 실측이 가능하다.
     parent: "H1"
     motivation: "Token ROI는 FluxBench가 지표만 제안, 구독 요금제 실측 데이터는 전무."
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: medium
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
+      verdict: approved      # Operator 승인 2026-08-25 (H1 부속)
       rationale: "H1 실험에 계측만 추가하면 부수적으로 얻어짐 — 한계 비용 낮음."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
@@ -116,14 +119,14 @@ hypotheses:
       CorrectBench가 self-validation의 스펙 오해 취약성을 보였고, 검증은 분야 최대
       병목(개발주기 70%). 생성≠심사 구도의 체계적 평가는 문헌 공백. mutation 주입 +
       Verilator로 전 과정 로컬 실행 가능.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
+      verdict: approved      # 승인하되 H1 인프라 완성 후 순차 착수 (issue 001)
       rationale: "검출률 차이가 없거나 역전되면 refuted — 그 자체도 유의미한 negative result."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
@@ -145,8 +148,8 @@ hypotheses:
       feasibility: true
       falsifiability: true
       already_solved: null
-      verdict: null
-      rationale: "REVISE 권고: novelty 확정 전 목표 문헌 조사 1회 선행."
+      verdict: null          # REVISE — novelty 재조사 후 재심사 (issue 001)
+      rationale: "REVISE: NotSoTiny와의 차별성 확정 전 목표 문헌 조사 1회 선행."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
@@ -161,14 +164,14 @@ hypotheses:
       ChiPBench가 물리 설계에서 "중간지표≠최종 PPA"를 실증했고 TuRTLe·CLOSER-Bench가
       RTL 평가의 sign-off 게이트 부재를 지적 — 기능 정합과 sign-off 통과의 해리를
       직접 정량화한 연구는 공백. LibreLane+SKY130으로 로컬 실행 가능.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: high
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
+      verdict: approved      # 승인하되 H1 인프라 완성 후 순차 착수 (issue 001)
       rationale: "해리가 관측되지 않으면(통과율 >95%) refuted — 기능 평가의 충분성을 지지하는 정보로 역시 가치."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
@@ -184,14 +187,14 @@ hypotheses:
       교육·학습 측정은 EDA×AI 전 영역에서 경쟁 밀도 최저 공백. Krupp et al. 2026이
       학습 곡선 정량화를 명시적 future work로 남김. N=1 종단 사례 연구로 프레임하면
       1인 제약과 정합.
-    status: pending
+    status: approved
     judgment:
       novelty: true
       importance: medium
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
+      verdict: approved      # 승인 — H1 사이클 위 경량 병행(퀴즈 게이트만) (issue 001)
       rationale: "N=1 한계는 사례 연구 프레임 + 상호작용 로그 공개로 보완. 일반화 주장은 금지."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
@@ -210,8 +213,8 @@ hypotheses:
       feasibility: true
       falsifiability: true
       already_solved: false
-      verdict: null
-      rationale: "DEFERRED 권고: 개선폭 1-3% 영역이라 정보 가치 대비 실행 비용 높음. H1 이후 재입장 후보."
+      verdict: null          # DEFERRED (issue 001)
+      rationale: "DEFERRED: 개선폭 1-3% 영역이라 정보 가치 대비 실행 비용 높음. H1 이후 재입장 후보."
     experiment: {design_summary: "", protocol_path: "", status: not_started}
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []

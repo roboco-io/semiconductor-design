@@ -1,6 +1,6 @@
 # issue 001: Judgment Gate 결정 브리프 — 주 연구 방향 선택
 
-날짜: 2026-08-25 · 상태: OPEN (Operator 결정 대기)
+날짜: 2026-08-25 · 상태: **RESOLVED** — Operator가 A(H1 주축) 선택 (2026-08-25). H2·H4 순차, H5 경량 병행, H3 REVISE, H6 DEFER.
 근거: [`literature/survey.md`](../literature/survey.md) · 가설 전문: [`research-tree.yaml`](../research-tree.yaml)
 
 ## 심사 요약표
