@@ -148,7 +148,13 @@ hypotheses:
       already_solved: false
       verdict: approved    # Operator 2026-08-25: 병렬 트랙 C
       rationale: "실패 사례 코퍼스 수집이 선행 투자 — 트랙 내 1단계로 편입."
-    experiment: {design_summary: "", protocol_path: "", status: not_started}
+    experiment:
+      design_summary: >
+        코퍼스 46건(개발 32/홀드아웃 14 사전등록 분할). 룰 DB는 개발용만으로 별도 에이전트가 구축,
+        홀드아웃 입력은 기계 추출(코드펜스 연결). 판정: hits ≥ ceil(0.60N) supported /
+        ceil(0.40N)-경계 inconclusive / 미만 refuted (N ≥ 10 필수). 교차 오염 감사 N′ 병기. 14일 창.
+      protocol_path: "experiments/C-flow-doctor/protocol.md"
+      status: locked          # 2026-08-25 Codex 게이트 3차 approve
     results: {summary: "", outcome: null, key_metrics: [], artifacts_path: ""}
     children: []
 
