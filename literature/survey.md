@@ -1,5 +1,7 @@
 # Field Survey: 반도체 설계에 유용한 SW/모델 — 무엇을 만들 것인가 (2024-2026)
 
+> 이 문서는 2026-08-25 설계 분야 조사 기록입니다. [9월 10일 전 분야 문제 후보](industry-opportunities.md)와 [9월 24일 공개 근거 재조사](problem-selection-2026-09-24.md)를 함께 참조합니다. 아래 공백·경쟁 판단은 당시 결론이며 현재 시장의 부재를 보장하지 않습니다. 현재 조사에서는 pyucis·sv-bugpoint 등 기존 대안을 확인했습니다.
+
 날짜: 2026-08-25 · 도구: exa MCP (병렬 조사 에이전트 5기, 검색 31회, citation 기각 0건) · 원본: `literature/raw/01`-`05`
 
 ## 1. Review Protocol (사전 고정)

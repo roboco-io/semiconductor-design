@@ -2,7 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Context (2026-08-25 사이클 3)
+## Current Direction (2026-09-24 조사·문제 선정 재시작)
+
+- 최상위 의도: [`INTENT.md`](INTENT.md). 엔비디아·삼성전자·SK하이닉스 같은 반도체 기업에 유용한 SW/모델을 만듭니다.
+- 범위는 **설계·검증·공정·수율·테스트 전반의 문제 발굴부터**입니다. 아래 사이클 3의 A/B/C/D는 설계 분야 선행 탐색이며 프로젝트 전체 범위가 아닙니다.
+- 사용자 조건(2026-09-24): 현업 접근 경로는 **현재 없음 — 공개 자료로 조사**. 조사와 해결할 문제 선정부터 다시 진행합니다. [`issues/003`](issues/003-problem-selection-restart.md).
+- 현재 작업: [`literature/problem-selection-2026-09-24.md`](literature/problem-selection-2026-09-24.md)의 공개 근거·기존 대안 비교. P1(STDF→ATDF 검사 결과 의미 보존)은 조사자의 우선 검증 제안이며, 최신 실행·명세 대조와 별도 도구의 가치 확인이 남아 있습니다. 후보 추천을 사용자 승인 또는 구현 착수로 취급하지 않습니다.
+- 9월 10일 [`전 분야 1차 조사`](literature/industry-opportunities.md)의 O2→O3→O7은 당시 제안으로 보존하며 현재 우선순위로 자동 승계하지 않습니다.
+- 공개 벤치마크 성능, 기업의 공개 기술 사례, 특정 기업의 미충족 수요·도입 의사를 구분합니다. 과거의 "공백/무주공산" 주장은 해당 조사 시점의 판단으로만 취급하고 다시 확인합니다.
+- 기존 가설·LOCKED protocol·결과는 보존합니다. 이번 재조사는 실행 중단, 후속 가설 승인, 실험 결과 변경을 뜻하지 않습니다.
+
+## Historical Context (2026-08-25 사이클 3)
 
 **목표(Operator 고정)**: 반도체 설계에 **실제 유용한 소프트웨어/모델을 바이브 코딩으로 개발**한다. 산출물의 실용성이 목적, 바이브 코딩은 방법. 유용성은 객관 지표(외부 벤치마크 > 채택 증거 > 시간 절감 표)로 검증.
 
@@ -10,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 트랙 | 산출물 | 가설 | 계획서 |
 |---|---|---|---|
-| A | RTL-to-GDS 실험 추적 도구 → QoR 조기 예측기 | H1/H1.1 **refuted** | [`tracks/A-run-tracker/`](tracks/A-run-tracker/) |
+| A | RTL-to-GDS 실험 추적 도구 → QoR 조기 예측기 | H1 **refuted**, H1.1 미착수 | [`tracks/A-run-tracker/`](tracks/A-run-tracker/) |
 | B | STA 리포트 분석기 | H2 (대기) | [`tracks/B-sta-analyzer/`](tracks/B-sta-analyzer/) |
 | C | 플로우 실패 진단기 | H3 **refuted** | [`tracks/C-flow-doctor/`](tracks/C-flow-doctor/) |
 | D | IR drop 경량 예측 모델 | H5 (진행) | [`tracks/D-irdrop/`](tracks/D-irdrop/) |
