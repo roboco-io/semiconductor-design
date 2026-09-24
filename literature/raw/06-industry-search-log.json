@@ -1,0 +1,535 @@
+{
+  "date": "2026-09-10",
+  "tool": "exa MCP",
+  "scope": "EXPLORATORY initial opportunity mapping, not systematic review",
+  "searches": [
+    {
+      "id": 1,
+      "query": "NVIDIA official chip design timing closure engineering AI optimization circuit design challenges",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4
+    },
+    {
+      "id": 2,
+      "query": "Siemens Wilson Research 2024 functional verification study debugging time official",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4
+    },
+    {
+      "id": 3,
+      "query": "Samsung semiconductor manufacturing virtual metrology fault detection process machine learning official",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4
+    },
+    {
+      "id": 4,
+      "query": "SK hynix semiconductor wafer yield defect analysis artificial intelligence official",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4
+    },
+    {
+      "id": 5,
+      "query": "Advantest semiconductor adaptive test test time outlier detection analytics official",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4
+    },
+    {
+      "id": 6,
+      "query": "site.archive.ics.uci.edu SECOM semiconductor dataset features missing values",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    },
+    {
+      "id": 7,
+      "query": "semiconductor wafer map dataset WM-811K original MIR lab dataset download",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    },
+    {
+      "id": 8,
+      "query": "semiconductor virtual metrology public dataset PHM 2016 CMP removal rate challenge",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    },
+    {
+      "id": 9,
+      "query": "open source hardware verification bug benchmark RTL debugging dataset GitHub",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    },
+    {
+      "id": 10,
+      "query": "semiconductor STDF public sample test data dataset GitHub parser",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    },
+    {
+      "id": 11,
+      "query": "Samsung semiconductor yield analysis machine learning official defect root cause",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    },
+    {
+      "id": 12,
+      "query": "site.siemens.com Tessent YieldInsight root cause diagnosis yield learning",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3
+    }
+  ],
+  "summary": {
+    "search_calls": 12,
+    "returned_records": 41,
+    "unique_urls": 40,
+    "included_search_records": 14,
+    "duplicate_url_records": 1,
+    "excluded_records": 26,
+    "additional_primary_sources": 1,
+    "final_sources": 15,
+    "fetch_calls": 11,
+    "citation_free_responses": 0
+  },
+  "records": [
+    {
+      "query_id": 1,
+      "rank": 1,
+      "title": "N/A",
+      "url": "https://research.nvidia.com/labs/electronic-design-automation/papers/yichen_INSTA_dac25.pdf",
+      "decision": "exclude",
+      "reason": "초기 후보 범위보다 구현·컴퓨트 투자 범위가 큼"
+    },
+    {
+      "query_id": 1,
+      "rank": 2,
+      "title": "Configurable Graph-Based Task Solving with the Marco Multi-AI Agent Framework for Chip Design | NVIDIA Technical Blog",
+      "url": "https://developer.nvidia.com/blog/configurable-graph-based-task-solving-with-the-marco-multi-ai-agent-framework-for-chip-design/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S1"
+    },
+    {
+      "query_id": 1,
+      "rank": 3,
+      "title": "Designing Arithmetic Circuits with Deep Reinforcement Learning | NVIDIA Technical Blog",
+      "url": "https://developer.nvidia.com/blog/designing-arithmetic-circuits-with-deep-reinforcement-learning/",
+      "decision": "exclude",
+      "reason": "초기 후보 범위보다 구현·컴퓨트 투자 범위가 큼"
+    },
+    {
+      "query_id": 1,
+      "rank": 4,
+      "title": "NVIDIA Electronic Design Automation Research",
+      "url": "https://research.nvidia.com/labs/electronic-design-automation/",
+      "decision": "exclude",
+      "reason": "초기 후보 범위보다 구현·컴퓨트 투자 범위가 큼"
+    },
+    {
+      "query_id": 2,
+      "rank": 1,
+      "title": "ic-asic-functional-verification-trend-report- ...",
+      "url": "https://static.sw.cdn.siemens.com/siemens-disw-assets/public/1NyfMZJ3nuPhMGQCGFDITG/en-US/ic-asic-functional-verification-trend-report-wp-86424-d3.pdf",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    },
+    {
+      "query_id": 2,
+      "rank": 2,
+      "title": "2024 Wilson Research Group IC/ASIC functional ...",
+      "url": "https://resources.sw.siemens.com/en-US/white-paper-2024-wilson-research-group-ic-asic-functional-verification-trend-report/",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    },
+    {
+      "query_id": 2,
+      "rank": 3,
+      "title": "N/A",
+      "url": "https://www.siemens.com/en-us/products/ic/verification-and-validation/debug-coverage/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S13"
+    },
+    {
+      "query_id": 2,
+      "rank": 4,
+      "title": "IC/ASIC Functional Verification Trend Report - 2024",
+      "url": "https://verificationacademy.com/topics/planning-measurement-and-analysis/wrg-industry-data-and-trends/2024-siemens-eda-and-wilson-research-group-ic-asic-functional-verification-trend-report/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S2"
+    },
+    {
+      "query_id": 3,
+      "rank": 1,
+      "title": "Development of Autonomous Failure Maintenance System for Semiconductor Manufacturing",
+      "url": "https://doi.org/10.1145/3746252.3761556",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S4"
+    },
+    {
+      "query_id": 3,
+      "rank": 2,
+      "title": "2 nd International Conference on",
+      "url": "https://www.walshmedicalmedia.com/conference-abstracts-files/2153-0602.C1.003_002.pdf",
+      "decision": "exclude",
+      "reason": "직접적인 기업 업무·대표 기존 대안을 우선 채택"
+    },
+    {
+      "query_id": 3,
+      "rank": 3,
+      "title": "Advanced process control by machine learning-based virtual metrology for high product mix manufacturing",
+      "url": "https://neurophotonics.spiedigitallibrary.org/conference-proceedings-of-spie/12955/1295526/Advanced-process-control-by-machine-learning-based-virtual-metrology-for/10.1117/12.3009796.full",
+      "decision": "exclude",
+      "reason": "직접적인 기업 업무·대표 기존 대안을 우선 채택"
+    },
+    {
+      "query_id": 3,
+      "rank": 4,
+      "title": "Improve process control with ML-based virtual metrology  | Siemens",
+      "url": "https://resources.sw.siemens.com/en-US/technical-paper-improve-process-control-for-high-mix-manufacturing-with-ml-based-virtual/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S12"
+    },
+    {
+      "query_id": 4,
+      "rank": 1,
+      "title": "SK hynix Deploys Gauss Labs's AI-Based Virtual Metrology Solution ...",
+      "url": "https://news.skhynix.com/en/gauss-labss-ai-based-virtual-metrology-solution/",
+      "decision": "exclude",
+      "reason": "직접적인 기업 업무·대표 기존 대안을 우선 채택"
+    },
+    {
+      "query_id": 4,
+      "rank": 2,
+      "title": "Gauss Labs and SK hynix Publish the Latest Results on AI-based Semiconductor Metrology Technology at SPIE AL 2024 – SK hynix Newsroom",
+      "url": "https://news.skhynix.com/en/gauss-labs-and-sk-hynix-present-ai-papers-at-spie-al-2024/",
+      "decision": "exclude",
+      "reason": "직접적인 기업 업무·대표 기존 대안을 우선 채택"
+    },
+    {
+      "query_id": 4,
+      "rank": 3,
+      "title": "The Past, Present, and Future of  Data Science Organization at SK hynix – SK hynix Newsroom",
+      "url": "https://news.skhynix.com/en/the-past-present-and-future-of-data-science-organization-at-sk-hynix/",
+      "decision": "exclude",
+      "reason": "직접적인 기업 업무·대표 기존 대안을 우선 채택"
+    },
+    {
+      "query_id": 4,
+      "rank": 4,
+      "title": "SK hynix and Gauss Labs Present AI-Based Semiconductor Virtual Metrology Research at SPIE AL 2026 – SK hynix Newsroom",
+      "url": "https://news.skhynix.com/en/sk-hynix-and-gauss-labs-present-ai-based-semiconductor-virtual-metrology-research-at-spie-al-2026/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S3"
+    },
+    {
+      "query_id": 5,
+      "rank": 1,
+      "title": "ACS Real-Time Data Infrastructure (ACS RTDI™)｜Advantest® Cloud Solutions｜ADVANTEST CORPORATION",
+      "url": "https://www.advantest.com/en/products/acs/rtdi/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S6"
+    },
+    {
+      "query_id": 5,
+      "rank": 2,
+      "title": "ACS Real-Time Data Infrastructure (ACS RTDI™) - Advantest",
+      "url": "https://www.advantest.com/en/products/software-solutions/acs/rtdi/",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    },
+    {
+      "query_id": 5,
+      "rank": 3,
+      "title": "UNLOCKING VALUE:",
+      "url": "https://www.advantest.com/document/en/products/software-solutions/acs/rtdi/ACS_white_paper.pdf",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    },
+    {
+      "query_id": 5,
+      "rank": 4,
+      "title": "N/A",
+      "url": "https://www.advantest.com/document/en/products/acs/rtdi/ACS_white_paper.pdf",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    },
+    {
+      "query_id": 6,
+      "rank": 1,
+      "title": "SECOM",
+      "url": "http://archive.ics.uci.edu/ml/datasets/secom",
+      "decision": "exclude",
+      "reason": "초기 데이터 문제 정의·비교자는 원기관·우승 접근으로 한정"
+    },
+    {
+      "query_id": 6,
+      "rank": 2,
+      "title": "UCI Machine Learning Repository",
+      "url": "https://archive.ics.uci.edu/dataset/179/secom",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S7"
+    },
+    {
+      "query_id": 6,
+      "rank": 3,
+      "title": "Study on Data Preprocessing for Machine Learning Based on Semiconductor Manufacturing Processes",
+      "url": "https://doi.org/10.3390/s24175461",
+      "decision": "exclude",
+      "reason": "초기 데이터 문제 정의·비교자는 원기관·우승 접근으로 한정"
+    },
+    {
+      "query_id": 7,
+      "rank": 1,
+      "title": "WM-811K wafer map - Kaggle",
+      "url": "https://www.kaggle.com/datasets/qingyi/wm811k-wafer-map",
+      "decision": "exclude",
+      "reason": "원 배포기관 자료로 대체"
+    },
+    {
+      "query_id": 7,
+      "rank": 2,
+      "title": "aws-samples/amazon-ec2-nice-dcv-semiconductor-wafer-data",
+      "url": "https://github.com/aws-samples/amazon-ec2-nice-dcv-semiconductor-wafer-data",
+      "decision": "exclude",
+      "reason": "원 배포기관 자료로 대체"
+    },
+    {
+      "query_id": 7,
+      "rank": 3,
+      "title": "README.md",
+      "url": "https://github.com/veloduff/wafer-classification/blob/main/README.md",
+      "decision": "exclude",
+      "reason": "원 배포기관 자료로 대체"
+    },
+    {
+      "query_id": 8,
+      "rank": 1,
+      "title": "[PDF] PHM DATA CHALLENGE 2016",
+      "url": "https://phmsociety.org/wp-content/uploads/2016/05/PHM16DataChallengeCFP.pdf",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S9"
+    },
+    {
+      "query_id": 8,
+      "rank": 2,
+      "title": "Predicting the Wafer Material Removal Rate for Semiconductor Chemical Mechanical Polishing Using a Fusion Network",
+      "url": "https://doi.org/10.3390/app122211478",
+      "decision": "exclude",
+      "reason": "초기 데이터 문제 정의·비교자는 원기관·우승 접근으로 한정"
+    },
+    {
+      "query_id": 8,
+      "rank": 3,
+      "title": "Enhanced Virtual Metrology on Chemical Mechanical Planarization Process using an Integrated Model and Data-Driven Approach",
+      "url": "https://doi.org/10.36001/ijphm.2017.v8i2.2641",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S15"
+    },
+    {
+      "query_id": 9,
+      "rank": 1,
+      "title": "pku-liang/hwe-bench",
+      "url": "https://github.com/pku-liang/hwe-bench",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S10"
+    },
+    {
+      "query_id": 9,
+      "rank": 2,
+      "title": "graphcore-research/ChipBench",
+      "url": "https://github.com/graphcore-research/ChipBench",
+      "decision": "exclude",
+      "reason": "기술 검증 출발점은 S10 선정; 대안 벤치마크는 후속 비교"
+    },
+    {
+      "query_id": 9,
+      "rank": 3,
+      "title": "hkust-zhiyao/RTL-BenchLS",
+      "url": "https://github.com/hkust-zhiyao/RTL-BenchLS",
+      "decision": "exclude",
+      "reason": "기술 검증 출발점은 S10 선정; 대안 벤치마크는 후속 비교"
+    },
+    {
+      "query_id": 10,
+      "rank": 1,
+      "title": "cmars/pystdf",
+      "url": "https://github.com/cmars/pystdf/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S11"
+    },
+    {
+      "query_id": 10,
+      "rank": 2,
+      "title": "showjim/STDFReader",
+      "url": "https://github.com/showjim/STDFReader",
+      "decision": "exclude",
+      "reason": "기존 파서 존재는 S11로 확인; 추가 구현 비교는 후속"
+    },
+    {
+      "query_id": 10,
+      "rank": 3,
+      "title": "Asachoo/pystdf4 - GitHub",
+      "url": "https://github.com/Asachoo/pystdf4",
+      "decision": "exclude",
+      "reason": "기존 파서 존재는 S11로 확인; 추가 구현 비교는 후속"
+    },
+    {
+      "query_id": 11,
+      "rank": 1,
+      "title": "Device Engineer at Sec",
+      "url": "https://sec.wd3.myworkdayjobs.com/en-US/samsung_careers/job/1530-FM-973-Taylor-TX-USA/Device-Engineer_R119470",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S5"
+    },
+    {
+      "query_id": 11,
+      "rank": 2,
+      "title": "Development of Autonomous Failure Maintenance System for Semiconductor Manufacturing",
+      "url": "https://doi.org/10.1145/3746252.3761556",
+      "decision": "duplicate",
+      "reason": "동일 URL 중복"
+    },
+    {
+      "query_id": 11,
+      "rank": 3,
+      "title": "Detection of defective chips from nanostructures with a high-aspect ratio using hyperspectral imaging and deep learning",
+      "url": "https://doi.org/10.1117/1.jmm.23.4.044002",
+      "decision": "exclude",
+      "reason": "직접적인 기업 업무·대표 기존 대안을 우선 채택"
+    },
+    {
+      "query_id": 12,
+      "rank": 1,
+      "title": "Tessent YieldInsight - Siemens",
+      "url": "https://www.siemens.com/en-us/products/ic/tessent/yield-learning/yieldinsight/",
+      "decision": "include",
+      "reason": "산업 업무·기존 대안·검증 자료의 1차 근거",
+      "source_id": "S14"
+    },
+    {
+      "query_id": 12,
+      "rank": 2,
+      "title": "Tessent Yield Learning - Siemens",
+      "url": "https://www.siemens.com/en-us/products/ic/tessent/yield-learning/",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    },
+    {
+      "query_id": 12,
+      "rank": 3,
+      "title": "Overcoming Systematic Yield Limiters with Diagnosis-Driven Yield | Siemens",
+      "url": "https://resources.sw.siemens.com/en-US/white-paper-overcoming-systematic-yield-limiters-with-diagnosis-driven-yield-analysis/",
+      "decision": "exclude",
+      "reason": "채택 자료와 동일 주제·다른 형식 중복"
+    }
+  ],
+  "additional_sources": [
+    {
+      "source_id": "S8",
+      "url": "http://mirlab.org/dataSet/public/",
+      "discovered_via": "Search 7 result references",
+      "decision": "include",
+      "reason": "WM-811K 원 배포기관과 원논문 안내"
+    }
+  ],
+  "fetches": [
+    {
+      "url": "https://developer.nvidia.com/blog/configurable-graph-based-task-solving-with-the-marco-multi-ai-agent-framework-for-chip-design/",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://verificationacademy.com/topics/planning-measurement-and-analysis/wrg-industry-data-and-trends/2024-siemens-eda-and-wilson-research-group-ic-asic-functional-verification-trend-report/",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://news.skhynix.com/en/sk-hynix-and-gauss-labs-present-ai-based-semiconductor-virtual-metrology-research-at-spie-al-2026/",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://doi.org/10.1145/3746252.3761556",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://sec.wd3.myworkdayjobs.com/en-US/samsung_careers/job/1530-FM-973-Taylor-TX-USA/Device-Engineer_R119470",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://www.advantest.com/en/products/acs/rtdi/",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://archive.ics.uci.edu/dataset/179/secom",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "http://mirlab.org/dataSet/public/",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://phmsociety.org/wp-content/uploads/2016/05/PHM16DataChallengeCFP.pdf",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://github.com/pku-liang/hwe-bench",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    },
+    {
+      "url": "https://github.com/cmars/pystdf/",
+      "max_characters": 8500,
+      "url_present": true,
+      "method": "web_fetch_exa",
+      "limitation": "추출 길이 제한; 전문 검토·다운로드 검증과 구분"
+    }
+  ]
+}

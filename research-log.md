@@ -1,4 +1,4 @@
-# Research Log: 반도체 설계에 유용한 SW/모델의 바이브 코딩 개발
+# Research Log: 반도체 기업에 유용한 SW/모델의 문제 발굴과 검증
 
 | # | Date | Phase | Summary |
 |---|------|-------|---------|
@@ -18,3 +18,7 @@
 | 14 | 2026-08-25 | Execution (A) | hwtrack Codex 코드 리뷰(K3) request_changes 5건 — key-path 충돌(K1 감사 우회 가능), nested 파라미터 diff 누락(K2b 위반) 등 실질 버그. 구현 에이전트에 수정 지시. 21-run 캠페인·D V2 학습 계속. |
 | 15 | 2026-08-25 | Execution → 판정 (A) | **H1 refuted** — K1 완벽 통과(8,837키 불일치 0)·정확도 전건 일치였으나 K2 절감 24%<50%. 원인: 수행 주체=AI 에이전트라 수작업 baseline이 수 초(jq 원라이너) + scan 고정비 지배(21 run 소규모). "도구 가치는 주체·규모에 상대적" — 재정식화 방향은 Reflection에서. K3는 Codex 3차 왕복 approve(실질 버그 7건 수정). |
 | 16 | 2026-08-26 | 재구성 (학습 축) | Operator 지시로 트랙별 폴더 통합(`tracks/<트랙>/` = plan+protocol+results+tutorial, 구 plans/·experiments/ 폐지) + **학습 튜토리얼 체계 도입**: 12살 눈높이 서술형 5편(입문+A/B/C/D, 총 897줄·주관식 퀴즈 34문항·모범답안 접힘·실험 일지). 갱신 규율(판정·마일스톤 시 tutorial 실험 일지 동반 갱신, `docs(tutorial):` prefix)을 CLAUDE.md·tracks/README.md에 명문화. |
+| 17 | 2026-09-10 | Scope clarification → Literature Survey | 사용자 확인: 엔비디아·삼성전자·SK하이닉스 같은 기업에 유용한 산출물이 목표이며 설계·검증·공정·수율·테스트 전반의 문제 발굴부터 포함. INTENT.md 생성, README·CLAUDE·트랙 안내 갱신. A/B/C/D는 설계 분야 선행 탐색으로 보존; 가설·protocol·결과 변경 없음. CLAUDE 표의 H1.1 반증 오기는 연구 트리에 맞춰 미착수로 정정. |
+| 18 | 2026-09-10 | Literature Survey (EXPLORATORY) | exa 검색 12회·41기록(40 URL), 채택 검색 자료 14개+원 배포기관 1개, 핵심 URL 추가 추출 11회. 전 분야 후보 O1–O7을 literature/industry-opportunities.md에 비교하고 raw/06-industry-search-log.json에 선별 기록 저장. O2·O3·O7은 후속 조사 제안이며 구현 승인 아님. 데이터 다운로드·로컬 재현·현업 검증은 미실시; 산업 연관성 근거와 제품 효용 미확정을 구분. |
+| 19 | 2026-09-24 | Literature Survey 재진입 | 사용자 지시로 조사와 해결할 문제 선정부터 재시작. 현업 접근은 “현재는 없음 — 공개 자료로 조사”로 확인. 기존 후보 순위를 재검토하며 issue 003에 검색 전 조사·선정 기준을 기록. 기존 가설·protocol·결과는 보존하고 새 구현 승인으로 해석하지 않음. |
+| 20 | 2026-09-24 | Literature Survey (EXPLORATORY) | exa 검색 27회·97건(83 URL), 최종 근거 28개로 전 분야 후보 P1–P8 재비교. pyucis·sv-bugpoint·파형 질의 도구·STDF-Viewer·NIST OGP 등 기존 대안 확인. P1(STDF→ATDF 검사 결과 의미 보존)을 우선 검증 대상으로 제안하되 최신 실행·명세 대조·독립 도구 가치는 미확인. Semi-ATE #65 관련 비트 수정 PR #66 병합을 반대 근거로 기록; #58/#59와 PRR 소스는 정적 확인만 수행. WaveformQA 코드 URL 추출 실패는 접근성 미확인으로 기록. literature/problem-selection-2026-09-24.md 및 raw/07-problem-selection-search-log.json 작성. 데이터 다운로드·실험·구현·외부 연락 없음; 기존 가설·protocol·결과 유지. |

@@ -1,0 +1,1710 @@
+{
+  "date": "2026-09-24",
+  "tool": "exa MCP",
+  "scope": "EXPLORATORY public-evidence problem re-selection; no industry access",
+  "review_protocol_path": "issues/003-problem-selection-restart.md",
+  "limits": [
+    "Not a systematic review across three academic databases.",
+    "Search/fetch snapshots may lag repository HEAD.",
+    "No external contacts, dataset downloads, product installation or experiments.",
+    "Excerpt-only checks do not imply full source review.",
+    "Code license does not cover arbitrary issue attachments automatically."
+  ],
+  "counts": {
+    "search_calls": 27,
+    "returned_records": 97,
+    "unique_urls_exact": 83,
+    "unique_urls_normalized": 83,
+    "screening": {
+      "exclude": 20,
+      "include": 25,
+      "background_not_used": 38,
+      "duplicate_url": 14
+    },
+    "adopted_sources": 28,
+    "fetch_calls": 9,
+    "fetch_url_requests": 24,
+    "fetch_url_successful_responses": 23,
+    "fetch_url_missing_responses": 1,
+    "zero_citation_search_responses": 0
+  },
+  "searches": [
+    {
+      "id": "Q1",
+      "query": "2025 2026 semiconductor design engineer timing constraint debugging reproducibility manual report comparison problems official OpenROAD issue",
+      "requested_results": 5,
+      "returned_records": 5,
+      "citation_url_count": 5,
+      "accepted": true
+    },
+    {
+      "id": "Q2",
+      "query": "2025 2026 hardware verification regression debugging failure triage waveform public dataset benchmark open source unsolved issues",
+      "requested_results": 5,
+      "returned_records": 5,
+      "citation_url_count": 5,
+      "accepted": true
+    },
+    {
+      "id": "Q3",
+      "query": "2025 2026 semiconductor manufacturing virtual metrology fault detection public dataset concept drift equipment maintenance benchmark",
+      "requested_results": 5,
+      "returned_records": 5,
+      "citation_url_count": 5,
+      "accepted": true
+    },
+    {
+      "id": "Q4",
+      "query": "2025 2026 semiconductor test yield STDF retest data quality traceability open source issue analytics",
+      "requested_results": 5,
+      "returned_records": 5,
+      "citation_url_count": 5,
+      "accepted": true
+    },
+    {
+      "id": "Q5",
+      "query": "site:github.com surfer-project waveform compare traces first divergence debugging issue",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q6",
+      "query": "WaveformQA temporal reasoning waveform benchmark github open source tools baseline 2026",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q7",
+      "query": "site:github.com verilator cocotb waveform debugging huge VCD find signals problem issue",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q8",
+      "query": "site:github.com STDF retest sample files incorrect yield duplicate part records",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q9",
+      "query": "NIST semiconductor virtual metrology roadmap model confidence validation standardized public dataset 2025 2026",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q10",
+      "query": "semiconductor wafer defect yield root cause public dataset industrial limitations WM811K causal ground truth original paper",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q11",
+      "query": "site:verilator.org guide reporting bugs reduce testcase test_regress testcases",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q12",
+      "query": "SystemVerilog testcase reduction minimization tools sv-bugpoint verireduce Verilator 2025 2026",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q13",
+      "query": "site:github.com/verilator/verilator/issues \"2026\" \"reduce\" \"testcase\"",
+      "requested_results": 4,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q14",
+      "query": "site:github.com cocotb coverage merge UCIS pyucis 2026",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q15",
+      "query": "open source STDF validator semantic validation retest yield checker round trip records corruption",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q16",
+      "query": "site:github.com/Semi-ATE/STDF/issues PRR PTR flag optional fields corrupt read write",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q17",
+      "query": "site:github.com STDF Viewer retest yield merge files sample test MIT license",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q18",
+      "query": "site:github.com waveform MCP VCD FST temporal query compare traces existing tools",
+      "requested_results": 4,
+      "returned_records": 4,
+      "citation_url_count": 4,
+      "accepted": true
+    },
+    {
+      "id": "Q19",
+      "query": "site:github.com/Semi-ATE/STDF/pull/66 bit fields merged",
+      "requested_results": 3,
+      "returned_records": 1,
+      "citation_url_count": 1,
+      "accepted": true
+    },
+    {
+      "id": "Q20",
+      "query": "site:github.com/Semi-ATE/STDF PRR.py to_atdf retest code",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q21",
+      "query": "\"STDF\" \"validator\" \"semantic\"",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q22",
+      "query": "\"STDF\" \"checker\" \"compare\" \"round\"",
+      "requested_results": 3,
+      "returned_records": 1,
+      "citation_url_count": 1,
+      "accepted": true
+    },
+    {
+      "id": "Q23",
+      "query": "WaveformQA Tenstorrent Yichuan Liu Daniel Cummings GitHub waveformqa code dataset license",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q24",
+      "query": "PHM 2016 CMP dataset download Zenodo license removal rate",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q25",
+      "query": "site:github.com/Semi-ATE/STDF tests test_PRR test_STDR",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q26",
+      "query": "ATDF specification Teradyne PRR retest code empty field not retest PDF",
+      "requested_results": 3,
+      "returned_records": 3,
+      "citation_url_count": 3,
+      "accepted": true
+    },
+    {
+      "id": "Q27",
+      "query": "\"tenstorrent/waveformqa\"",
+      "requested_results": 3,
+      "returned_records": 2,
+      "citation_url_count": 2,
+      "accepted": true
+    }
+  ],
+  "records": [
+    {
+      "id": "Q1-1",
+      "query_id": "Q1",
+      "title": "Error in timing repair · Issue #9652 · The-OpenROAD-Project/OpenROAD",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/9652",
+      "published_as_returned": "2026-03-05T13:16:26.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Resolved bug; background only."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q1-2",
+      "query_id": "Q1",
+      "title": "repair_timing is non-deterministic with threads > 1 · Issue #9781 · The-OpenROAD-Project/OpenROAD",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/9781",
+      "published_as_returned": "2026-03-16T21:06:52.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Specific timing non-determinism report closed; not current unaddressed demand."
+      },
+      "adopted_source": "R27"
+    },
+    {
+      "id": "Q1-3",
+      "query_id": "Q1",
+      "title": "STA Engine Crash in makeMultiDrvrNet() · Issue #8115 · The-OpenROAD-Project/OpenROAD",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/8115",
+      "published_as_returned": "2025-08-26T08:50:52.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Includes AI-generated causal speculation and restricted PDK dependence; not accepted as verified technical cause."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q1-4",
+      "query_id": "Q1",
+      "title": "repair_timing -setup assertion error for custom parameter values · Issue #10097 · The-OpenROAD-Project/OpenROAD",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/10097",
+      "published_as_returned": "2026-04-09T20:13:07.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Resolved bug; background only."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q1-5",
+      "query_id": "Q1",
+      "title": "Rsz degrades setup rather than improve it · Issue #5636 · The-OpenROAD-Project/OpenROAD",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/5636",
+      "published_as_returned": "2024-08-22T20:30:51.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Open timing degradation example; algorithmic issue, not proof of need for another report viewer."
+      },
+      "adopted_source": "R28"
+    },
+    {
+      "id": "Q2-1",
+      "query_id": "Q2",
+      "title": "VCDiag: Classifying Erroneous Waveforms for Failure Triage ... - arXiv",
+      "url": "https://arxiv.org/html/2506.03590v3",
+      "published_as_returned": "2025-07-24T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q2-2",
+      "query_id": "Q2",
+      "title": "minhluu2000/mlcad2025_vcdiag",
+      "url": "https://github.com/minhluu2000/mlcad2025_vcdiag",
+      "published_as_returned": "2025-07-19T10:37:29.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Pre-generated waveforms offered; simulation/commercial dependency and injected-bug limits remain."
+      },
+      "adopted_source": "R18"
+    },
+    {
+      "id": "Q2-3",
+      "query_id": "Q2",
+      "title": "I. Introduction",
+      "url": "https://arxiv.org/html/2510.15906",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Abstract only, no confirmed public evaluation route; not used to rank candidates."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q2-4",
+      "query_id": "Q2",
+      "title": "HWE-Bench: Benchmarking LLM Agents on Real-World Hardware Bug Repair Tasks",
+      "url": "https://arxiv.org/html/2604.14709",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q2-5",
+      "query_id": "Q2",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on Digital Waveforms",
+      "url": "https://arxiv.org/html/2607.20638v1",
+      "published_as_returned": "2026-07-22T00:00:00.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Waveform temporal query benchmark and machine-generated answers; code link retrieval unsuccessful."
+      },
+      "adopted_source": "R15"
+    },
+    {
+      "id": "Q3-1",
+      "query_id": "Q3",
+      "title": "Sudden Concept Drift Detection and Adaptation in Virtual Metrology for Semiconductor Manufacturing",
+      "url": "https://doi.org/10.1109/access.2025.3602848",
+      "published_as_returned": "2025-01-01T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q3-2",
+      "query_id": "Q3",
+      "title": "A method to benchmark high-dimensional process drift detection",
+      "url": "https://link.springer.com/article/10.1007/s10845-025-02590-9",
+      "published_as_returned": "2025-04-21T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q3-3",
+      "query_id": "Q3",
+      "title": "(Invited) Virtual Metrology and Dynamic Sampling for Chemical Mechanical Polishing Using a Physics-Guided Gaussian Process Model - IOPscience",
+      "url": "https://beta.iopscience.iop.org/article/10.1149/MA2026-01211220mtgabs",
+      "published_as_returned": "2026-07-07T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q3-4",
+      "query_id": "Q3",
+      "title": "Convolutional AutoEncoders for Anomaly Detection in Semiconductor Manufacturing",
+      "url": "https://doi.org/10.1109/aics60730.2023.10470831",
+      "published_as_returned": "2023-12-07T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q3-5",
+      "query_id": "Q3",
+      "title": "A variational autoencoder for a semiconductor fault detection model robust to process drift due to incomplete maintenance",
+      "url": "https://ideas.repec.org/a/spr/joinma/v34y2023i2d10.1007_s10845-021-01810-2.html",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Secondary index; primary source not inspected."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q4-1",
+      "query_id": "Q4",
+      "title": "STDF datalog analysis: Taking re-screen into account | yieldHUB",
+      "url": "https://www.yieldhub.com/blogs/stdf-datalog-analysis-taking-rescreen-into-account",
+      "published_as_returned": "2025-10-14T07:33:00.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Existing consolidation capability and dependence on run metadata; do not adopt vendor policy as universal STDF semantics."
+      },
+      "adopted_source": "R11"
+    },
+    {
+      "id": "Q4-2",
+      "query_id": "Q4",
+      "title": "Standardising STDF metadata | yieldHUB",
+      "url": "https://www.yieldhub.com/blogs/standardising-stdf-metadata",
+      "published_as_returned": "2025-10-14T00:00:00.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Supplier reports concrete lot/run-type input problems and existing services; not independent customer adoption evidence."
+      },
+      "adopted_source": "R10"
+    },
+    {
+      "id": "Q4-3",
+      "query_id": "Q4",
+      "title": "earosenfeld/instrument-data-pipeline",
+      "url": "https://github.com/earosenfeld/instrument-data-pipeline",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q4-4",
+      "query_id": "Q4",
+      "title": "Multi-Chip Package Traceability and Data Analytics – yieldWerx",
+      "url": "https://yieldwerx.com/blog/multi-chip-package-traceability-and-data-analytics/",
+      "published_as_returned": "2025-08-14T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q4-5",
+      "query_id": "Q4",
+      "title": "The Hidden Costs of Manual Data Manipulation in Semiconductor Test Analytics – yieldWerx",
+      "url": "https://yieldwerx.com/blog/the-hidden-costs-of-manual-data-manipulation-in-semiconductor-test-analytics/",
+      "published_as_returned": "2025-11-24T20:56:25.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Promotional numerical claims without independently inspected underlying evidence."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q5-1",
+      "query_id": "Q5",
+      "title": "Initial Surfer support",
+      "url": "https://github.com/amaranth-lang/rtl-debugger/pull/5",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q5-2",
+      "query_id": "Q5",
+      "title": "L1Ban404-computer-architecture/systemverilog-waveform-debug-skill",
+      "url": "https://github.com/L1Ban404/systemverilog-waveform-debug-skill",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q5-3",
+      "query_id": "Q5",
+      "title": "Waveform GUI: Tywaves‐rs and Surfer · rameloni/tywaves-chisel Wiki · GitHub",
+      "url": "https://github.com/rameloni/tywaves-chisel/wiki/Waveform-GUI:-Tywaves%E2%80%90rs-and-Surfer",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q5-4",
+      "query_id": "Q5",
+      "title": "Support for CI (reruns) with waveform output · Issue #1003 · VUnit/vunit",
+      "url": "https://github.com/VUnit/vunit/issues/1003",
+      "published_as_returned": "2024-03-13T11:02:36.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q6-1",
+      "query_id": "Q6",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on ...",
+      "url": "https://arxiv.org/html/2607.20638v1",
+      "published_as_returned": "2026-07-22T00:00:00.000Z",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R15"
+    },
+    {
+      "id": "Q6-2",
+      "query_id": "Q6",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on ...",
+      "url": "https://arxiv.org/pdf/2607.20638",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q6-3",
+      "query_id": "Q6",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on Digital Waveforms | alphaXiv",
+      "url": "https://www.alphaxiv.org/abs/2607.20638",
+      "published_as_returned": "2026-07-22T00:00:00.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Secondary mirror; original paper used."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q6-4",
+      "query_id": "Q6",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on Digital Waveforms | alphaXiv",
+      "url": "https://www.alphaxiv.org/replicate/2607.20638",
+      "published_as_returned": "2026-07-22T18:10:07.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Secondary replication service and install instructions; not evidence."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q7-1",
+      "query_id": "Q7",
+      "title": "VCD only contains signal definitions when building and running examples/cmake_tracing_sc · Issue #3528 · verilator/verilator",
+      "url": "https://github.com/verilator/verilator/issues/3528",
+      "published_as_returned": "2022-08-04T13:22:59.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Resolved configuration issue; not current gap."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q7-2",
+      "query_id": "Q7",
+      "title": "SIM=Verilator, WAVES=1, COMPILE_ARGS+=--trace no longer produces dump.vcd · Issue #3894 · cocotb/cocotb",
+      "url": "https://github.com/cocotb/cocotb/issues/3894",
+      "published_as_returned": "2024-05-14T18:09:09.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Specific configuration issue; not evidence for a new waveform-analysis product."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q7-3",
+      "query_id": "Q7",
+      "title": "How to generate the waveform of some modules but not all of the system?",
+      "url": "https://github.com/ucb-bar/gemmini/issues/240",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q7-4",
+      "query_id": "Q7",
+      "title": "fix support for verilator dumpfile",
+      "url": "https://github.com/cocotb/cocotb/pull/4591",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Fix contribution; insufficient evidence of remaining gap."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q8-1",
+      "query_id": "Q8",
+      "title": "pystdf/V4.py",
+      "url": "https://github.com/cmars/pystdf/blob/master/pystdf/V4.py",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q8-2",
+      "query_id": "Q8",
+      "title": "V4_2007.py at master · showjim/STDFReader",
+      "url": "https://github.com/showjim/STDFReader/blob/master/V4_2007.py",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q8-3",
+      "query_id": "Q8",
+      "title": "PTR record changes even when just reading and writing under a different filename",
+      "url": "https://github.com/Semi-ATE/STDF/issues/65",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Historical round-trip corruption report; byte-size growth is not by itself semantic corruption."
+      },
+      "adopted_source": "R04"
+    },
+    {
+      "id": "Q8-4",
+      "query_id": "Q8",
+      "title": "docs/source/stdf.rst",
+      "url": "https://github.com/cmars/pystdf/blob/master/docs/source/stdf.rst",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q9-1",
+      "query_id": "Q9",
+      "title": "N/A",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=924090",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q9-2",
+      "query_id": "Q9",
+      "title": "A Comparative Study of Semiconductor Virtual Metrology ...",
+      "url": "https://www.nist.gov/publications/comparative-study-semiconductor-virtual-metrology-methods-and-novel-algorithmic",
+      "published_as_returned": "2025-01-20T00:00:00.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Uncertainty-based dynamic sampling already has an OGP baseline."
+      },
+      "adopted_source": "R20"
+    },
+    {
+      "id": "Q9-3",
+      "query_id": "Q9",
+      "title": "INTERNATIONAL ROADMAP FOR DEVICES AND SYSTEMS TM 2024 METROLOGY | NIST",
+      "url": "https://www.nist.gov/publications/international-roadmap-devices-and-systems-tm-2024-metrology",
+      "published_as_returned": "2025-07-09T12:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q9-4",
+      "query_id": "Q9",
+      "title": "Multiscale Modeling and Validation of Semiconductor Materials and Devices | NIST",
+      "url": "https://www.nist.gov/programs-projects/multiscale-modeling-and-validation-semiconductor-materials-and-devices",
+      "published_as_returned": "2023-10-01T00:00:00.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Device/material multiscale modeling beyond tractable scope of this round."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q10-1",
+      "query_id": "Q10",
+      "title": "Wafer Defect Root Cause Analysis with Partial Trajectory RegressionDM: Big Data Management and Machine Learning",
+      "url": "https://arxiv.org/html/2507.20357",
+      "published_as_returned": "2025-07-27T00:00:00.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Wafer trajectory root-cause research uses NY CREATES data; no usable public root-cause corpus confirmed."
+      },
+      "adopted_source": "R23"
+    },
+    {
+      "id": "Q10-2",
+      "query_id": "Q10",
+      "title": "Fuzzy Inference System for Interpretable Classification of Wafer Map Defect Patterns",
+      "url": "https://doi.org/10.3390/electronics15010130",
+      "published_as_returned": "2025-12-26T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q10-3",
+      "query_id": "Q10",
+      "title": "WM-Graph: Graph-Based Approach for Wafermap Analytics",
+      "url": "https://par.nsf.gov/servlets/purl/10568511",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q10-4",
+      "query_id": "Q10",
+      "title": "howard1205tw/wafer-map-efa",
+      "url": "https://github.com/howard1205tw/wafer-map-efa",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q11-1",
+      "query_id": "Q11",
+      "title": "Contributing and Reporting Bugs — Verilator Devel 5.049 documentation",
+      "url": "https://verilator.org/guide/latest/contributing.html",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Maintainers request minimized reproducers and recommend sv-bugpoint."
+      },
+      "adopted_source": "R26"
+    },
+    {
+      "id": "Q11-2",
+      "query_id": "Q11",
+      "title": "FAQ/Frequently Asked Questions — Verilator Devel 5.047 documentation",
+      "url": "https://verilator.org/guide/latest/faq.html",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "General documentation not needed for selected problem."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q11-3",
+      "query_id": "Q11",
+      "title": "Files — Verilator Devel 5.047 documentation",
+      "url": "https://verilator.org/guide/latest/files.html",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "General file layout not needed."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q11-4",
+      "query_id": "Q11",
+      "title": "Contributors and Origins — Verilator 5.052 documentation",
+      "url": "https://verilator.org/guide/latest/contributors.html",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Contributor list not evidence for a problem."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q12-1",
+      "query_id": "Q12",
+      "title": "Optimizing sv-bugpoint with speculative minimization algorithms",
+      "url": "https://antmicro.com/blog/2026/03/optimizing-sv-bugpoint-with-speculative-minimization-algorithms",
+      "published_as_returned": "2026-03-19T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q12-2",
+      "query_id": "Q12",
+      "title": "GitHub - antmicro/sv-bugpoint",
+      "url": "https://github.com/antmicro/sv-bugpoint",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "SV testcase minimization with check-script generation exists; exclude a generic duplicate."
+      },
+      "adopted_source": "R25"
+    },
+    {
+      "id": "Q12-3",
+      "query_id": "Q12",
+      "title": "README.md",
+      "url": "https://github.com/antmicro/sv-bugpoint/blob/main/README.md",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q12-4",
+      "query_id": "Q12",
+      "title": "Contributing and Reporting Bugs — Verilator 5.052 documentation",
+      "url": "https://verilator.org/guide/latest/contributing.html",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R26"
+    },
+    {
+      "id": "Q13-1",
+      "query_id": "Q13",
+      "title": "Add error on scalar assigned to unpacked struct",
+      "url": "https://github.com/verilator/verilator/issues/7460",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q13-2",
+      "query_id": "Q13",
+      "title": "Fix coroutine calls inside lambdas · Issue #6106 · verilator/verilator",
+      "url": "https://github.com/verilator/verilator/issues/6106",
+      "published_as_returned": "2025-06-21T12:07:16.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q13-3",
+      "query_id": "Q13",
+      "title": "Many string operations cause compile time hang · Issue #3415 · verilator/verilator",
+      "url": "https://github.com/verilator/verilator/issues/3415",
+      "published_as_returned": "2022-05-14T14:51:45.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q14-1",
+      "query_id": "Q14",
+      "title": "README.md at master · fvutils/pyucis",
+      "url": "https://github.com/fvutils/pyucis/blob/master/README.md",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q14-2",
+      "query_id": "Q14",
+      "title": "fvutils/pyucis: Python API to Unified Coverage ... - GitHub",
+      "url": "https://github.com/fvutils/pyucis",
+      "published_as_returned": "2019-12-22T19:23:25.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Coverage import/merge/report already offered; old blanket gap is not a sound premise."
+      },
+      "adopted_source": "R24"
+    },
+    {
+      "id": "Q14-3",
+      "query_id": "Q14",
+      "title": "src/ucis/share/SKILL.md at master · fvutils/pyucis",
+      "url": "https://github.com/fvutils/pyucis/blob/master/src/ucis/share/SKILL.md",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "External skill text not task instructions or evidence."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q14-4",
+      "query_id": "Q14",
+      "title": "pyucis/CONVERSION_PLAN.md at master · fvutils/pyucis · GitHub",
+      "url": "https://github.com/fvutils/pyucis/blob/master/CONVERSION_PLAN.md",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q15-1",
+      "query_id": "Q15",
+      "title": "Semi-ATE/STDF",
+      "url": "https://github.com/semi-ate/stdf",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "MIT code and existing conversion library; not a license grant for issue attachments."
+      },
+      "adopted_source": "R08"
+    },
+    {
+      "id": "Q15-2",
+      "query_id": "Q15",
+      "title": "marklio/LinqToStdf",
+      "url": "https://github.com/marklio/LinqToStdf",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Existing corruption recovery, record filters and summary generation must be considered as alternatives."
+      },
+      "adopted_source": "R13"
+    },
+    {
+      "id": "Q15-3",
+      "query_id": "Q15",
+      "title": "earosenfeld/instrument-data-pipeline",
+      "url": "https://github.com/earosenfeld/instrument-data-pipeline",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q15-4",
+      "query_id": "Q15",
+      "title": "noonchen/stdfFixer",
+      "url": "https://github.com/noonchen/stdfFixer",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Existing incomplete-file repair; distinct from meaning preservation across a conversion."
+      },
+      "adopted_source": "R14"
+    },
+    {
+      "id": "Q16-1",
+      "query_id": "Q16",
+      "title": "PTR record changes even when just reading and writing under a different filename",
+      "url": "https://github.com/Semi-ATE/STDF/issues/65",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R04"
+    },
+    {
+      "id": "Q16-2",
+      "query_id": "Q16",
+      "title": "SDR.py when convert to ATDF is missing SITE_NUM if SITE_NUM is empty, PRR missing P/F flag",
+      "url": "https://github.com/Semi-ATE/STDF/issues/46",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Closed report with subsequent clarification; evidence of representation disagreements, not an unresolved-bug count."
+      },
+      "adopted_source": "R06"
+    },
+    {
+      "id": "Q16-3",
+      "query_id": "Q16",
+      "title": "PRR.to_atdf() Missing field (Retest Code), inconsistency to ATDF Spec",
+      "url": "https://github.com/Semi-ATE/STDF/issues/58",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "PRR retest field omission gives a concrete input/output problem; issue status alone is insufficient."
+      },
+      "adopted_source": "R01"
+    },
+    {
+      "id": "Q16-4",
+      "query_id": "Q16",
+      "title": "Follow up: SDR.py when convert to ATDF is missing SITE_NUM if SITE_NUM is empty, PRR missing P/F flag #46 · Issue #48 · Semi-ATE/STDF",
+      "url": "https://github.com/Semi-ATE/STDF/issues/48",
+      "published_as_returned": "2022-06-20T02:39:16.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Follow-up distinguishes blank, missing and invalid fields; independent specification needed."
+      },
+      "adopted_source": "R07"
+    },
+    {
+      "id": "Q17-1",
+      "query_id": "Q17",
+      "title": "noonchen/STDF-Viewer",
+      "url": "https://github.com/noonchen/stdf-viewer",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q17-2",
+      "query_id": "Q17",
+      "title": "STDF Viewer V4.0.0",
+      "url": "https://github.com/noonchen/STDF-Viewer/releases/tag/V4.0.0",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Merge, comparison and superseded-DUT handling already shipped; excludes generic STDF dashboard as an open gap."
+      },
+      "adopted_source": "R12"
+    },
+    {
+      "id": "Q17-3",
+      "query_id": "Q17",
+      "title": "Search code, repositories, users, issues, pull requests...",
+      "url": "https://github.com/noonchen/STDF-Viewer/blob/main/README.md",
+      "published_as_returned": "2020-12-13T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q17-4",
+      "query_id": "Q17",
+      "title": "STDF-Viewer.py at main · noonchen/STDF-Viewer",
+      "url": "https://github.com/noonchen/STDF-Viewer/blob/main/STDF-Viewer.py",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "GUI implementation not needed beyond inspected release capability."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q18-1",
+      "query_id": "Q18",
+      "title": "cxzzzz/wavekit-mcp",
+      "url": "https://github.com/cxzzzz/wavekit-mcp",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Temporal pattern querying and bounded outputs already exist; raw-waveform versus new-tool alone is an inadequate baseline."
+      },
+      "adopted_source": "R16"
+    },
+    {
+      "id": "Q18-2",
+      "query_id": "Q18",
+      "title": "hudson-trading/wavetools",
+      "url": "https://github.com/hudson-trading/wavetools",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Waveform filtering and diff already exist; compare or reuse instead of assuming their absence."
+      },
+      "adopted_source": "R17"
+    },
+    {
+      "id": "Q18-3",
+      "query_id": "Q18",
+      "title": "fvutils/pywellen-mcp",
+      "url": "https://github.com/fvutils/pywellen-mcp",
+      "published_as_returned": "2026-02-07T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q18-4",
+      "query_id": "Q18",
+      "title": "jiegec/waveform-mcp",
+      "url": "https://github.com/jiegec/waveform-mcp",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q19-1",
+      "query_id": "Q19",
+      "title": "fix bug in byte unpack to be consistent with pack byte, enhance method name in error/debug report · Pull Request #66 · Semi-ATE/STDF",
+      "url": "https://github.com/Semi-ATE/STDF/pull/66",
+      "published_as_returned": "2024-09-28T07:08:33.000Z",
+      "screening": {
+        "decision": "include",
+        "reason": "Merged 2024-12-20; counterevidence against treating the reported bit bug as currently unresolved."
+      },
+      "adopted_source": "R05"
+    },
+    {
+      "id": "Q20-1",
+      "query_id": "Q20",
+      "title": "PRR.to_atdf() Missing field (Retest Code), inconsistency to ATDF Spec",
+      "url": "https://github.com/Semi-ATE/STDF/issues/58",
+      "published_as_returned": "2023-02-07T00:00:00.000Z",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R01"
+    },
+    {
+      "id": "Q20-2",
+      "query_id": "Q20",
+      "title": "Update PRR.py",
+      "url": "https://github.com/Semi-ATE/STDF/pull/59",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Proposed repair exists; evaluate current main before deciding any remaining work."
+      },
+      "adopted_source": "R02"
+    },
+    {
+      "id": "Q20-3",
+      "query_id": "Q20",
+      "title": "Follow up: SDR.py when convert to ATDF is missing SITE_NUM if SITE_NUM is empty, PRR missing P/F flag #46 · Issue #48 · Semi-ATE/STDF",
+      "url": "https://github.com/Semi-ATE/STDF/issues/48",
+      "published_as_returned": "2022-06-20T02:39:16.000Z",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R07"
+    },
+    {
+      "id": "Q21-1",
+      "query_id": "Q21",
+      "title": "Standard Test Data Format (STDF) V4 - 2007 Specification",
+      "url": "https://www.roos.com/roos/documentation.nsf/3d6a93a7e05462cf85256a9c007dcaf3/92102f712ce51df48825783800832332/$FILE/STDF%20Spec%20V4%202007.pdf",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q21-2",
+      "query_id": "Q21",
+      "title": "qtdf v0.3.0",
+      "url": "https://pypi.org/project/qtdf/",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Different quantum-test format; wrong problem."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q21-3",
+      "query_id": "Q21",
+      "title": "STDF & Svelte v5: Practical Patterns for Reusable Composite Components - פרופ' אהוד אטון",
+      "url": "https://shoulder.co.il/stdf-svelte-v5-practical-patterns-for-reusable-composite-components/",
+      "published_as_returned": "2025-10-10T00:00:00.000Z",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Svelte acronym collision; irrelevant."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q22-1",
+      "query_id": "Q22",
+      "title": "TSC692E Floating Point Unit",
+      "url": "http://www.pldworld.com/_hdl/1/estec.esa.nl/ftp/pub/ws/wsd/erc32/doc/tsc692e.pdf",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "exclude",
+        "reason": "Instruction-name acronym collision; irrelevant."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q23-1",
+      "query_id": "Q23",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on ...",
+      "url": "https://arxiv.org/abs/2607.20638",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q23-2",
+      "query_id": "Q23",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on ...",
+      "url": "https://arxiv.org/pdf/2607.20638",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q23-3",
+      "query_id": "Q23",
+      "title": "WaveformQA: Benchmarking LLM Temporal Reasoning on ...",
+      "url": "https://arxiv.org/html/2607.20638v1",
+      "published_as_returned": "2026-07-22T00:00:00.000Z",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R15"
+    },
+    {
+      "id": "Q24-1",
+      "query_id": "Q24",
+      "title": "PHM Data Challenge",
+      "url": "https://phmsociety.org/conference/annual-conference-of-the-phm-society/annual-conference-of-the-prognostics-and-health-management-society-2016/phm-data-challenge-4/",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "Time series, wafer/stage and removal-rate task described; files and usage terms not downloaded/verified."
+      },
+      "adopted_source": "R22"
+    },
+    {
+      "id": "Q24-2",
+      "query_id": "Q24",
+      "title": "2016 PHM Data Challenge Announcement - Data Link.html",
+      "url": "https://phmsociety.org/wp-content/uploads/2016/05/PHM16DataChallengeCFP.pdf",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q24-3",
+      "query_id": "Q24",
+      "title": "Data-driven Approach to Material Removal Rate Prediction in Chemical Mechanical Polishing",
+      "url": "https://doi.org/10.36001/phmconf.2018.v10i1.489",
+      "published_as_returned": "2018-09-24T00:00:00.000Z",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q25-1",
+      "query_id": "Q25",
+      "title": "SDR.py when convert to ATDF is missing SITE_NUM if SITE_NUM is empty, PRR missing P/F flag",
+      "url": "https://github.com/Semi-ATE/STDF/issues/46",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R06"
+    },
+    {
+      "id": "Q25-2",
+      "query_id": "Q25",
+      "title": "86aaaac fix: tolerate legacy CP-1252/ANSI bytes in C*n string fields (closes #77)",
+      "url": "https://github.com/Semi-ATE/STDF/commit/86aaaace41ad121e6014c2295a5fedf73056108d",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "background_not_used",
+        "reason": "Relevant background or overlapping source; not used for decision without deeper verification."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q25-3",
+      "query_id": "Q25",
+      "title": "tests/test_MPR.py",
+      "url": "https://github.com/Semi-ATE/STDF/blob/main/tests/test_MPR.py",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "include",
+        "reason": "One MPR test marked skipped; motivates checking coverage, not proof of a present data corruption bug."
+      },
+      "adopted_source": "R09"
+    },
+    {
+      "id": "Q26-1",
+      "query_id": "Q26",
+      "title": "PRR.to_atdf() Missing field (Retest Code), inconsistency to ATDF Spec",
+      "url": "https://github.com/Semi-ATE/STDF/issues/58",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R01"
+    },
+    {
+      "id": "Q26-2",
+      "query_id": "Q26",
+      "title": "Standard Test Data Format (STDF) V4 - 2007 Specification",
+      "url": "https://www.roos.com/roos/documentation.nsf/3d6a93a7e05462cf85256a9c007dcaf3/92102f712ce51df48825783800832332/$FILE/STDF%20Spec%20V4%202007.pdf",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": null
+    },
+    {
+      "id": "Q26-3",
+      "query_id": "Q26",
+      "title": "SDR.py when convert to ATDF is missing SITE_NUM if SITE_NUM is empty, PRR missing P/F flag",
+      "url": "https://github.com/Semi-ATE/STDF/issues/46",
+      "published_as_returned": "N/A",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R06"
+    },
+    {
+      "id": "Q27-1",
+      "query_id": "Q27",
+      "title": "Benchmarking LLM Temporal Reasoning on Digital Waveforms - arXiv",
+      "url": "https://arxiv.org/html/2607.20638v1",
+      "published_as_returned": "2026-07-22T00:00:00.000Z",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": "R15"
+    },
+    {
+      "id": "Q27-2",
+      "query_id": "Q27",
+      "title": "[PDF] Benchmarking LLM Temporal Reasoning on Digital Waveforms - arXiv",
+      "url": "https://arxiv.org/pdf/2607.20638",
+      "published_as_returned": "2026-07-22T00:00:00.000Z",
+      "screening": {
+        "decision": "duplicate_url",
+        "reason": "Same normalized URL already screened; source metadata retained."
+      },
+      "adopted_source": null
+    }
+  ],
+  "adopted_sources": [
+    {
+      "id": "R01",
+      "url": "https://github.com/Semi-ATE/STDF/issues/58",
+      "review_level": "open issue extract; historical report, latest runtime not reproduced",
+      "claim_and_limit": "PRR retest field omission gives a concrete input/output problem; issue status alone is insufficient."
+    },
+    {
+      "id": "R02",
+      "url": "https://github.com/Semi-ATE/STDF/pull/59",
+      "review_level": "open draft PR extract; not interpreted as merged",
+      "claim_and_limit": "Proposed repair exists; evaluate current main before deciding any remaining work."
+    },
+    {
+      "id": "R03",
+      "url": "https://github.com/Semi-ATE/STDF/blob/main/Semi_ATE/STDF/PRR.py",
+      "review_level": "source extract only; unpinned main",
+      "claim_and_limit": "No empty-field branch visible for both retest bits unset; static inference requires runtime verification."
+    },
+    {
+      "id": "R04",
+      "url": "https://github.com/Semi-ATE/STDF/issues/65",
+      "review_level": "full issue extract",
+      "claim_and_limit": "Historical round-trip corruption report; byte-size growth is not by itself semantic corruption."
+    },
+    {
+      "id": "R05",
+      "url": "https://github.com/Semi-ATE/STDF/pull/66",
+      "review_level": "search returned PR metadata and explanation",
+      "claim_and_limit": "Merged 2024-12-20; counterevidence against treating the reported bit bug as currently unresolved."
+    },
+    {
+      "id": "R06",
+      "url": "https://github.com/Semi-ATE/STDF/issues/46",
+      "review_level": "issue and comments extract",
+      "claim_and_limit": "Closed report with subsequent clarification; evidence of representation disagreements, not an unresolved-bug count."
+    },
+    {
+      "id": "R07",
+      "url": "https://github.com/Semi-ATE/STDF/issues/48",
+      "review_level": "search returned issue discussion",
+      "claim_and_limit": "Follow-up distinguishes blank, missing and invalid fields; independent specification needed."
+    },
+    {
+      "id": "R08",
+      "url": "https://github.com/Semi-ATE/STDF",
+      "review_level": "repository extract",
+      "claim_and_limit": "MIT code and existing conversion library; not a license grant for issue attachments."
+    },
+    {
+      "id": "R09",
+      "url": "https://github.com/Semi-ATE/STDF/blob/main/tests/test_MPR.py",
+      "review_level": "source extract",
+      "claim_and_limit": "One MPR test marked skipped; motivates checking coverage, not proof of a present data corruption bug."
+    },
+    {
+      "id": "R10",
+      "url": "https://www.yieldhub.com/blogs/standardising-stdf-metadata",
+      "review_level": "vendor article extract",
+      "claim_and_limit": "Supplier reports concrete lot/run-type input problems and existing services; not independent customer adoption evidence."
+    },
+    {
+      "id": "R11",
+      "url": "https://www.yieldhub.com/blogs/stdf-datalog-analysis-taking-rescreen-into-account",
+      "review_level": "vendor article extract",
+      "claim_and_limit": "Existing consolidation capability and dependence on run metadata; do not adopt vendor policy as universal STDF semantics."
+    },
+    {
+      "id": "R12",
+      "url": "https://github.com/noonchen/STDF-Viewer/releases/tag/V4.0.0",
+      "review_level": "release notes extract",
+      "claim_and_limit": "Merge, comparison and superseded-DUT handling already shipped; excludes generic STDF dashboard as an open gap."
+    },
+    {
+      "id": "R13",
+      "url": "https://github.com/marklio/LinqToStdf",
+      "review_level": "repository extract",
+      "claim_and_limit": "Existing corruption recovery, record filters and summary generation must be considered as alternatives."
+    },
+    {
+      "id": "R14",
+      "url": "https://github.com/noonchen/stdfFixer",
+      "review_level": "search returned README",
+      "claim_and_limit": "Existing incomplete-file repair; distinct from meaning preservation across a conversion."
+    },
+    {
+      "id": "R15",
+      "url": "https://arxiv.org/html/2607.20638v1",
+      "review_level": "paper extraction up to 42000 characters; no local experiments",
+      "claim_and_limit": "Waveform temporal query benchmark and machine-generated answers; code link retrieval unsuccessful."
+    },
+    {
+      "id": "R16",
+      "url": "https://github.com/cxzzzz/wavekit-mcp",
+      "review_level": "repository extract",
+      "claim_and_limit": "Temporal pattern querying and bounded outputs already exist; raw-waveform versus new-tool alone is an inadequate baseline."
+    },
+    {
+      "id": "R17",
+      "url": "https://github.com/hudson-trading/wavetools",
+      "review_level": "repository extract",
+      "claim_and_limit": "Waveform filtering and diff already exist; compare or reuse instead of assuming their absence."
+    },
+    {
+      "id": "R18",
+      "url": "https://github.com/minhluu2000/mlcad2025_vcdiag",
+      "review_level": "repository extract",
+      "claim_and_limit": "Pre-generated waveforms offered; simulation/commercial dependency and injected-bug limits remain."
+    },
+    {
+      "id": "R19",
+      "url": "https://github.com/pku-liang/hwe-bench",
+      "review_level": "repository extract",
+      "claim_and_limit": "Public repair tasks and fail-to-pass harness; Linux/Docker storage and VCS requirements constrain local feasibility."
+    },
+    {
+      "id": "R20",
+      "url": "https://www.nist.gov/publications/comparative-study-semiconductor-virtual-metrology-methods-and-novel-algorithmic",
+      "review_level": "NIST abstract and bibliographic page",
+      "claim_and_limit": "Uncertainty-based dynamic sampling already has an OGP baseline."
+    },
+    {
+      "id": "R21",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=958452",
+      "review_level": "paper extraction limited to 18000 characters",
+      "claim_and_limit": "Prior study and data assumptions, not full-paper replication or confirmed code availability."
+    },
+    {
+      "id": "R22",
+      "url": "https://phmsociety.org/conference/annual-conference-of-the-phm-society/annual-conference-of-the-prognostics-and-health-management-society-2016/phm-data-challenge-4/",
+      "review_level": "organizer page extract",
+      "claim_and_limit": "Time series, wafer/stage and removal-rate task described; files and usage terms not downloaded/verified."
+    },
+    {
+      "id": "R23",
+      "url": "https://arxiv.org/html/2507.20357",
+      "review_level": "paper extraction limited to 9500 characters",
+      "claim_and_limit": "Wafer trajectory root-cause research uses NY CREATES data; no usable public root-cause corpus confirmed."
+    },
+    {
+      "id": "R24",
+      "url": "https://github.com/fvutils/pyucis",
+      "review_level": "repository extract",
+      "claim_and_limit": "Coverage import/merge/report already offered; old blanket gap is not a sound premise."
+    },
+    {
+      "id": "R25",
+      "url": "https://github.com/antmicro/sv-bugpoint",
+      "review_level": "repository extract",
+      "claim_and_limit": "SV testcase minimization with check-script generation exists; exclude a generic duplicate."
+    },
+    {
+      "id": "R26",
+      "url": "https://verilator.org/guide/latest/contributing.html",
+      "review_level": "search returned official documentation",
+      "claim_and_limit": "Maintainers request minimized reproducers and recommend sv-bugpoint."
+    },
+    {
+      "id": "R27",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/9781",
+      "review_level": "search returned issue plus resolution discussion",
+      "claim_and_limit": "Specific timing non-determinism report closed; not current unaddressed demand."
+    },
+    {
+      "id": "R28",
+      "url": "https://github.com/The-OpenROAD-Project/OpenROAD/issues/5636",
+      "review_level": "search returned issue",
+      "claim_and_limit": "Open timing degradation example; algorithmic issue, not proof of need for another report viewer."
+    }
+  ],
+  "fetches": [
+    {
+      "id": "F1",
+      "requested_urls": [
+        "https://github.com/Semi-ATE/STDF/issues/65",
+        "https://github.com/Semi-ATE/STDF/issues/58",
+        "https://github.com/Semi-ATE/STDF/issues/46"
+      ],
+      "max_characters_per_page": 9000,
+      "returned_citation_count": 3,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F2",
+      "requested_urls": [
+        "https://github.com/marklio/LinqToStdf",
+        "https://github.com/Semi-ATE/STDF",
+        "https://github.com/noonchen/STDF-Viewer/releases/tag/V4.0.0"
+      ],
+      "max_characters_per_page": 6500,
+      "returned_citation_count": 3,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F3",
+      "requested_urls": [
+        "https://www.nist.gov/publications/comparative-study-semiconductor-virtual-metrology-methods-and-novel-algorithmic",
+        "https://arxiv.org/html/2607.20638v1",
+        "https://arxiv.org/html/2507.20357"
+      ],
+      "max_characters_per_page": 9500,
+      "returned_citation_count": 3,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F4",
+      "requested_urls": [
+        "https://github.com/Semi-ATE/STDF/pull/59",
+        "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=958452"
+      ],
+      "max_characters_per_page": 18000,
+      "returned_citation_count": 2,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F5",
+      "requested_urls": [
+        "https://github.com/cxzzzz/wavekit-mcp",
+        "https://github.com/hudson-trading/wavetools",
+        "https://github.com/minhluu2000/mlcad2025_vcdiag"
+      ],
+      "max_characters_per_page": 7000,
+      "returned_citation_count": 3,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F6",
+      "requested_urls": [
+        "https://github.com/Semi-ATE/STDF/blob/main/Semi_ATE/STDF/PRR.py",
+        "https://github.com/Semi-ATE/STDF/blob/main/tests/test_MPR.py"
+      ],
+      "max_characters_per_page": 18000,
+      "returned_citation_count": 2,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F7",
+      "requested_urls": [
+        "https://arxiv.org/html/2607.20638v1",
+        "https://phmsociety.org/conference/annual-conference-of-the-phm-society/annual-conference-of-the-prognostics-and-health-management-society-2016/phm-data-challenge-4/"
+      ],
+      "max_characters_per_page": 42000,
+      "returned_citation_count": 2,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F8",
+      "requested_urls": [
+        "https://www.yieldhub.com/blogs/standardising-stdf-metadata",
+        "https://www.yieldhub.com/blogs/stdf-datalog-analysis-taking-rescreen-into-account",
+        "https://github.com/fvutils/pyucis",
+        "https://github.com/antmicro/sv-bugpoint"
+      ],
+      "max_characters_per_page": 6000,
+      "returned_citation_count": 4,
+      "accepted": true,
+      "missing_urls": []
+    },
+    {
+      "id": "F9",
+      "requested_urls": [
+        "https://github.com/tenstorrent/waveformqa",
+        "https://github.com/pku-liang/hwe-bench"
+      ],
+      "max_characters_per_page": 13500,
+      "returned_citation_count": 1,
+      "accepted": true,
+      "missing_urls": [
+        "https://github.com/tenstorrent/waveformqa"
+      ]
+    }
+  ],
+  "availability_findings": [
+    {
+      "url": "https://github.com/tenstorrent/waveformqa",
+      "result": "CRAWL_NOT_FOUND via exa; not proof of deletion or private status",
+      "followup_queries": [
+        "Q27"
+      ],
+      "status": "public code access and license unconfirmed"
+    }
+  ],
+  "selection": {
+    "recommended_problem": "P1: preservation of test-result meaning during STDF/ATDF conversion",
+    "decision": "prioritize_for_validation_only",
+    "implementation_approved": false,
+    "novelty_or_product_gap": "unconfirmed"
+  }
+}

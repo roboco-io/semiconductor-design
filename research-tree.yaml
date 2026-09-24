@@ -1,18 +1,105 @@
-# Research Tree — 사이클 3 (2026-08-25 오후 시작)
+# Research Tree — 2026-09-24 공개 근거 재조사 + 기존 탐색·가설 보존
 # 이전: tag archive/eda-harness-cycle-2026-08-25 (하네스 연구), archive/pre-eda-zerobase-pivot-2026-08-25 (구 바이브코딩 INTENT)
 # 이전 사이클 자산을 근거로 사용 금지
 
 project:
-  title: "반도체 설계에 유용한 SW/모델의 바이브 코딩 개발 — 4트랙 병렬 (A:실험추적+QoR, B:STA분석기, C:플로우닥터, D:IR drop 모델)"
-  domain: "EDA 실용 소프트웨어/모델 개발 (vibe coding)"
+  title: "반도체 기업에 유용한 SW/모델 — 설계·검증·공정·수율·테스트 문제 발굴"
+  domain: "반도체 기업 업무의 문제 발굴과 소프트웨어·모델 효용 검증"
   started: "2026-08-25"
   status: active
+  intent_path: "INTENT.md"
+  current_phase: "literature_survey"
+  direction_updated: "2026-09-10"
+  research_restarted: "2026-09-24"
 
-# Operator가 고정한 의도 (2026-08-25):
+# 아래는 설계 분야 선행 탐색 당시의 의도 (2026-08-25):
 # "핵심은 반도체 설계에 있어서 유용한 소프트웨어 또는 모델을 바이브 코딩 기법으로 개발하는 것"
 # → 연구 산출물 = 설계 현장에 실제 쓸모 있는 소프트웨어/모델. 바이브 코딩은 개발 방법.
 
 field_understanding:
+  scope: "2026-09-24 공개 근거 재조사; EXPLORATORY, 현업 접근 없음"
+  sota_summary: >
+    기존 후보의 기능 중 커버리지 통합(pyucis), RTL 오류 입력 축소(sv-bugpoint),
+    파형 질의·비교, STDF 병합·집계, 불확실성 기반 공정 실측 선택은 이미 대안이 있다.
+    구체적인 공개 신고와 소스가 있는 STDF→ATDF 검사 결과 의미 보존(P1)을
+    먼저 검증하도록 제안한다. 수정된 비트 오류는 현재 공백으로 세지 않으며,
+    최신 코드 실행·원 명세 대조·독립 도구의 추가 가치는 아직 미확인이다.
+    제품 수요나 특정 기업 도입 의사는 확인되지 않았다.
+  evidence_path: "literature/problem-selection-2026-09-24.md"
+  search_log_path: "literature/raw/07-problem-selection-search-log.json"
+  key_papers:
+    - {id: "R15", title: "WaveformQA: Benchmarking LLM Temporal Reasoning on Digital Waveforms", year: 2026, relevance: "파형 시간 질의의 공개 평가 후보; 코드 접근 미확인"}
+    - {id: "R20", title: "A Comparative Study of Semiconductor Virtual Metrology Methods and Novel Algorithmic Framework for Dynamic Sampling", year: 2025, relevance: "불확실성 기반 동적 실측의 기존 비교자"}
+    - {id: "R23", title: "Wafer Defect Root Cause Analysis with Partial Trajectory Regression", year: 2025, relevance: "실제 fab 경로 데이터가 필요한 원인 추적 연구"}
+  open_problems:
+    - "최신 STDF 변환기에서도 빈 재시험 필드의 의미 손실이 재현되는가?"
+    - "기존 라이브러리 수정으로 충분한가, 독립 검사 도구가 필요한 반복 사례가 있는가?"
+    - "파형·CMP 후보의 실제 파일·사용 조건·로컬 평가 경로를 확보할 수 있는가?"
+    - "공개 기술 평가가 개선하는 실제 업무 판단은 무엇인가?"
+  underexplored_areas:
+    - "아직 미확정: 검색에서 발견하지 못한 기능을 부재로 주장하지 않는다."
+
+problem_selection:
+  status: "exploratory"
+  reviewed_on: "2026-09-24"
+  data_access: "public_only; 사용자 확인, 현업 접근 없음"
+  decision_path: "issues/003-problem-selection-restart.md"
+  evidence_path: "literature/problem-selection-2026-09-24.md"
+  selected_for_validation: P1
+  selection_authority: "조사자 권고; 구현 대상의 사용자 승인 아님"
+  recommended_validation_order: [P1, P2, P3]
+  product_gap: "unconfirmed"
+  implementation_approved: false
+  next_gate: "P1 원 명세·현재 SHA·수정 적용 여부 확인 후 기존 도구 재현; 새 구현 전 protocol LOCK"
+  candidates:
+    - {id: P1, domain: "테스트", problem: "STDF→ATDF 검사 결과 의미 보존", prior_related: [O7], status: "prioritize_for_validation", sources: [R01, R02, R03, R05, R10, R12, R13]}
+    - {id: P2, domain: "검증", problem: "파형의 시간 관계를 정확히 확인", prior_related: [O2], status: "access_and_baseline_unconfirmed", sources: [R15, R16, R17, R18]}
+    - {id: P3, domain: "공정", problem: "조건 변화 후 예측 신뢰도와 실측 판단", prior_related: [O3], status: "data_gate", sources: [R20, R21, R22]}
+    - {id: P4, domain: "설계", problem: "설계 변경 후 타이밍 악화 조사", prior_related: [O1], status: "remaining_work_unconfirmed", sources: [R27, R28]}
+    - {id: P5, domain: "수율", problem: "공정 경로와 결함 원인 연결", prior_related: [O5, O6], status: "data_gate", sources: [R23]}
+    - {id: P6, domain: "검증·도구", problem: "RTL 오류 입력 축소", status: "generic_duplicate_excluded", sources: [R25, R26]}
+    - {id: P7, domain: "검증", problem: "커버리지 통합", status: "generic_duplicate_excluded", sources: [R24]}
+    - {id: P8, domain: "검증", problem: "저장소 수준 RTL 버그 자동 수정", prior_related: [O2], status: "lower_priority_environment_gate", sources: [R19]}
+
+prior_industry_field_understanding:
+  scope: "2026-09-10 전 분야 1차 탐색; 체계적 문헌고찰·현업 검증 미완료"
+  sota_summary: >
+    기업·원저자 자료에서 설계 타이밍 분석, 검증 디버깅, 공정 가상 계측,
+    장비 고장 복구, 수율 원인 분석, 적응형 테스트의 기존 투자를 확인했다.
+    기존 기능의 부재를 가정하지 않고 실제 업무의 미충족 부분을 검증해야 한다.
+    공개 버그·SECOM·WM-811K·PHM CMP는 기술 검증 후보이나 데이터 접근·조건과
+    현업 전이 가능성은 별도 관문이다. 특정 기업의 도입 의사는 확인되지 않았다.
+  evidence_path: "literature/industry-opportunities.md"
+  search_log_path: "literature/raw/06-industry-search-log.json"
+  key_papers:
+    - {id: "S1", title: "NVIDIA Marco chip design framework", year: 2025, relevance: "산업 타이밍 분석의 기존 접근"}
+    - {id: "S3", title: "SK hynix and Gauss Labs SPIE AL 2026 announcement", year: 2026, relevance: "공정 예측·장비 간 매칭의 산업 근거"}
+    - {id: "S4", title: "Development of Autonomous Failure Maintenance System for Semiconductor Manufacturing", year: 2025, relevance: "장비 복구의 내부 적용 사례"}
+  open_problems:
+    - "어느 조직의 어떤 업무에서 기존 도구로 해결되지 않는 손실이 있는가?"
+    - "공개 데이터로 평가할 수 있는 범위와 현업 데이터가 필요한 범위는 어디인가?"
+    - "정답·시간·장비·lot 식별자와 사용 조건을 확보할 수 있는가?"
+  underexplored_areas:
+    - "아직 미확정: 새 공백을 주장하기 전에 기존 대안과 현업 작업을 비교한다."
+
+opportunity_discovery:
+  as_of: "2026-09-10"
+  scope: "이전 조사 기록; 현재 우선순위는 problem_selection 참조"
+  status: "exploratory"
+  decision_path: "issues/002-industry-problem-discovery.md"
+  implementation_approved: false
+  proposed_followup_order: [O2, O3, O7]
+  candidates:
+    - {id: O1, domain: "설계", problem: "타이밍 변경 근거 추적", sources: [S1], next_gate: "현행 도구 대비 미충족 작업"}
+    - {id: O2, domain: "검증", problem: "실패 재현·진단 지원", sources: [S2, S10, S13], next_gate: "로컬 재현과 실제 작업 정의"}
+    - {id: O3, domain: "공정", problem: "예측 신뢰도와 추가 실측 판단", sources: [S3, S9, S12, S15], next_gate: "데이터 접근·조건·시간 분리"}
+    - {id: O4, domain: "공정·설비", problem: "고장 원인과 복구 절차 탐색", sources: [S4], next_gate: "조치와 결과가 연결된 장비 데이터"}
+    - {id: O5, domain: "수율", problem: "전기적 불량과 공정·결함 이력 연결", sources: [S5, S7, S14], next_gate: "원인 정답과 연결 데이터"}
+    - {id: O6, domain: "수율", problem: "유사 웨이퍼 사례·미지 패턴 구분", sources: [S8], next_gate: "분류 점수를 넘는 현업 효용"}
+    - {id: O7, domain: "테스트", problem: "lot/site/재시험 결과 차이 분석", sources: [S6, S11], next_gate: "대표 표본과 기존 도구의 한계"}
+
+prior_design_field_understanding:
+  scope: "2026-08-25 설계 분야 조사 당시의 판단; 최신 공백 주장으로 사용하지 않음"
   sota_summary: >
     오픈소스 EDA는 엔진 계층(OpenROAD/LibreLane/Verilator/cocotb)은 성숙했으나
     해석(타이밍 리포트·실패 로그)·검증 관리(커버리지 통합·회귀 triage)·실험 관리
