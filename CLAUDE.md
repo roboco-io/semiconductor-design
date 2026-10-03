@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 최상위 의도: [`INTENT.md`](INTENT.md). 엔비디아·삼성전자·SK하이닉스 같은 반도체 기업에 유용한 SW/모델을 만듭니다.
 - 범위는 **설계·검증·공정·수율·테스트 전반의 문제 발굴부터**입니다. 아래 사이클 3의 A/B/C/D는 설계 분야 선행 탐색이며 프로젝트 전체 범위가 아닙니다.
 - 사용자 조건(2026-09-24): 현업 접근 경로는 **현재 없음 — 공개 자료로 조사**. 조사와 해결할 문제 선정부터 다시 진행합니다. [`issues/003`](issues/003-problem-selection-restart.md).
-- 현재 작업: [`literature/problem-selection-2026-09-24.md`](literature/problem-selection-2026-09-24.md)의 공개 근거·기존 대안 비교. P1(STDF→ATDF 검사 결과 의미 보존)은 조사자의 우선 검증 제안이며, 최신 실행·명세 대조와 별도 도구의 가치 확인이 남아 있습니다. 후보 추천을 사용자 승인 또는 구현 착수로 취급하지 않습니다.
+- 현재 작업: [`literature/problem-selection-2026-09-24.md`](literature/problem-selection-2026-09-24.md)의 공개 근거·기존 대안 비교. 사용자가 2026-10-03 P1(STDF→ATDF 검사 결과 의미 보존) 진행을 선택했고, 첫 재현은 [`literature/p1-prr-retest-repro-2026-10-03.md`](literature/p1-prr-retest-repro-2026-10-03.md). 원 명세 대조와 별도 도구의 가치 확인이 남아 있습니다. 후보 추천을 사용자 승인 또는 구현 착수로 취급하지 않습니다.
 - 9월 10일 [`전 분야 1차 조사`](literature/industry-opportunities.md)의 O2→O3→O7은 당시 제안으로 보존하며 현재 우선순위로 자동 승계하지 않습니다.
 - 공개 벤치마크 성능, 기업의 공개 기술 사례, 특정 기업의 미충족 수요·도입 의사를 구분합니다. 과거의 "공백/무주공산" 주장은 해당 조사 시점의 판단으로만 취급하고 다시 확인합니다.
 - 기존 가설·LOCKED protocol·결과는 보존합니다. 이번 재조사는 실행 중단, 후속 가설 승인, 실험 결과 변경을 뜻하지 않습니다.
